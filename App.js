@@ -2,7 +2,9 @@
 
 import { NavigationContainer } from "@react-navigation/native"
 import Dashboard from "./pages/dashboard"
+import Chat from "./pages/chat"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
+import ChatScreen from "./pages/chat";
 
 
 
@@ -12,6 +14,7 @@ function MyTabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Dashboard" component={Dashboard}/>
+        <Tab.Screen name="Chat" component={ChatScreen}/>
     </Tab.Navigator>
   )
 }

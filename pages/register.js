@@ -1,30 +1,39 @@
 import { useState } from "react";
 import { View, StyleSheet, Image } from "react-native";
-import { auth } from "../firebaseConfig";
+import {auth, db} from "../firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { Button, TextInput } from "react-native-paper";
+import { doc, setDoc} from "firebase/firestore"
+import {getFirestore} from "firebase/firestore";
 
 
 export default function Register ({setUser}) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [displayname, setDisplayname] = useState('');
 
-    const registerPressed = () => {
+    const registerPressed = async () => {
         console.log("Register button pressed");
 
-        createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             console.log(`User has been registered: ${user.email}`);
 
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                displayname,
+            });
+
             signIn();
-        })
-        .catch((error) => {
+        } catch (error) {
             const errorCode = error.code;
             const errorMessage = error.message;
-        });
+        }
     }
+
+
 
     const signIn = () => {
         signInWithEmailAndPassword(auth, email, password)
@@ -51,6 +60,14 @@ export default function Register ({setUser}) {
     return (
       <View style={styles.container}>
         <Image source={require("../icons/logo_light.png")} style={styles.logo}/>
+
+          <TextInput
+              mode="outlined"
+              label="displayname"
+              value={displayname}
+              onChangeText={setDisplayname}
+              style={styles.register_field}
+          />
         <TextInput
             mode="outlined"
             label="Email"
@@ -58,6 +75,7 @@ export default function Register ({setUser}) {
             onChangeText={setEmail}
             style={styles.register_field}
         />
+
         <TextInput
             mode="outlined"
             label="Password"
