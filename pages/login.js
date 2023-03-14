@@ -58,8 +58,8 @@ const Login = ({setUser}) => {
             icon="login" 
             mode="contained" 
             onPress={loginUser} 
-            buttonColor="#357266" 
-            textColor='#D0DCD4'
+            //buttonColor="#357266" 
+            //textColor='#D0DCD4'
             marginTop={10}
         >
         Login
@@ -76,12 +76,12 @@ const Login = ({setUser}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0E3B43',
+        //backgroundColor: '#0E3B43',
         alignItems: 'center',
         justifyContent: 'center',
     },
     login_field: {
-        backgroundColor: '#D0DCD4',
+        //backgroundColor: '#D0DCD4',
         width: 250,
     },
     logo: {
