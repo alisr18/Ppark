@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { Avatar, List } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {useNavigation } from '@react-navigation/native';
+import ChatScreen from "./chatscreen";
 
 
 
@@ -16,10 +18,10 @@ const ChatOverviewScreen = () => {
         { id: 3, name: 'Bob', message: 'What are you up to?',},
     ]);
 
+    const navigation = useNavigation();
     const handleChatPress = (chat) => {
-        // Navigate to the chat screen with the selected chat
+        navigation.navigate('ChatScreen', { chat });
     };
-
     return (
         <SafeAreaView style={styles.container}>
             <List.Section style={styles.listSection}>
