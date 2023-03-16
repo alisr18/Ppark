@@ -7,12 +7,19 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import ChatScreen from "./pages/chatscreen";
 import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
+import Profile from "./pages/profile";
+import Account from "./pages/account";
+import Cars from "./pages/cars";
+import Parking from "./pages/parking";
+import Settings from "./pages/settings";
+import History from "./pages/history";
 
 
 
 
 const Tab = createBottomTabNavigator()
 const ChatStack = createStackNavigator();
+const ProfileStack = createStackNavigator();
 
 function ChatStackNavigator() {
     return (
@@ -23,13 +30,25 @@ function ChatStackNavigator() {
     );
 }
 
-
+function ProfileStackNavigator() {
+  return(
+    <ProfileStack.Navigator screenOptions={{headerShown: false}}>
+      <ProfileStack.Screen name="ProfileScreen" component={Profile}/>
+      <ProfileStack.Screen name="Account" component={Account}/>
+      <ProfileStack.Screen name="Cars" component={Cars}/>
+      <ProfileStack.Screen name="Parking" component={Parking}/>
+      <ProfileStack.Screen name="Settings" component={Settings}/>
+      <ProfileStack.Screen name="History" component={History}/>
+    </ProfileStack.Navigator>
+  );
+}
 
 function MyTabs() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{headerShown: false}}>
+      <Tab.Screen name="Chat" component={ChatStackNavigator}/>
       <Tab.Screen name="Dashboard" component={Dashboard}/>
-        <Tab.Screen name="Chat" component={ChatStackNavigator}/>
+      <Tab.Screen name="Profile" component={ProfileStackNavigator}/>
     </Tab.Navigator>
   )
 }
