@@ -88,8 +88,8 @@ export default function Register ({setUser}) {
             icon="login" 
             mode="contained" 
             onPress={registerPressed} 
-            buttonColor="#357266" 
-            textColor='#D0DCD4'
+            //buttonColor="#357266" 
+            //textColor='#D0DCD4'
             marginTop={10}
         >
         Register
@@ -106,12 +106,12 @@ export default function Register ({setUser}) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#0E3B43',
+        //backgroundColor: '#0E3B43',
         alignItems: 'center',
         justifyContent: 'center',
     },
     register_field: {
-        backgroundColor: '#D0DCD4',
+        //backgroundColor: '#D0DCD4',
         width: 250,
     },
     logo: {

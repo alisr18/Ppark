@@ -3,7 +3,6 @@
 import { NavigationContainer } from "@react-navigation/native"
 import Dashboard from "./pages/dashboard"
 import Chat from "./pages/chat"
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import ChatScreen from "./pages/chatscreen";
 import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
@@ -14,10 +13,14 @@ import Parking from "./pages/parking";
 import Settings from "./pages/settings";
 import History from "./pages/history";
 
+import { useColorScheme } from "react-native"
+import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
+import { Provider, MD3DarkTheme, MD3LightTheme, Text } from "react-native-paper";
 
+import themeData from "./theme.json"
 
-const Tab = createBottomTabNavigator()
+const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 
@@ -47,16 +50,41 @@ function MyTabs() {
   return (
     <Tab.Navigator screenOptions={{headerShown: false}}>
       <Tab.Screen name="Chat" component={ChatStackNavigator}/>
-      <Tab.Screen name="Dashboard" component={Dashboard}/>
+      <Tab.Screen name="Dashboard" component={Dashboard}
+        options={{
+          tabBarIcon: 'map',
+        }}/>
       <Tab.Screen name="Profile" component={ProfileStackNavigator}/>
     </Tab.Navigator>
   )
 }
 
 export default function App() {
+  const colorScheme = useColorScheme()
+  const isDarkMode = true // colorScheme === "dark"
+
+  const theme = isDarkMode ? {
+    ...MD3DarkTheme,
+    ...themeData,
+    colors: {
+      ...MD3DarkTheme.colors,
+      ...themeData.schemes.dark
+    },
+    
+  } : {
+    ...MD3LightTheme,
+    ...themeData,
+    colors: {
+      ...MD3LightTheme.colors,
+      ...themeData.schemes.light
+    },
+  }
+  
   return (
-    <NavigationContainer>
+    <Provider theme={theme}>
+      <NavigationContainer theme={theme}>
         <MyTabs/>
     </NavigationContainer>
+    </Provider>
   )
 }
