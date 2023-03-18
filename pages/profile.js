@@ -1,14 +1,18 @@
-import { useState } from "react";
-import { View, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
-import { Button, TextInput, Avatar } from "react-native-paper";
+import { useContext, useState } from "react";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Button, TextInput, Text, Avatar, Card, Surface } from "react-native-paper";
 import {useNavigation } from '@react-navigation/native';
+import { ThemeContext } from "../App";
 
 
 const color1 = "#436278";
 const color2 = "#357266";
-const color3 = "#191C1B";
 
 export default function Profile() {
+
+    const theme = useContext(ThemeContext)
+
+    const color3 = theme.colors.background;
 
     const navigation = useNavigation();
 
@@ -18,33 +22,34 @@ export default function Profile() {
 
     return (
         <View style={styles.profile}>
-            <View style={styles.profileContainer}>
-                <Avatar.Icon
-                    size={70}
-                    icon="account"
-                    marginTop={20}
-                    style={{backgroundColor: color1}}
-                />
-                <Text style={styles.profileName}>Navn Navnesen</Text>
-            </View>
+            <Surface style={{...styles.profileContainer, borderColor: theme.colors.outline}} elevation={0}>
+                    <Avatar.Icon
+                        size={70}
+                        icon="account"
+                        marginTop={20}
+                        style={{backgroundColor: theme.colors.tertiaryContainer}}
+                    />
+                    <Text style={styles.profileName}>Navn Navnesen</Text>
+            </Surface>
 
-            <View style={styles.countdownContainer}>
+            <Surface style={styles.countdownContainer} elevation={3}>
                 <View>
                     <Text style={styles.countdownText1}>Time Remaining:</Text>
                     <Text style={styles.countdownText2}>Parked at:</Text>
                     <Text style={styles.countdownText3}>Gate Veinavn 24</Text>   
                 </View>
                 <View>
-                    <Text style={styles.countdownTime}>25:13</Text>
+                    <Text style={{...styles.countdownTime, color: theme.colors.primary}}>25:13</Text>
                 </View>
-            </View>
+            </Surface>
+            <Text>{JSON.stringify()}</Text>
 
             <View style={styles.list}>
                 <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Account")}>
                     <Avatar.Icon 
                         size={30}
                         icon="account"
-                        style={{backgroundColor: color2, marginRight: 15, marginLeft: 38}}
+                        style={{marginRight: 15, marginLeft: 38}}
                     />
                     <Text style={styles.listText}>Edit Account</Text>
                     <Avatar.Icon 
@@ -59,7 +64,7 @@ export default function Profile() {
                     <Avatar.Icon 
                         size={30}
                         icon="car"
-                        style={{backgroundColor: color2, marginRight: 15, marginLeft: 38}}
+                        style={{ marginRight: 15, marginLeft: 38}}
                     />
                     <Text style={styles.listText}>Cars</Text>
                     <Avatar.Icon 
@@ -73,7 +78,7 @@ export default function Profile() {
                     <Avatar.Icon 
                         size={30}
                         icon="parking"
-                        style={{backgroundColor: color2, marginRight: 15, marginLeft: 38}}
+                        style={{ marginRight: 15, marginLeft: 38}}
                     />
                     <Text style={styles.listText}>Parking</Text>
                     <Avatar.Icon 
@@ -87,7 +92,8 @@ export default function Profile() {
                     <Avatar.Icon 
                         size={30}
                         icon="cog"
-                        style={{backgroundColor: color2, marginRight: 15, marginLeft: 38}}
+                        mode="contained"
+                        style={{ marginRight: 15, marginLeft: 38}}
                     />
                     <Text style={styles.listText}>Settings</Text>
                     <Avatar.Icon 
@@ -101,12 +107,13 @@ export default function Profile() {
                     <Avatar.Icon 
                         size={30}
                         icon="history"
-                        style={{backgroundColor: color2, marginRight: 15, marginLeft: 38}}
+                        style={{ marginRight: 15, marginLeft: 38}}
                     />
                     <Text style={styles.listText}>History</Text>
                     <Avatar.Icon 
                         size={30}
                         icon="menu-right"
+                        
                         style={{backgroundColor: color3, marginLeft: 200}}
                     />
                 </TouchableOpacity>
@@ -118,39 +125,33 @@ export default function Profile() {
 const styles = StyleSheet.create({
     profile: {
         flex: 1,
-        backgroundColor: color3,
         alignItems: "center",
     },
     profileContainer: {
         alignItems: "center",
-        marginTop: 36,
+        alignContent: "center",
         borderWidth: 1,
         borderRadius: 12,
-        borderColor: "#3F4946",    
+        marginTop: 36,
         height: 185,
         width: 318,
     },
     profileName: {
         fontSize: 34,
         marginTop: 15,
-        color: "white",
         alignSelf: "center",
     },
     countdownContainer: {
         alignItems: "center",
         marginTop: 15,
-        borderWidth: 1,
-        borderRadius: 12,
-        borderColor: color2, 
-        backgroundColor: color2,
         height: 136,
         width: 318,
+        borderRadius: 12,
         flexDirection: "row",
     },
     countdownText1: {
         fontSize: 18,
         fontWeight: 400,
-        color: "white",
         alignSelf: "flex-start",
         marginLeft: 20,
         marginTop: -25,
@@ -158,7 +159,6 @@ const styles = StyleSheet.create({
     countdownText2: {
         fontSize: 13,
         fontWeight: 400,
-        color: "white",
         alignSelf: "flex-start",
         marginLeft: 20, 
         marginTop: 5,
@@ -166,7 +166,6 @@ const styles = StyleSheet.create({
     countdownText3: {
         fontSize: 13,
         fontWeight: 400,
-        color: "white",
         alignSelf: "flex-start",
         position: "absolute",
         top: 27,
@@ -175,7 +174,7 @@ const styles = StyleSheet.create({
     countdownTime: {
         fontSize: 35,
         fontWeight: 400,
-        color: "#57DBC3",
+        //color: "#57DBC3",
         alignSelf: "flex-end",
         position: "absolute",
         left: 45,
@@ -192,7 +191,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     listText: {
-        color: "white",
         fontSize: 16,
         marginTop: 4,
     },

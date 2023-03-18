@@ -20,7 +20,6 @@ const ChatScreen = () => {
     };
 
     return (
-        <PaperProvider>
             <KeyboardAvoidingView style={styles.container} behavior="padding">
                 <IconButton
                     icon="arrow-left"
@@ -45,7 +44,6 @@ const ChatScreen = () => {
                     </Button>
                 </View>
             </KeyboardAvoidingView>
-        </PaperProvider>
     );
 };
 

@@ -13,16 +13,18 @@ import Parking from "./pages/parking";
 import Settings from "./pages/settings";
 import History from "./pages/history";
 
-import { useColorScheme } from "react-native"
+import { useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 
-import { Provider, MD3DarkTheme, MD3LightTheme, Text } from "react-native-paper";
+import { Provider, DefaultTheme, Text } from "react-native-paper";
 
 import themeData from "./theme.json"
+import { createContext } from "react";
 
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
+export const ThemeContext = createContext();
 
 function ChatStackNavigator() {
     return (
@@ -49,42 +51,47 @@ function ProfileStackNavigator() {
 function MyTabs() {
   return (
     <Tab.Navigator screenOptions={{headerShown: false}}>
-      <Tab.Screen name="Chat" component={ChatStackNavigator}/>
+      <Tab.Screen name="Chat" component={ChatStackNavigator}
+        options={{
+          tabBarIcon: 'chat',
+        }}/>
       <Tab.Screen name="Dashboard" component={Dashboard}
         options={{
           tabBarIcon: 'map',
         }}/>
-      <Tab.Screen name="Profile" component={ProfileStackNavigator}/>
+      <Tab.Screen name="Profile" component={ProfileStackNavigator}
+        options={{
+          tabBarIcon: 'account',
+        }}/>
     </Tab.Navigator>
   )
 }
 
 export default function App() {
   const colorScheme = useColorScheme()
-  const isDarkMode = true // colorScheme === "dark"
+  const isDarkMode = colorScheme === "dark"
 
   const theme = isDarkMode ? {
-    ...MD3DarkTheme,
+    ...DefaultTheme,
     ...themeData,
-    colors: {
-      ...MD3DarkTheme.colors,
-      ...themeData.schemes.dark
-    },
+    custom: 'property',
+    dark: true,
+    colors: themeData.schemes.dark
     
   } : {
-    ...MD3LightTheme,
+    ...DefaultTheme,
     ...themeData,
-    colors: {
-      ...MD3LightTheme.colors,
-      ...themeData.schemes.light
-    },
+    custom: 'property',
+    colors: themeData.schemes.light
   }
   
   return (
     <Provider theme={theme}>
-      <NavigationContainer theme={theme}>
-        <MyTabs/>
-    </NavigationContainer>
+      <ThemeContext.Provider value={theme}>
+        <NavigationContainer theme={theme}>
+            <MyTabs/>
+        </NavigationContainer>
+      </ThemeContext.Provider>
     </Provider>
   )
 }
