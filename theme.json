@@ -3,6 +3,7 @@
     "name": "material-theme",
     "description": "TYPE: CUSTOM",
     "baseline": false,
+    "roundness": 12,
     "coreColors": {
       "primary": "#357266",
       "secondary": "#D0DCD4",
