@@ -12,6 +12,8 @@ export default function Register ({setUser}) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [displayname, setDisplayname] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
 
     const registerPressed = async () => {
         console.log("Register button pressed");
@@ -24,6 +26,8 @@ export default function Register ({setUser}) {
             await setDoc(doc(db, "users", user.uid), {
                 uid: user.uid,
                 displayname,
+                firstName,
+                lastName,
             });
 
             signIn();
@@ -61,13 +65,30 @@ export default function Register ({setUser}) {
       <View style={styles.container}>
         <Image source={require("../icons/logo_light.png")} style={styles.logo}/>
 
-          <TextInput
-              mode="outlined"
-              label="displayname"
-              value={displayname}
-              onChangeText={setDisplayname}
-              style={styles.register_field}
-          />
+        <TextInput
+            mode="outlined"
+            label="displayname"
+            value={displayname}
+            onChangeText={setDisplayname}
+            style={styles.register_field}
+        />
+
+        <TextInput
+            mode="outlined"
+            label="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+            style={styles.register_field}
+        />
+
+        <TextInput
+            mode="outlined"
+            label="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+            style={styles.register_field}
+        />
+
         <TextInput
             mode="outlined"
             label="Email"
