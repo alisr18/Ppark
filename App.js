@@ -22,6 +22,8 @@ import { Provider, DefaultTheme, Text } from "react-native-paper";
 import { createContext, useState, useEffect } from "react";
 
 import themeData from "./theme.json"
+import Login from "./pages/login";
+import Register from "./pages/register";
 
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
@@ -87,17 +89,19 @@ function useAsyncStorage(key, initialValue) {
   return [storedValue, setValue];
 }
 
-function MyTabs() {
+function MyTabs({user}) {
   return (
-    <Tab.Navigator screenOptions={{headerShown: false}}>
+    <Tab.Navigator initialRouteName="Dashboard" screenOptions={{headerShown: false}}>
       <Tab.Screen name="Chat" component={ChatStackNavigator}
         options={{
           tabBarIcon: 'chat',
         }}/>
-      <Tab.Screen name="Dashboard" component={Dashboard}
+      <Tab.Screen name="Dashboard"
         options={{
           tabBarIcon: 'map',
-        }}/>
+        }}>
+        {(props) => <Dashboard {...props} user={user}/>}
+      </Tab.Screen>
       <Tab.Screen name="Profile" component={ProfileStackNavigator}
         options={{
           tabBarIcon: 'account',
@@ -128,15 +132,42 @@ export default function App() {
     colors: themeData.schemes.light
   }
   
-  return (
-    <Provider theme={theme}>
-      <ThemeContext.Provider value={theme}>
-        <SelectedThemeContext.Provider value={selectedData}>
-          <NavigationContainer theme={theme}>
-              <MyTabs/>
-          </NavigationContainer>
-        </SelectedThemeContext.Provider>
-      </ThemeContext.Provider>
-    </Provider>
-  )
+  const [user, setUser] = useState(1);
+  
+  if (!user) {
+    return (
+      <Provider theme={theme}>
+        <ThemeContext.Provider value={theme}>
+          <SelectedThemeContext.Provider value={selectedData}>
+            <Register setUser={setUser}/>
+          </SelectedThemeContext.Provider>
+        </ThemeContext.Provider>
+      </Provider>
+    )
+  }
+  else if (user == 1) {
+    return (
+      <Provider theme={theme}>
+        <ThemeContext.Provider value={theme}>
+          <SelectedThemeContext.Provider value={selectedData}>
+            <Login setUser={setUser}/>
+          </SelectedThemeContext.Provider>
+        </ThemeContext.Provider>
+      </Provider>
+    )
+  }
+  else {
+    return (
+      <Provider theme={theme}>
+        <ThemeContext.Provider value={theme}>
+          <SelectedThemeContext.Provider value={selectedData}>
+            <NavigationContainer theme={theme}>
+              <MyTabs user={user}/>
+            </NavigationContainer>
+          </SelectedThemeContext.Provider>
+        </ThemeContext.Provider>
+      </Provider>
+    )
+  }
+
 }
