@@ -60,9 +60,9 @@ function Settings() {
                 description="Switch between dark and light mode"
                 right={() => (
                     <ToggleButton.Row onValueChange={value => changeTheme(value)} value={value}>
-                        <ToggleButton theme={{...theme, roundness: 20}}  style={styles.button} icon="theme-light-dark" value="auto" iconColor={(value === "auto") ? theme.colors.primary : theme.colors.onSurfaceVariant}/>
-                        <ToggleButton style={styles.button} icon="weather-sunny" value="light" iconColor={(value === "light") ? theme.colors.primary : theme.colors.onSurfaceVariant}/>
-                        <ToggleButton theme={{...theme, roundness: 20}}  style={styles.button} icon="weather-night" value="dark" iconColor={(value === "dark") ? theme.colors.primary : theme.colors.onSurfaceVariant} />
+                        <ToggleButton theme={{...theme, outline: theme.colors.primary, roundness: 20}}  style={styles.button} icon="theme-light-dark" value={"auto"} iconColor={(value === "auto") ? theme.colors.primary : theme.colors.onSurfaceVariant}/>
+                        <ToggleButton style={styles.button} icon="weather-sunny" value={"light"} iconColor={(value === "light") ? theme.colors.primary : theme.colors.onSurfaceVariant}/>
+                        <ToggleButton theme={{...theme, roundness: 20}}  style={styles.button} icon="weather-night" value={"dark"} iconColor={(value === "dark") ? theme.colors.primary : theme.colors.onSurfaceVariant} />
                     </ToggleButton.Row>
                 )}
             />

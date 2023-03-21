@@ -2,6 +2,7 @@
     "seed": "#357266",
     "name": "material-theme",
     "description": "TYPE: CUSTOM",
+    "isV3": true,
     "baseline": false,
     "roundness": 12,
     "coreColors": {

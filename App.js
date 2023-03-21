@@ -78,7 +78,7 @@ function useAsyncStorage(key, initialValue) {
         value instanceof Function ? value(storedValue) : value;
       setStoredValue(valueToStore);
       await AsyncStorage.setItem(key, valueToStore);
-      console.log(`${key}: ${valueToStore}`)
+      console.log(`${key} changed to: ${valueToStore}`)
     } catch (error) {
       console.log(error);
     }

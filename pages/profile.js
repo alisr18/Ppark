@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { Button, TextInput, Text, Avatar, Card, Surface } from "react-native-paper";
+import { Button, TextInput, Text, Avatar, Card, Surface, List } from "react-native-paper";
 import {useNavigation } from '@react-navigation/native';
 import { ThemeContext } from "../App";
 
@@ -20,121 +20,126 @@ export default function Profile() {
         navigation.navigate(page);
     }
 
+    function MenuArrow() {
+        return (
+            <Avatar.Icon 
+                size={30}
+                icon="menu-right"
+                style={{backgroundColor: color3}}
+            />
+        )
+    }
+
     return (
-        <View style={styles.profile}>
-            <Surface style={{...styles.profileContainer, borderColor: theme.colors.outline}} elevation={0}>
-                    <Avatar.Icon
-                        size={70}
-                        icon="account"
-                        marginTop={20}
-                        style={{backgroundColor: theme.colors.tertiaryContainer}}
-                    />
-                    <Text style={styles.profileName}>Navn Navnesen</Text>
-            </Surface>
+        <View style={{paddingHorizontal: 30}}>
+            <View style={styles.profile}>
+                <Surface style={{...styles.profileContainer, borderColor: theme.colors.onSurfaceDisabled}} elevation={0}>
+                        <Avatar.Icon
+                            size={70}
+                            icon="account"
+                            marginTop={20}
+                            style={{backgroundColor: theme.colors.tertiaryContainer}}
+                        />
+                        <Text style={styles.profileName}>Navn Navnesen</Text>
+                </Surface>
 
-            <Surface style={styles.countdownContainer} elevation={3}>
-                <View>
-                    <Text style={styles.countdownText1}>Time Remaining:</Text>
-                    <Text style={styles.countdownText2}>Parked at:</Text>
-                    <Text style={styles.countdownText3}>Gate Veinavn 24</Text>   
-                </View>
-                <View>
-                    <Text style={{...styles.countdownTime, color: theme.colors.primary}}>25:13</Text>
-                </View>
-            </Surface>
-            <Text>{JSON.stringify()}</Text>
+                <Surface style={styles.countdownContainer} elevation={3}>
+                    <View>
+                        <Text style={styles.countdownText1}>Time Remaining:</Text>
+                        <Text style={styles.countdownText2}>Parked at:</Text>
+                        <Text style={styles.countdownText3}>Gate Veinavn 24</Text>   
+                    </View>
+                    <View style={{justifyContent: "center"}}>
+                        <Text style={{...styles.countdownTime, color: theme.colors.primary}}>25:13</Text>
+                    </View>
+                </Surface>
+            </View>
 
-            <View style={styles.list}>
-                <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Account")}>
-                    <Avatar.Icon 
+            <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Account")}>
+                <List.Item
+                    style={{padding: 20}}
+                    left={() => <Avatar.Icon 
                         size={30}
                         icon="account"
-                        style={{marginRight: 15, marginLeft: 38}}
-                    />
-                    <Text style={styles.listText}>Edit Account</Text>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="menu-right"
-                        style={{backgroundColor: color3, marginLeft: 160}}
-                    />
-                </TouchableOpacity>
+                    />}
+                    right={() => 
+                        <MenuArrow/>}
+                    title="Edit Account"
+                />
+            </TouchableOpacity>
 
-
-                <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Cars")}>
+            <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Cars")}>
+                <List.Item
+                    style={{padding: 20}}
+                    left={() => 
                     <Avatar.Icon 
                         size={30}
                         icon="car"
-                        style={{ marginRight: 15, marginLeft: 38}}
-                    />
-                    <Text style={styles.listText}>Cars</Text>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="menu-right"
-                        style={{backgroundColor: color3, marginLeft: 217}}
-                    />
-                </TouchableOpacity>
+                    />}
+                    right={() => 
+                        <MenuArrow/>}
+                    title="Cars"
+                />
+            </TouchableOpacity>
 
-                <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Parking")}>
+            <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Parking")}>
+                <List.Item
+                    style={{padding: 20}}
+                    left={() => 
                     <Avatar.Icon 
                         size={30}
                         icon="parking"
-                        style={{ marginRight: 15, marginLeft: 38}}
-                    />
-                    <Text style={styles.listText}>Parking</Text>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="menu-right"
-                        style={{backgroundColor: color3, marginLeft: 197}}
-                    />
-                </TouchableOpacity>
+                    />}
+                    right={() => <MenuArrow/>}
+                    title="Parking"
+                />
+            </TouchableOpacity>
 
-                <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Settings")}>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="cog"
-                        mode="contained"
-                        style={{ marginRight: 15, marginLeft: 38}}
-                    />
-                    <Text style={styles.listText}>Settings</Text>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="menu-right"
-                        style={{backgroundColor: color3, marginLeft: 193}}
-                    />
-                </TouchableOpacity>
+            <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Settings")}>
+                <List.Item
+                    style={{padding: 20}}
+                    left={() => 
+                        <Avatar.Icon 
+                            size={30}
+                            icon="cog"
+                            mode="contained"
+                        />
+                    }
+                    right={() => <MenuArrow/>}
+                    title="Settings"
+                />
+            </TouchableOpacity>
 
-                <TouchableOpacity style={styles.listButton} onPress={() => handlePress("History")}>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="history"
-                        style={{ marginRight: 15, marginLeft: 38}}
-                    />
-                    <Text style={styles.listText}>History</Text>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="menu-right"
-                        
-                        style={{backgroundColor: color3, marginLeft: 200}}
-                    />
-                </TouchableOpacity>
-            </View>
+            <TouchableOpacity style={styles.listButton} onPress={() => handlePress("History")}>
+                <List.Item
+                    style={{padding: 20}}
+                    left={() => 
+                        <Avatar.Icon 
+                            size={30}
+                            icon="history"
+                        />
+                    }
+                    right={() => <MenuArrow/>}
+                    title="History"
+                />
+            </TouchableOpacity>
         </View> 
     )
 }
 
 const styles = StyleSheet.create({
     profile: {
-        flex: 1,
         alignItems: "center",
+        marginVertical: 20,
     },
     profileContainer: {
         alignItems: "center",
         alignContent: "center",
-        borderWidth: 1,
+        alignSelf: "stretch",
+        borderWidth: 2,
         borderRadius: 12,
         marginTop: 36,
         height: 185,
-        width: 318,
     },
     profileName: {
         fontSize: 34,
@@ -142,43 +147,30 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     },
     countdownContainer: {
-        alignItems: "center",
+        justifyContent: "space-between",
         marginTop: 15,
-        height: 136,
-        width: 318,
+        height: 150,
         borderRadius: 12,
+        padding: 25,
         flexDirection: "row",
+        alignSelf: "stretch",
     },
     countdownText1: {
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: 400,
-        alignSelf: "flex-start",
-        marginLeft: 20,
-        marginTop: -25,
+        marginBottom: 5,
     }, 
     countdownText2: {
         fontSize: 13,
         fontWeight: 400,
-        alignSelf: "flex-start",
-        marginLeft: 20, 
-        marginTop: 5,
     }, 
     countdownText3: {
         fontSize: 13,
         fontWeight: 400,
-        alignSelf: "flex-start",
-        position: "absolute",
-        top: 27,
-        left: 20,
     }, 
     countdownTime: {
         fontSize: 35,
         fontWeight: 400,
-        //color: "#57DBC3",
-        alignSelf: "flex-end",
-        position: "absolute",
-        left: 45,
-        bottom: -20,
     }, 
     list: {
         flexDirection: "column",
@@ -187,8 +179,6 @@ const styles = StyleSheet.create({
         marginTop: 40,
     },
     listButton: {
-        marginBottom: 30,
-        flexDirection: "row",
     },
     listText: {
         fontSize: 16,
