@@ -33,7 +33,7 @@ export default function Profile() {
     return (
         <View style={{paddingHorizontal: 30}}>
             <View style={styles.profile}>
-                <Surface style={{...styles.profileContainer, borderColor: theme.colors.onSurfaceDisabled}} elevation={0}>
+                <Surface style={{...styles.profileContainer, borderColor: theme.colors.surfaceDisabled}} elevation={0}>
                         <Avatar.Icon
                             size={70}
                             icon="account"
@@ -46,8 +46,8 @@ export default function Profile() {
                 <Surface style={styles.countdownContainer} elevation={3}>
                     <View>
                         <Text style={styles.countdownText1}>Time Remaining:</Text>
-                        <Text style={styles.countdownText2}>Parked at:</Text>
-                        <Text style={styles.countdownText3}>Gate Veinavn 24</Text>   
+                        <Text style={{...styles.countdownText2, color: theme.colors.onSurfaceDisabled}}>Parked at:</Text>
+                        <Text style={{...styles.countdownText3, color: theme.colors.onSurface}}>Gate Veinavn 24</Text>   
                     </View>
                     <View style={{justifyContent: "center"}}>
                         <Text style={{...styles.countdownTime, color: theme.colors.primary}}>25:13</Text>
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
         alignSelf: "stretch",
     },
     countdownText1: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 400,
         marginBottom: 5,
     }, 
@@ -165,11 +165,11 @@ const styles = StyleSheet.create({
         fontWeight: 400,
     }, 
     countdownText3: {
-        fontSize: 13,
+        fontSize: 16,
         fontWeight: 400,
     }, 
     countdownTime: {
-        fontSize: 35,
+        fontSize: 36,
         fontWeight: 400,
     }, 
     list: {

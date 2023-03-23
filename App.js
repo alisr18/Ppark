@@ -138,9 +138,7 @@ export default function App() {
     return (
       <Provider theme={theme}>
         <ThemeContext.Provider value={theme}>
-          <SelectedThemeContext.Provider value={selectedData}>
             <Register setUser={setUser}/>
-          </SelectedThemeContext.Provider>
         </ThemeContext.Provider>
       </Provider>
     )
@@ -149,9 +147,7 @@ export default function App() {
     return (
       <Provider theme={theme}>
         <ThemeContext.Provider value={theme}>
-          <SelectedThemeContext.Provider value={selectedData}>
             <Login setUser={setUser}/>
-          </SelectedThemeContext.Provider>
         </ThemeContext.Provider>
       </Provider>
     )
