@@ -1,31 +1,73 @@
 import { useContext, useState } from "react";
-import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { SafeAreaView, View, StyleSheet, Image, TouchableOpacity, Modal } from "react-native";
 import { Button, IconButton, TextInput, Text, Avatar, Surface } from "react-native-paper";
-import {useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import { ThemeContext } from "../App";
+import { db } from "../firebaseConfig";
+import { doc, setDoc, updateDoc, getDoc} from "firebase/firestore";
 
-const Cars = () => {
 
+const Cars = ({route}) => {
+    const {user} = route.params;
     const navigate = useNavigation();
 
     const theme = useContext(ThemeContext)
+
+    const [addModalVisible, setAddModalVisible] = useState(false);
+    const [carName, setCarName] = useState(null);
+    const [regNr, setRegNr] = useState(null);
+
+    const handleModal = () => {
+        setAddModalVisible(() => !addModalVisible);
+    }
+
+    const add = async() => {
+        console.log("Add pressed");
+        
+        try {
+            console.log(user.uid);
+            
+            const docRef = doc(db, "cars", user.uid);
+            const docSnap = await getDoc(docRef);
+            const car = [carName, regNr];
+
+            if (docSnap.exists()) {
+                console.log("Adding to existing document");
+
+                await updateDoc(docRef, {
+                    [regNr]: car,
+                });
+            }
+            else {
+                console.log("Creating new document")
+
+                await setDoc(docRef, {
+                    [regNr]: car,
+                });
+            }
+            
+            setRegNr('');
+            setCarName('');
+            console.log(carName, "added to the db");
+            handleModal();
+        } 
+        catch(error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        }
+    }
 
     const edit = () => {
         console.log("Edit pressed");
     }
 
-    const add = () => {
-        console.log("Add pressed");
-    }
 
     const styles = StyleSheet.create({
         page: {
             flex: 1,
-            //backgroundColor: "#191C1B",
             alignItems: "center",
         },
         close: {
-            //backgroundColor: "#357266",
             alignSelf: "flex-start",
             marginTop: 25,
         },
@@ -41,7 +83,6 @@ const Cars = () => {
         },
         carName: {
             fontSize: 32,
-            //color: "white",
             alignSelf: "flex-start",
             position: "absolute",
             top: 35,
@@ -64,7 +105,6 @@ const Cars = () => {
             left: 25,
         },
         carEdit: {
-            //backgroundColor: "#57DBC3",
             borderRadius: 100,
             alignSelf: "flex-end",
             position: "absolute",
@@ -76,7 +116,6 @@ const Cars = () => {
             marginTop: 50,
         },
         text: {
-            //color: "white",
             alignSelf: "flex-start",
             fontSize: 14,
             position: "absolute",
@@ -88,7 +127,6 @@ const Cars = () => {
             flexDirection: "row",
         },
         listText: {
-            //color: "white",
             fontSize: 16,
             marginTop: 4,
             position: "absolute",
@@ -101,10 +139,31 @@ const Cars = () => {
             width: 56,
             height: 56,
         },
+        backgroundModal: {
+            flex: 1, 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            backgroundColor: 'rgba(0,0,0,0.5)',
+        },
+        modalView: {
+            backgroundColor: theme.colors.secondaryContainer, 
+            height: 300,
+            width: 318,
+            borderRadius: 12,
+        },
+        addField: {
+            marginTop: 10,
+            marginHorizontal: 20,
+        },
+        addCar: {
+            marginTop: 20,
+            marginHorizontal: 100,
+            backgroundColor: theme.colors.secondary,
+        },
     })
     
     return (
-        <View style={styles.page}>
+        <SafeAreaView style={styles.page}>
             <IconButton 
                 style={styles.close} 
                 onPress={navigate.goBack}
@@ -156,10 +215,49 @@ const Cars = () => {
                     icon="plus"
                     mode="contained"
                     style={styles.addButton}
-                    onPress={add}
+                    onPress={handleModal}
                 />
             </View>
-        </View>
+
+            <Modal 
+                visible={addModalVisible}
+                animationType={"fade"}
+                transparent={true}
+            >
+                <View style={styles.backgroundModal}>
+                    <View style={styles.modalView}>
+                        <IconButton 
+                            icon={"close"}
+                            style={{alignSelf: "flex-end"}} 
+                            onPress={handleModal}
+                        />
+                        <Text style={{textAlign: "center"}}>Add a car</Text>
+                        <TextInput
+                            mode="outlined"
+                            label="Car Name"
+                            value={carName}
+                            onChangeText={setCarName}
+                            style={styles.addField}
+                        />
+                        <TextInput
+                            mode="outlined"
+                            label="Registration Number"
+                            value={regNr}
+                            onChangeText={setRegNr}
+                            style={styles.addField}
+                        />
+                        <Button 
+                            style={styles.addCar}
+                            onPress={add}
+                            textColor={theme.colors.onSecondary}
+                        >
+                            Add
+                        </Button>
+                    </View>
+                </View>
+            </Modal>
+
+        </SafeAreaView>
     );
 }
 

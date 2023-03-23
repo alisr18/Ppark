@@ -40,12 +40,15 @@ function ChatStackNavigator() {
     );
 }
 
-function ProfileStackNavigator() {
+function ProfileStackNavigator({route}) {
+
+  const {user} = route.params;
+
   return(
     <ProfileStack.Navigator screenOptions={{headerShown: false}}>
       <ProfileStack.Screen name="ProfileScreen" component={Profile}/>
       <ProfileStack.Screen name="Account" component={Account}/>
-      <ProfileStack.Screen name="Cars" component={Cars}/>
+      <ProfileStack.Screen name="Cars" component={Cars} initialParams={{user: user}}/>
       <ProfileStack.Screen name="Parking" component={Parking}/>
       <ProfileStack.Screen name="Settings" component={Settings}/>
       <ProfileStack.Screen name="History" component={History}/>
@@ -105,7 +108,9 @@ function MyTabs({user}) {
       <Tab.Screen name="Profile" component={ProfileStackNavigator}
         options={{
           tabBarIcon: 'account',
-        }}/>
+        }}
+        initialParams={{user: user}}
+      />
     </Tab.Navigator>
   )
 }
@@ -165,5 +170,4 @@ export default function App() {
       </Provider>
     )
   }
-
 }
