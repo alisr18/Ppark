@@ -8,7 +8,7 @@ import { ThemeContext } from "../App";
 const color1 = "#436278";
 const color2 = "#357266";
 
-export default function Profile() {
+export default function Profile({ user }) {
 
     const theme = useContext(ThemeContext)
 
@@ -22,8 +22,7 @@ export default function Profile() {
 
     function MenuArrow() {
         return (
-            <Avatar.Icon 
-                size={30}
+            <List.Icon 
                 icon="menu-right"
                 style={{backgroundColor: color3}}
             />
@@ -31,8 +30,8 @@ export default function Profile() {
     }
 
     return (
-        <View style={{paddingHorizontal: 30}}>
-            <View style={styles.profile}>
+        <View style={{padding: 30}}>
+            <View style={styles.profile} >
                 <Surface style={{...styles.profileContainer, borderColor: theme.colors.surfaceDisabled}} elevation={0}>
                         <Avatar.Icon
                             size={70}
@@ -57,10 +56,10 @@ export default function Profile() {
 
             <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Account")}>
                 <List.Item
-                    style={{padding: 20}}
-                    left={() => <Avatar.Icon 
-                        size={30}
+                    left={(props) => <List.Icon 
+                        {...props}
                         icon="account"
+                        color={theme.colors.primary}
                     />}
                     right={() => 
                         <MenuArrow/>}
@@ -70,41 +69,37 @@ export default function Profile() {
 
             <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Cars")}>
                 <List.Item
-                    style={{padding: 20}}
-                    left={() => 
-                    <Avatar.Icon 
-                        size={30}
+                    left={(props) => <List.Icon 
                         icon="car"
+                        {...props}
                     />}
-                    right={() => 
-                        <MenuArrow/>}
+                    right={(props) => <MenuArrow {...props}/>}
                     title="Cars"
                 />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Parking")}>
                 <List.Item
-                    style={{padding: 20}}
-                    left={() => 
-                    <Avatar.Icon 
-                        size={30}
+                    left={(props) => <List.Icon 
                         icon="parking"
+                        {...props}
                     />}
-                    right={() => <MenuArrow/>}
+                    right={(props) => 
+                        <List.Icon 
+                            icon="menu-right"
+                            style={{backgroundColor: color3}}
+                            {...props}
+                        />}
                     title="Parking"
                 />
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Settings")}>
                 <List.Item
-                    style={{padding: 20}}
-                    left={() => 
-                        <Avatar.Icon 
-                            size={30}
-                            icon="cog"
-                            mode="contained"
-                        />
-                    }
+                    left={(props) => <List.Icon 
+                        icon="cog"
+                        {...props}
+                    />}
                     right={() => <MenuArrow/>}
                     title="Settings"
                 />
@@ -112,13 +107,10 @@ export default function Profile() {
 
             <TouchableOpacity style={styles.listButton} onPress={() => handlePress("History")}>
                 <List.Item
-                    style={{padding: 20}}
-                    left={() => 
-                        <Avatar.Icon 
-                            size={30}
-                            icon="history"
-                        />
-                    }
+                    left={(props) => <List.Icon 
+                        icon="history"
+                        {...props}
+                    />}
                     right={() => <MenuArrow/>}
                     title="History"
                 />
@@ -130,7 +122,6 @@ export default function Profile() {
 const styles = StyleSheet.create({
     profile: {
         alignItems: "center",
-        marginVertical: 20,
     },
     profileContainer: {
         alignItems: "center",
@@ -138,7 +129,6 @@ const styles = StyleSheet.create({
         alignSelf: "stretch",
         borderWidth: 2,
         borderRadius: 12,
-        marginTop: 36,
         height: 185,
     },
     profileName: {
@@ -148,10 +138,11 @@ const styles = StyleSheet.create({
     },
     countdownContainer: {
         justifyContent: "space-between",
-        marginTop: 15,
+        marginTop: 20,
         height: 150,
         borderRadius: 12,
         padding: 25,
+        marginBottom: 20,
         flexDirection: "row",
         alignSelf: "stretch",
     },
@@ -172,12 +163,6 @@ const styles = StyleSheet.create({
         fontSize: 36,
         fontWeight: 400,
     }, 
-    list: {
-        flexDirection: "column",
-        padding: 0,
-        alignSelf: "stretch",
-        marginTop: 40,
-    },
     listButton: {
     },
     listText: {

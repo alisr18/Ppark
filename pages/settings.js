@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
-import { View, StyleSheet } from "react-native";
-import { IconButton, Text, List, ToggleButton } from "react-native-paper";
+import { View, StyleSheet, StatusBar } from "react-native";
+import { IconButton, Text, List, ToggleButton, Appbar, SegmentedButtons } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { SelectedThemeContext, ThemeContext } from "../App";
 
@@ -46,19 +46,18 @@ function Settings() {
     
     return (
         <View style={styles.page}>
-            <IconButton 
-                style={styles.close} 
-                onPress={navigate.goBack}
-                icon="arrow-left"
-                mode="contained-tonal" 
-            />
+            <Appbar>
+                <Appbar.Header>
+                    <Appbar.BackAction onPress={navigate.goBack} />
+                </Appbar.Header>
+            </Appbar>
             <View style={{alignItems: "center"}}>
                 <Text style={styles.headline}>Settings</Text>
             </View>
             <List.Item style={styles.list} 
                 title="Application Theme"
                 description="Switch between dark and light mode"
-                right={() => (
+                right={(props) => (
                     <ToggleButton.Row onValueChange={value => changeTheme(value)} value={value}>
                         <ToggleButton theme={{...theme, outline: theme.colors.primary, roundness: 20}}  style={styles.button} icon="theme-light-dark" value={"auto"} iconColor={(value === "auto") ? theme.colors.primary : theme.colors.onSurfaceVariant}/>
                         <ToggleButton style={styles.button} icon="weather-sunny" value={"light"} iconColor={(value === "light") ? theme.colors.primary : theme.colors.onSurfaceVariant}/>
@@ -66,7 +65,10 @@ function Settings() {
                     </ToggleButton.Row>
                 )}
             />
-            <List.Item title="Second Item"/>
+            <List.Item style={styles.list} 
+                title="Second Item"
+                description="..."
+            />
         </View>
     );
 }

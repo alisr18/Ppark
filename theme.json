@@ -4,7 +4,7 @@
     "description": "TYPE: CUSTOM",
     "isV3": true,
     "baseline": false,
-    "roundness": 12,
+    "roundness": 5,
     "coreColors": {
       "primary": "#357266",
       "secondary": "#D0DCD4",

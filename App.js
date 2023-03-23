@@ -13,7 +13,7 @@ import Parking from "./pages/parking";
 import Settings from "./pages/settings";
 import History from "./pages/history";
 
-import { useColorScheme, View } from "react-native"
+import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -163,6 +163,10 @@ export default function App() {
         <ThemeContext.Provider value={theme}>
           <SelectedThemeContext.Provider value={selectedData}>
             <NavigationContainer theme={theme}>
+            <StatusBar
+            animated={true}
+            backgroundColor={theme.colors.elevation.level5}
+            />
               <MyTabs user={user}/>
             </NavigationContainer>
           </SelectedThemeContext.Provider>
