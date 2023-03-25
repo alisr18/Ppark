@@ -2,7 +2,6 @@
 
 import { NavigationContainer } from "@react-navigation/native"
 import Dashboard from "./pages/dashboard"
-import Chat from "./pages/chat"
 import ChatScreen from "./pages/chatscreen";
 import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
@@ -33,7 +32,7 @@ export const SelectedThemeContext = createContext();
 
 function ChatStackNavigator() {
     return (
-        <ChatStack.Navigator screenOptions={{ headerShown: false }}>
+        <ChatStack.Navigator screenOptions={{ headerShown: true }}>
             <ChatStack.Screen name="ChatOverview" component={ChatOverviewScreen} />
             <ChatStack.Screen name="ChatScreen" component={ChatScreen} />
         </ChatStack.Navigator>
