@@ -1,14 +1,17 @@
-import { useContext, useState } from "react";
+import {useContext, useEffect, useState} from "react";
 import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
 import { Button, TextInput, Text, Avatar, Card, Surface, List } from "react-native-paper";
 import {useNavigation } from '@react-navigation/native';
 import { ThemeContext } from "../App";
+import {auth, db} from "../firebaseConfig";
+import {doc, getDoc} from "firebase/firestore";
 
 
 const color1 = "#436278";
 const color2 = "#357266";
 
 export default function Profile({ user }) {
+
 
     const theme = useContext(ThemeContext)
 
@@ -29,6 +32,26 @@ export default function Profile({ user }) {
         )
     }
 
+    const [fname, setFname] = useState("");
+    const [lname, setLname] = useState("");
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const user = auth.currentUser;
+            const userDoc = doc(db, 'users', user.uid);
+            const userData = (await getDoc(userDoc)).data();
+
+            setFname(userData.firstName);
+            setLname(userData.lastName);
+
+
+        };
+
+        fetchUserData();
+    }, []);
+
+
+
     return (
         <View style={{padding: 30}}>
             <View style={styles.profile} >
@@ -39,7 +62,7 @@ export default function Profile({ user }) {
                             marginTop={20}
                             style={{backgroundColor: theme.colors.tertiaryContainer}}
                         />
-                        <Text style={styles.profileName}>Navn Navnesen</Text>
+                    <Text style={styles.profileName}>{fname} {lname}</Text>
                 </Surface>
 
                 <Surface style={styles.countdownContainer} elevation={3}>
