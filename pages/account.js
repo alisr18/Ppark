@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import {View, StyleSheet, TouchableOpacity, Alert} from "react-native";
 import { Button, TextInput, Text, IconButton, Menu } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
-import {doc, setDoc, updateDoc} from "firebase/firestore";
+import {doc,getDoc,setDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../firebaseConfig";
+
+
 
 const countriesList = [
     "Norway",
@@ -23,14 +25,31 @@ const Account = () => {
 
     const navigate = useNavigation();
 
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const user = auth.currentUser;
+            const userDoc = doc(db, 'users', user.uid);
+            const userData = (await getDoc(userDoc)).data();
+
+            if (userData) {
+                setFirstName(userData.firstName || '');
+                setLastName(userData.lastName || '');
+                setAddress(userData.address || '');
+                setZipcode(userData.zipcode || '');
+                setCity(userData.city || '');
+            }
+        };
+
+        fetchUserData();
+    }, []);
+
     const handleSave = async () => {
         const user = auth.currentUser;
         const userId = user.uid;
-        if (firstName !== "" && lastName !== "" && country !== "" && address !== "" && zipcode !== "" && city !== "") {
+        if (firstName !== "" && lastName !== "" && address !== "" && zipcode !== "" && city !== "") {
             await updateDoc(doc(db, "users", user.uid), {
                 firstName,
                 lastName,
-                country,
                 address,
                 zipcode,
                 city,
@@ -54,39 +73,20 @@ const Account = () => {
                 mode="contained-tonal"
             />
             <Text style={styles.text}>Account</Text>
-            <TextInput
-                style={styles.input}
-                label="First Name"
-                value={firstName}
-                onChangeText={(text) => setFirstName(text)}
-            />
-            <TextInput
-                style={styles.input}
-                label="Last Name"
-                value={lastName}
-                onChangeText={(text) => setLastName(text)}
-            />
-            <Menu
-                visible={menuVisible}
-                onDismiss={() => setMenuVisible(false)}
-                style={{ width: "50%" }}
-                anchor={
-                    <TouchableOpacity onPress={() => setMenuVisible(true)}>
-                        <TextInput
-                            style={styles.input}
-                            label="Country"
-                            value={country}
-                            onChangeText={(text) => setCountry(text)}
-                            editable={false}
-                            pointerEvents="none"
-                        />
-                    </TouchableOpacity>
-                }
-            >
-                {countriesList.map((countryName, index) => (
-                    <Menu.Item key={index} onPress={() => handleCountrySelect(countryName)} title={countryName} />
-                ))}
-            </Menu>
+            <View style={styles.nameInputContainer}>
+                <TextInput
+                    style={[styles.input, styles.inputFirstName]}
+                    label="First Name"
+                    value={firstName}
+                    onChangeText={(text) => setFirstName(text)}
+                />
+                <TextInput
+                    style={[styles.input, styles.inputLastName]}
+                    label="Last Name"
+                    value={lastName}
+                    onChangeText={(text) => setLastName(text)}
+                />
+            </View>
 
             <TextInput
                 style={styles.input}
@@ -94,18 +94,23 @@ const Account = () => {
                 value={address}
                 onChangeText={(text) => setAddress(text)}
             />
-            <TextInput
-                style={styles.input}
-                label="Zipcode"
-                value={zipcode}
-                onChangeText={(text) => setZipcode(text)}
-            />
-            <TextInput
-                style={styles.input}
-                label="City"
-                value={city}
-                onChangeText={(text) => setCity(text)}
-            />
+
+
+
+            <View style={styles.nameInputContainer}>
+                <TextInput
+                    style={styles.inputFirstName}
+                    label="Zipcode"
+                    value={zipcode}
+                    onChangeText={(text) => setZipcode(text)}
+                />
+                <TextInput
+                    style={styles.inputFirstName}
+                    label="City"
+                    value={city}
+                    onChangeText={(text) => setCity(text)}
+                />
+            </View>
             <Button style={styles.saveButton} mode="contained" onPress={handleSave}>
                 Save
             </Button>
@@ -135,5 +140,22 @@ const styles = StyleSheet.create({
     },
     saveButton: {
         marginTop: 20,
+    },
+    inputHalf: {
+        width: "80%",
+    },
+    nameInputContainer: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "80%",
+    },
+    inputFirstName: {
+        width: "48%",
+    },
+    inputLastName: {
+        width: "48%",
+    },
+    inputCountry: {
+        width: "80%", // Change the width value as desired
     },
 });
