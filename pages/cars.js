@@ -1,55 +1,54 @@
-import { useContext, useState } from "react";
-import { SafeAreaView, View, StyleSheet, Image, TouchableOpacity, Modal } from "react-native";
-import { Button, IconButton, TextInput, Text, Avatar, Surface } from "react-native-paper";
+import { useContext, useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { Portal, Dialog, Button, IconButton, TextInput, Text, Surface, List, Appbar } from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
 import { ThemeContext } from "../App";
 import { db } from "../firebaseConfig";
-import { doc, setDoc, updateDoc, getDoc} from "firebase/firestore";
+import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 
 
 const Cars = ({route}) => {
     const {user} = route.params;
+
     const navigate = useNavigation();
 
     const theme = useContext(ThemeContext)
 
-    const [addModalVisible, setAddModalVisible] = useState(false);
     const [carName, setCarName] = useState(null);
     const [regNr, setRegNr] = useState(null);
+    const [changes, setChanges] = useState(null);
 
-    const handleModal = () => {
-        setAddModalVisible(() => !addModalVisible);
-    }
+    const [openDialog, setDialog] = useState(
+        {
+            add: false,
+            edit: false,
+            delete: false
+        }
+    )
 
+
+    // Add car to db
     const add = async() => {
-        console.log("Add pressed");
-        
         try {
-            console.log(user.uid);
-            
             const docRef = doc(db, "cars", user.uid);
             const docSnap = await getDoc(docRef);
-            const car = [carName, regNr];
+            const car = [carName, regNr, false];
 
-            if (docSnap.exists()) {
-                console.log("Adding to existing document");
-
+            if (docSnap.exists()) { // Adding to existing document
                 await updateDoc(docRef, {
                     [regNr]: car,
                 });
             }
-            else {
-                console.log("Creating new document")
-
+            else { // Creating new document
                 await setDoc(docRef, {
                     [regNr]: car,
                 });
             }
             
-            setRegNr('');
-            setCarName('');
+            setRegNr(null);
+            setCarName(null);
             console.log(carName, "added to the db");
-            handleModal();
+            setChanges(changes+1);
         } 
         catch(error) {
             const errorCode = error.code;
@@ -57,15 +56,155 @@ const Cars = ({route}) => {
         }
     }
 
-    const edit = () => {
-        console.log("Edit pressed");
+
+    // Get cars from db
+    const [cars, setCars] = useState([]);
+    const [active, setActive] = useState(null);
+      
+    useEffect(() => {
+        const getCars = async() => {
+            
+            console.log("Fetching cars...");
+            const carsRef = doc(db, "cars", user.uid); 
+            const carsDoc = await getDoc(carsRef);
+            
+            if (carsDoc.exists()) {
+                const carsData = carsDoc.data();  
+                
+                const carsArray = Object.values(carsData);
+                const other = carsArray.filter((car) => car[2] === false);
+                setCars(other);
+                
+                const activeCar = carsArray.find((car) => car[2] === true);
+                setActive(activeCar);
+            }
+        }    
+        getCars();
+    }, [changes]);
+
+
+    // Edit cars in db
+    const edit = async() => {
+        try {
+            const docRef = doc(db, "cars", user.uid);
+            const carsDoc = await getDoc(docRef);
+            
+            const car = [carName, regNr, selectedCar[2]];
+            
+            if (carsDoc.exists()) { 
+                const updatedDoc = {...carsDoc.data()};
+                delete updatedDoc[selectedCar[1]];
+
+                await setDoc(docRef, updatedDoc).then(updateDoc(docRef, {
+                    [regNr]: car,
+                }));
+            }
+            
+            setRegNr(null);
+            setCarName(null);
+            console.log(carName, "added to the db");
+            setChanges(changes+1);
+        } 
+        catch(error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        }
     }
 
+    // Delete cars in db
+    const deleteCar = async() => {
+        try {     
+            const docRef = doc(db, "cars", user.uid);
+            const carsDoc = await getDoc(docRef);
+            
+            if (carsDoc.exists()) {
+                const updatedDoc = {...carsDoc.data()};
+                delete updatedDoc[selectedCar];
+                
+                await setDoc(docRef, updatedDoc);
+                setChanges(changes+1);
+            }
+            else {
+                console.log("Document does not exist");
+            }
+        } 
+        catch(error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        }
+    }
+
+    const activate = async() => {
+        if (active !== undefined) {
+            try {
+                const docRef = doc(db, "cars", user.uid);
+                const carsDoc = await getDoc(docRef);
+                
+                const car = [active[0], active[1], false];
+                const car2 = [selectedCar[0], selectedCar[1], true]
+                
+                if (carsDoc.exists()) { 
+                    await updateDoc(docRef, {
+                        [active[1]]: car,
+                        [selectedCar[1]]: car2,
+                    });
+                }
+
+                setChanges(changes+1);
+            }
+            catch(error) {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            }
+        }
+        else {
+            try {
+                const docRef = doc(db, "cars", user.uid);
+                const carsDoc = await getDoc(docRef);
+                
+                const car = [selectedCar[0], selectedCar[1], true]
+                
+                if (carsDoc.exists()) { 
+                    await updateDoc(docRef, {
+                        [selectedCar[1]]: car,
+                    });
+                }
+
+                setChanges(changes+1);
+            }
+            catch(error) {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+            }
+        }
+
+    }
+
+    const deactivate = async() => {
+        try {
+            const docRef = doc(db, "cars", user.uid);
+            const carsDoc = await getDoc(docRef);
+            
+            const car = [selectedCar[0], selectedCar[1], false];
+            
+            if (carsDoc.exists()) { 
+                await updateDoc(docRef, {
+                    [selectedCar[1]]: car,
+                });
+            }
+            
+            setChanges(changes+1);
+        }
+        catch(error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        }
+    }
 
     const styles = StyleSheet.create({
         page: {
             flex: 1,
-            alignItems: "center",
+            
         },
         close: {
             alignSelf: "flex-start",
@@ -73,6 +212,7 @@ const Cars = ({route}) => {
         },
         carContainer: {
             alignItems: "center",
+            alignSelf: "center",
             marginTop: 15,
             borderWidth: 1,
             borderRadius: 12,
@@ -113,13 +253,13 @@ const Cars = ({route}) => {
         },
         otherCars: {
             flexDirection: "column",
-            marginTop: 50,
+            marginTop: 40,
         },
         text: {
             alignSelf: "flex-start",
             fontSize: 14,
             position: "absolute",
-            left: -160,
+            marginLeft: 20,
         },
         listButton: {
             marginTop: 40,
@@ -160,104 +300,134 @@ const Cars = ({route}) => {
             marginHorizontal: 100,
             backgroundColor: theme.colors.secondary,
         },
+        dialogInput: {
+            marginBottom: 10
+        },
     })
+
+    const [selectedCar, setSelectedCar] = useState(null);
+    function DeleteDialog() {
+        return (
+            <Dialog visible={openDialog.delete} onDismiss={() => setDialog({...openDialog, delete: false})}>
+                <Dialog.Title>Delete Car</Dialog.Title>
+                <Dialog.Content>
+                    <Text>Do you want to delete this car?</Text>
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => setDialog({...openDialog, delete: false})}>Cancel</Button>
+                    <Button textColor={theme.colors.error} onPress={() => deleteCar().then(setDialog({...openDialog, delete: false}))}>Delete</Button>
+                </Dialog.Actions>
+            </Dialog>
+        )
+    }
+
+    function EditDialog() {
+        return (
+            <Dialog visible={openDialog.edit} onDismiss={() => setDialog({...openDialog, edit: false})}>
+                <Dialog.Title>Edit Car</Dialog.Title>
+                <Dialog.Content>
+                    <TextInput mode="outlined" value={carName} style={styles.dialogInput} label="Car Name" onChangeText={setCarName}/>
+                    <TextInput mode="outlined" value={regNr} style={styles.dialogInput} label="Registration Number" onChangeText={setRegNr}/>
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <ActivationBtn/>
+                    <Button style={{alignSelf: "stretch"}} mode='contained' onPress={() => edit().then(setDialog({...openDialog, edit: false}))}>Edit</Button>
+                </Dialog.Actions>
+            </Dialog>
+        )  
+    }
+
+    function ActivationBtn() {
+        if (selectedCar[2]) {
+            return (
+                <Button style={{alignSelf: "stretch"}} mode='contained' onPress={() => deactivate().then(setDialog({...openDialog, edit: false}))}>Deactivate</Button>
+            )
+        }
+        else {
+            return (
+                <Button style={{alignSelf: "stretch"}} mode='contained' onPress={() => activate().then(setDialog({...openDialog, edit: false}))}>Activate</Button>
+            )
+        }
+    }
+
+    function AddDialog() {
+        return (
+            <Portal>
+                <Dialog visible={openDialog.add} onDismiss={() => setDialog({...openDialog, add: false})}>
+                    <Dialog.Title>Add Car</Dialog.Title>
+                    <Dialog.Content>
+                        <TextInput mode="outlined" value={carName} style={styles.dialogInput} label="Car Name" onChangeText={setCarName}/>
+                        <TextInput mode="outlined" value={regNr} style={styles.dialogInput} label="Registration Number" onChangeText={setRegNr}/>
+                        <Button style={{marginVertical: 10}} mode='contained' onPress={() => add().then(setDialog({...openDialog, add: false}))}>Add</Button>
+                    </Dialog.Content>
+                </Dialog>
+            </Portal>
+        )
+    }
+
+
+    function CarButtons(car) {
+        return (
+            <View style={{flexDirection: "row"}}>
+                <IconButton icon="delete" backgroundColor={theme.colors.errorContainer} iconColor={theme.colors.onErrorContainer} onPress={() => {setSelectedCar(car.car[1]); setDialog({...openDialog, delete: true})}}/>
+                <Button mode="contained" onPress={() => {setSelectedCar(car.car); setCarName(car.car[0]); setRegNr(car.car[1]); setDialog({...openDialog, edit: true})}}>Edit</Button>
+            </View>
+        )
+    }
+
+    function ActiveCar() {
+        if (active != null) {
+            return (
+                <Surface style={styles.carContainer} elevation={0}>
+                    <Text style={styles.carName}>{active[0]}</Text>
+                    <Text style={styles.carStatus}>Active</Text>
+                    <Text style={styles.carPlate}>{active[1]}</Text>
+                    <Button style={styles.carEdit} mode="contained" onPress={() => {setSelectedCar(active); setCarName(active[0]); setRegNr(active[1]); setDialog({...openDialog, edit: true})}}>Edit</Button>
+                </Surface>
+            )
+        }
+        else {
+            return (
+                <Surface style={styles.carContainer} elevation={0}>
+                    <Text style={{fontSize: 32, alignSelf: "center", marginHorizontal: 55}}>No active cars</Text>
+                </Surface>
+            )
+        }
+    }
     
     return (
-        <SafeAreaView style={styles.page}>
-            <IconButton 
-                style={styles.close} 
-                onPress={navigate.goBack}
-                icon="arrow-left"
-                mode="contained-tonal" 
-            />
+        <View style={styles.page}>
+            <Appbar>
+                <Appbar.Header>
+                    <Appbar.BackAction onPress={navigate.goBack}/>
+                </Appbar.Header>
+            </Appbar>
             
-            <Surface style={styles.carContainer} elevation={0}>
-                <Text style={styles.carName}>Volvo XC70</Text>
-                <Text style={styles.carStatus}>Active</Text>
-                <Text style={styles.carPlate}>NF38293</Text>
-                <Button style={styles.carEdit} mode="contained" onPress={edit}>Edit</Button>
-            </Surface>
+            <ActiveCar/>
             
-            <View style={styles.otherCars}>
+            <ScrollView style={styles.otherCars}>
                 <Text style={styles.text}>Other Cars:</Text>
-                <TouchableOpacity style={styles.listButton}>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="car"
-                        style={{...styles.listIcon, position: "absolute", left: -170}}
-                    />
-                    <Text style={styles.listText}>Volkswagen eGolf</Text>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="menu-right"
-                        style={{ ...styles.listIcon, position: "absolute", left: 140}}
-                    />
-                </TouchableOpacity>
 
-                <TouchableOpacity style={styles.listButton}>
-                    <Avatar.Icon 
-                        size={30}
-                        icon="car"
-                        style={{...styles.listIcon, position: "absolute", left: -170}}
-                    />
-                    <Text style={styles.listText}>Ferrari 812 gts</Text>
-                    <Avatar.Icon 
-                        
-                        size={30}
-                        icon="menu-right"
-                        style={{...styles.listIcon, position: "absolute", left: 140}}
-                    />
-                </TouchableOpacity>
-            </View>
+                {cars.map((car, index) => ( 
+                    <List.Item key={index} left={(props) => <List.Icon icon="car" {...props}/>} right={() => <CarButtons car={car}/>} title={car[0]} description={car[1]}/>  
+                ))}
+                
+            </ScrollView>
 
             <View style={{position: "absolute", bottom: 25, right: 30}}>
                 <IconButton
                     icon="plus"
                     mode="contained"
                     style={styles.addButton}
-                    onPress={handleModal}
+                    onPress={() =>{setCarName(null); setRegNr(null); setDialog({...openDialog, add: true})}}
                 />
             </View>
 
-            <Modal 
-                visible={addModalVisible}
-                animationType={"fade"}
-                transparent={true}
-            >
-                <View style={styles.backgroundModal}>
-                    <View style={styles.modalView}>
-                        <IconButton 
-                            icon={"close"}
-                            style={{alignSelf: "flex-end"}} 
-                            onPress={handleModal}
-                        />
-                        <Text style={{textAlign: "center"}}>Add a car</Text>
-                        <TextInput
-                            mode="outlined"
-                            label="Car Name"
-                            value={carName}
-                            onChangeText={setCarName}
-                            style={styles.addField}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Registration Number"
-                            value={regNr}
-                            onChangeText={setRegNr}
-                            style={styles.addField}
-                        />
-                        <Button 
-                            style={styles.addCar}
-                            onPress={add}
-                            textColor={theme.colors.onSecondary}
-                        >
-                            Add
-                        </Button>
-                    </View>
-                </View>
-            </Modal>
+            <AddDialog/>
+            <DeleteDialog/>
+            <EditDialog/>
 
-        </SafeAreaView>
+        </View>
     );
 }
 
