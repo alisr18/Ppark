@@ -14,15 +14,13 @@ import History from "./pages/history";
 
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import { Provider, DefaultTheme, Text } from "react-native-paper";
-
 import { createContext, useState, useEffect } from "react";
 
 import themeData from "./theme.json"
 import Login from "./pages/login";
 import Register from "./pages/register";
+import { useAsyncStorage } from "./components/AsyncStorage";
 
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
@@ -48,47 +46,11 @@ function ProfileStackNavigator({route}) {
       <ProfileStack.Screen name="ProfileScreen" component={Profile}/>
       <ProfileStack.Screen name="Account" component={Account}/>
       <ProfileStack.Screen name="Cars" component={Cars} initialParams={{user: user}}/>
-      <ProfileStack.Screen name="Parking" component={Parking}/>
+      <ProfileStack.Screen name="Parking" component={Parking} initialParams={{user: user}}/>
       <ProfileStack.Screen name="Settings" component={Settings}/>
       <ProfileStack.Screen name="History" component={History}/>
     </ProfileStack.Navigator>
   );
-}
-
-function useAsyncStorage(key, initialValue) {
-  const [storedValue, setStoredValue] = useState();
-
-  async function getStoredItem(key, initialValue) {
-    try {
-      const item = await AsyncStorage.getItem(key);
-      if (item) {
-        setStoredValue(JSON.parse(JSON.stringify(item)));
-      } else {
-        setValue(initialValue)
-      }
-      
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useEffect(() => {
-    getStoredItem(key, initialValue);
-  }, [key, initialValue]);
-
-  const setValue = async (value) => {
-    try {
-      const valueToStore =
-        value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      await AsyncStorage.setItem(key, valueToStore);
-      console.log(`${key} changed to: ${valueToStore}`)
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return [storedValue, setValue];
 }
 
 function MyTabs({user}) {
