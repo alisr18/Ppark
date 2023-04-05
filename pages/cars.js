@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { ThemeContext } from "../App";
 import { db } from "../firebaseConfig";
 import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
+import { FormProvider, useController, useForm } from "react-hook-form";
+import { Input } from "../components/Input";
 
 
 const Cars = ({route}) => {
@@ -14,8 +16,6 @@ const Cars = ({route}) => {
 
     const theme = useContext(ThemeContext)
 
-    const [carName, setCarName] = useState(null);
-    const [regNr, setRegNr] = useState(null);
     const [changes, setChanges] = useState(null);
 
     const [openDialog, setDialog] = useState(
@@ -26,28 +26,30 @@ const Cars = ({route}) => {
         }
     )
 
+    const { control: addForm, handleSubmit: handleAdd, reset: resetAddForm } = useForm();
+    const { control: editForm, handleSubmit: handleEdit, reset: resetEditForm } = useForm();
+
 
     // Add car to db
-    const add = async() => {
+    const add = async(car) => {
         try {
             const docRef = doc(db, "cars", user.uid);
             const docSnap = await getDoc(docRef);
-            const car = [carName, regNr, false];
+            const carInfo = [car.carName, car.regNr, false];
 
             if (docSnap.exists()) { // Adding to existing document
                 await updateDoc(docRef, {
-                    [regNr]: car,
+                    [car.regNr]: carInfo,
                 });
             }
             else { // Creating new document
                 await setDoc(docRef, {
-                    [regNr]: car,
+                    [car.regNr]: carInfo,
                 });
             }
             
-            setRegNr(null);
-            setCarName(null);
-            console.log(carName, "added to the db");
+            setDialog({...openDialog, add: false});
+            console.log(car.carName, "added to the db");
             setChanges(changes+1);
         } 
         catch(error) {
@@ -84,25 +86,24 @@ const Cars = ({route}) => {
 
 
     // Edit cars in db
-    const edit = async() => {
+    const edit = async(car) => {
         try {
             const docRef = doc(db, "cars", user.uid);
             const carsDoc = await getDoc(docRef);
-            
-            const car = [carName, regNr, selectedCar[2]];
+            console.log(selectedCar[0]);
+            const carInfo = [car.carName, car.regNr, selectedCar[2]];
             
             if (carsDoc.exists()) { 
                 const updatedDoc = {...carsDoc.data()};
                 delete updatedDoc[selectedCar[1]];
 
                 await setDoc(docRef, updatedDoc).then(updateDoc(docRef, {
-                    [regNr]: car,
+                    [car.regNr]: carInfo,
                 }));
             }
             
-            setRegNr(null);
-            setCarName(null);
-            console.log(carName, "added to the db");
+            setDialog({...openDialog, edit: false});
+            console.log(car.carName, "added to the db");
             setChanges(changes+1);
         } 
         catch(error) {
@@ -326,13 +327,13 @@ const Cars = ({route}) => {
             <Dialog visible={openDialog.edit} onDismiss={() => setDialog({...openDialog, edit: false})}>
                 <Dialog.Title>Edit Car</Dialog.Title>
                 <Dialog.Content>
-                    <TextInput mode="outlined" value={carName} style={styles.dialogInput} label="Car Name" onChangeText={setCarName}/>
-                    <TextInput mode="outlined" value={regNr} style={styles.dialogInput} label="Registration Number" onChangeText={setRegNr}/>
+                    <Input control={editForm} defaultValue={selectedCar[0]} rules={{required: true}} name="carName" label="Car Name" style={styles.dialogInput}/>
+                    <Input control={editForm} defaultValue={selectedCar[1]} rules={{required: true}} name="regNr" label="Registration Number" style={styles.dialogInput}/>                
                 </Dialog.Content>
                 <Dialog.Actions>
                     <ActivationBtn/>
-                    <Button style={{alignSelf: "stretch"}} mode='contained' onPress={() => edit().then(setDialog({...openDialog, edit: false}))}>Edit</Button>
-                </Dialog.Actions>
+                    <Button mode='contained' value="submit" onPress={handleEdit(p => edit(p, user))}>Edit</Button>                
+                </Dialog.Actions>               
             </Dialog>
         )  
     }
@@ -356,9 +357,9 @@ const Cars = ({route}) => {
                 <Dialog visible={openDialog.add} onDismiss={() => setDialog({...openDialog, add: false})}>
                     <Dialog.Title>Add Car</Dialog.Title>
                     <Dialog.Content>
-                        <TextInput mode="outlined" value={carName} style={styles.dialogInput} label="Car Name" onChangeText={setCarName}/>
-                        <TextInput mode="outlined" value={regNr} style={styles.dialogInput} label="Registration Number" onChangeText={setRegNr}/>
-                        <Button style={{marginVertical: 10}} mode='contained' onPress={() => add().then(setDialog({...openDialog, add: false}))}>Add</Button>
+                        <Input control={addForm} rules={{required: true}} name="carName" label="Car Name" style={styles.dialogInput}/>
+                        <Input control={addForm} rules={{required: true}} name="regNr" label="Registration Number" style={styles.dialogInput}/>
+                        <Button mode='contained' value="submit" onPress={handleAdd(p => add(p, user))}>Add</Button>
                     </Dialog.Content>
                 </Dialog>
             </Portal>
@@ -370,7 +371,7 @@ const Cars = ({route}) => {
         return (
             <View style={{flexDirection: "row"}}>
                 <IconButton icon="delete" backgroundColor={theme.colors.errorContainer} iconColor={theme.colors.onErrorContainer} onPress={() => {setSelectedCar(car.car[1]); setDialog({...openDialog, delete: true})}}/>
-                <Button mode="contained" onPress={() => {setSelectedCar(car.car); setCarName(car.car[0]); setRegNr(car.car[1]); setDialog({...openDialog, edit: true})}}>Edit</Button>
+                <Button mode="contained" onPress={() => {resetEditForm(); setSelectedCar(car.car); setDialog({...openDialog, edit: true})}}>Edit</Button>
             </View>
         )
     }
@@ -382,7 +383,7 @@ const Cars = ({route}) => {
                     <Text style={styles.carName}>{active[0]}</Text>
                     <Text style={styles.carStatus}>Active</Text>
                     <Text style={styles.carPlate}>{active[1]}</Text>
-                    <Button style={styles.carEdit} mode="contained" onPress={() => {setSelectedCar(active); setCarName(active[0]); setRegNr(active[1]); setDialog({...openDialog, edit: true})}}>Edit</Button>
+                    <Button style={styles.carEdit} mode="contained" onPress={() => {resetEditForm(); setSelectedCar(active); setDialog({...openDialog, edit: true})}}>Edit</Button>
                 </Surface>
             )
         }
@@ -419,7 +420,7 @@ const Cars = ({route}) => {
                     icon="plus"
                     mode="contained"
                     style={styles.addButton}
-                    onPress={() =>{setCarName(null); setRegNr(null); setDialog({...openDialog, add: true})}}
+                    onPress={() =>{resetAddForm(); setDialog({...openDialog, add: true})}}
                 />
             </View>
 
