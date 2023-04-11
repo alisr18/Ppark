@@ -323,19 +323,24 @@ const Cars = ({route}) => {
     }
 
     function EditDialog() {
-        return (
-            <Dialog visible={openDialog.edit} onDismiss={() => setDialog({...openDialog, edit: false})}>
-                <Dialog.Title>Edit Car</Dialog.Title>
-                <Dialog.Content>
-                    <Input control={editForm} defaultValue={selectedCar[0]} rules={{required: true}} name="carName" label="Car Name" style={styles.dialogInput}/>
-                    <Input control={editForm} defaultValue={selectedCar[1]} rules={{required: true}} name="regNr" label="Registration Number" style={styles.dialogInput}/>                
-                </Dialog.Content>
-                <Dialog.Actions>
-                    <ActivationBtn/>
-                    <Button mode='contained' value="submit" onPress={handleEdit(p => edit(p, user))}>Edit</Button>                
-                </Dialog.Actions>               
-            </Dialog>
-        )  
+        if (selectedCar != null) {
+            return (
+                <Dialog visible={openDialog.edit} onDismiss={() => setDialog({...openDialog, edit: false})}>
+                    <Dialog.Title>Edit Car</Dialog.Title>
+                    <Dialog.Content>
+                        <Input control={editForm} defaultValue={selectedCar[0]} rules={{required: true}} name="carName" label="Car Name" style={styles.dialogInput}/>
+                        <Input control={editForm} defaultValue={selectedCar[1]} rules={{required: true}} name="regNr" label="Registration Number" style={styles.dialogInput}/>                
+                    </Dialog.Content>
+                    <Dialog.Actions>
+                        <ActivationBtn/>
+                        <Button mode='contained' value="submit" onPress={handleEdit(p => edit(p, user))}>Edit</Button>                
+                    </Dialog.Actions>               
+                </Dialog>
+            )
+        }
+        else {
+            return null;
+        }  
     }
 
     function ActivationBtn() {
