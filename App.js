@@ -1,7 +1,10 @@
 
 
 import { NavigationContainer } from "@react-navigation/native"
-import Dashboard from "./pages/dashboard"
+
+import Mapv from "./pages/mapv"
+import Chat from "./pages/chat"
+
 import ChatScreen from "./pages/chatscreen";
 import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
@@ -55,16 +58,16 @@ function ProfileStackNavigator({route}) {
 
 function MyTabs({user}) {
   return (
-    <Tab.Navigator initialRouteName="Dashboard" screenOptions={{headerShown: false}}>
+    <Tab.Navigator initialRouteName="Googel Map" screenOptions={{headerShown: false}}>
       <Tab.Screen name="Chat" component={ChatStackNavigator}
         options={{
           tabBarIcon: 'chat',
         }}/>
-      <Tab.Screen name="Dashboard"
+      <Tab.Screen name="map"
         options={{
           tabBarIcon: 'map',
         }}>
-        {(props) => <Dashboard {...props} user={user}/>}
+        {(props) => <Mapv {...props} user={user}/>}
       </Tab.Screen>
       <Tab.Screen name="Profile" component={ProfileStackNavigator}
         options={{

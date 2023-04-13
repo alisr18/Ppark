@@ -8,8 +8,8 @@ import { Button, TextInput } from "react-native-paper";
 
 const Login = ({setUser}) => {
     // Component state, mirrors the input fields
-    const [email, setEmail] = useState(''); // testusername: test@uia.no, testpassword: 123456
-    const [password, setPassword] = useState(''); 
+    const [email, setEmail] = useState('test@uia.no'); // testusername: test@uia.no, testpassword: 123456
+    const [password, setPassword] = useState('123456');
 
     // Logs in the user based on the value of the component state.
     // This function is called when the button declared below is pressed.

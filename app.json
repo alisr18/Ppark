@@ -19,19 +19,16 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDFviNwbJMBXOwDzTPWUxgCamIiAjrW2mo"
+        }
       }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsImpl": "mapbox",
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibWF0aW4xMiIsImEiOiJjbGZibDV0aDgxd2EzM3NwY2t2Y2o3eHI3In0.ta7How7ZPSJu6rqgPfzhDA"
-        }
-      ]
-    ]
+    }
+
   }
 }

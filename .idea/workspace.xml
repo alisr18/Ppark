@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="33b9208d-ab4d-461c-8f65-2d933d1bde9c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/pages/mapv.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
 <<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
@@ -17,6 +19,12 @@
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pages/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/dashboard.js" afterDir="false" />
 >>>>>>> 178a25f (mapv)
+=======
+      <change beforePath="$PROJECT_DIR$/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/dashboard.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/login.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/login.js" afterDir="false" />
+>>>>>>> 465ea08 (Map configuration)
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,10 +51,14 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "last_opened_file_path": "C:/Users/alisr18/Ppark",
 =======
     "last_opened_file_path": "C:/Users/Matin/ikt205v23/Ppark",
 >>>>>>> 178a25f (mapv)
+=======
+    "last_opened_file_path": "C:/Users/Matin/ikt205g-23v/fuck",
+>>>>>>> 465ea08 (Map configuration)
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -76,7 +88,11 @@
       <workItem from="1679991566233" duration="12724000" />
       <workItem from="1680430739511" duration="5203000" />
       <workItem from="1680455412675" duration="1201000" />
+<<<<<<< HEAD
 >>>>>>> 178a25f (mapv)
+=======
+      <workItem from="1681397794994" duration="6529000" />
+>>>>>>> 465ea08 (Map configuration)
     </task>
     <servers />
   </component>
