@@ -6,10 +6,17 @@
   <component name="ChangeListManager">
     <list default="true" id="33b9208d-ab4d-461c-8f65-2d933d1bde9c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/App.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pages/chat.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/chat.js" afterDir="false" />
+=======
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/dashboard.js" beforeDir="false" afterPath="$PROJECT_DIR$/pages/dashboard.js" afterDir="false" />
+>>>>>>> 178a25f (mapv)
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,6 +25,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/node_modules/@rnmapbox/maps/package.json" root0="SKIP_INSPECTION" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -32,12 +42,20 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
+<<<<<<< HEAD
     "last_opened_file_path": "C:/Users/alisr18/Ppark",
+=======
+    "last_opened_file_path": "C:/Users/Matin/ikt205v23/Ppark",
+>>>>>>> 178a25f (mapv)
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+<<<<<<< HEAD
+=======
+    "ts.external.directory.path": "C:\\Users\\Matin\\AppData\\Local\\JetBrains\\Toolbox\\apps\\WebStorm\\ch-0\\223.8214.51\\plugins\\javascript-impl\\jsLanguageServicesImpl\\external",
+>>>>>>> 178a25f (mapv)
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -50,7 +68,15 @@
       <option name="presentableId" value="Default" />
       <updated>1679347546542</updated>
       <workItem from="1679347547935" duration="79000" />
+<<<<<<< HEAD
       <workItem from="1679701512862" duration="5888000" />
+=======
+      <workItem from="1679593001748" duration="4166000" />
+      <workItem from="1679602785317" duration="969000" />
+      <workItem from="1679991566233" duration="12724000" />
+      <workItem from="1680430739511" duration="5203000" />
+      <workItem from="1680455412675" duration="1201000" />
+>>>>>>> 178a25f (mapv)
     </task>
     <servers />
   </component>
