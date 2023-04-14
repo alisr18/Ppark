@@ -1,21 +1,20 @@
 import {useContext, useEffect, useState} from "react";
-import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {scrollview, View, StyleSheet, Image, TouchableOpacity, ScrollView} from "react-native";
 import { Button, TextInput, Text, Avatar, Card, Surface, List } from "react-native-paper";
 import {useNavigation } from '@react-navigation/native';
-import { ThemeContext } from "../App";
+import {ThemeContext, UserContext} from "../App";
 import {auth, db} from "../firebaseConfig";
 import {doc, getDoc, updateDoc} from "firebase/firestore";
 import { Modal, Platform } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import {ref, uploadBytes, getDownloadURL, getStorage} from "firebase/storage";
-import { storage } from "../firebaseConfig";
-
-
 
 const color1 = "#436278";
 const color2 = "#357266";
 
-export default function Profile({ user }) {
+export default function Profile() {
+
+    const { user, setUser } = useContext(UserContext);
 
 
     const theme = useContext(ThemeContext)
@@ -70,7 +69,18 @@ export default function Profile({ user }) {
 
         fetchUserData();
     }, []);
-    const test = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+
+    const signOut = async () => {
+        try {
+            await auth.signOut();
+            setUser(1);
+            navigation.navigate('Login');
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+
     useEffect(() => {
         (async () => {
             if (Platform.OS !== 'web') {
@@ -124,8 +134,8 @@ export default function Profile({ user }) {
     const closeModal = () => {
         setIsModalVisible(false);
     };
-    console.log(profilePictureURL)
     return (
+        <ScrollView>
         <View style={{ padding: 30 }}>
             <View style={styles.profile}>
                 <Surface
@@ -292,7 +302,19 @@ export default function Profile({ user }) {
                     title="History"
                 />
             </TouchableOpacity>
+
+    <TouchableOpacity style={styles.listButton} onPress={signOut}>
+        <List.Item
+            left={(props) => <List.Icon
+                icon="logout"
+                {...props}
+            />}
+            right={() => <MenuArrow/>}
+            title="Sign out"
+        />
+    </TouchableOpacity>
         </View>
+</ScrollView>
     )
 }
 

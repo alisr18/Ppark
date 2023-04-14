@@ -1,12 +1,14 @@
 import { View, StyleSheet, Image } from "react-native";
-import React, { useState } from "react";
+import React, {useContext, useState} from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { Button, TextInput } from "react-native-paper";
+import {UserContext} from "../App";
 
 
 
-const Login = ({setUser}) => {
+const Login = () => {
+    const { user, setUser } = useContext(UserContext);
     // Component state, mirrors the input fields
     const [email, setEmail] = useState('test@uia.no'); // testusername: test@uia.no, testpassword: 123456
     const [password, setPassword] = useState('123456');

@@ -18,7 +18,7 @@ import History from "./pages/history";
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Provider, DefaultTheme, Text } from "react-native-paper";
-import { createContext, useState, useEffect } from "react";
+import {createContext, useState, useEffect, useContext} from "react";
 
 import themeData from "./theme.json"
 import Login from "./pages/login";
@@ -30,6 +30,9 @@ const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 export const ThemeContext = createContext();
 export const SelectedThemeContext = createContext();
+
+export const UserContext = createContext();
+
 
 function ChatStackNavigator() {
     return (
@@ -52,11 +55,13 @@ function ProfileStackNavigator({route}) {
       <ProfileStack.Screen name="Parking" component={Parking} initialParams={{user: user}}/>
       <ProfileStack.Screen name="Settings" component={Settings}/>
       <ProfileStack.Screen name="History" component={History}/>
+        <ProfileStack.Screen name="Login" component={Login}/>
     </ProfileStack.Navigator>
   );
 }
 
-function MyTabs({user}) {
+function MyTabs() {
+    const { user, setUser } = useContext(UserContext);
   return (
     <Tab.Navigator initialRouteName="Googel Map" screenOptions={{headerShown: false}}>
       <Tab.Screen name="Chat" component={ChatStackNavigator}
@@ -102,40 +107,44 @@ export default function App() {
   }
   
   const [user, setUser] = useState(1);
-  
-  if (!user) {
-    return (
-      <Provider theme={theme}>
-        <ThemeContext.Provider value={theme}>
-            <Register setUser={setUser}/>
-        </ThemeContext.Provider>
-      </Provider>
-    )
-  }
-  else if (user == 1) {
-    return (
-      <Provider theme={theme}>
-        <ThemeContext.Provider value={theme}>
-            <Login setUser={setUser}/>
-        </ThemeContext.Provider>
-      </Provider>
-    )
-  }
-  else {
-    return (
-      <Provider theme={theme}>
-        <ThemeContext.Provider value={theme}>
-          <SelectedThemeContext.Provider value={selectedData}>
-            <NavigationContainer theme={theme}>
-            <StatusBar
-            animated={true}
-            backgroundColor={theme.colors.elevation.level5}
-            />
-              <MyTabs user={user}/>
-            </NavigationContainer>
-          </SelectedThemeContext.Provider>
-        </ThemeContext.Provider>
-      </Provider>
-    )
-  }
+
+    if (!user) {
+        return (
+            <Provider theme={theme}>
+                <ThemeContext.Provider value={theme}>
+                    <UserContext.Provider value={{ user, setUser }}>
+                        <Register />
+                    </UserContext.Provider>
+                </ThemeContext.Provider>
+            </Provider>
+        );
+    } else if (user === 1) {
+        return (
+            <Provider theme={theme}>
+                <ThemeContext.Provider value={theme}>
+                    <UserContext.Provider value={{ user, setUser }}>
+                        <Login />
+                    </UserContext.Provider>
+                </ThemeContext.Provider>
+            </Provider>
+        );
+    } else {
+        return (
+            <Provider theme={theme}>
+                <ThemeContext.Provider value={theme}>
+                    <SelectedThemeContext.Provider value={selectedData}>
+                        <UserContext.Provider value={{ user, setUser }}>
+                            <NavigationContainer theme={theme}>
+                                <StatusBar
+                                    animated={true}
+                                    backgroundColor={theme.colors.elevation.level5}
+                                />
+                                <MyTabs />
+                            </NavigationContainer>
+                        </UserContext.Provider>
+                    </SelectedThemeContext.Provider>
+                </ThemeContext.Provider>
+            </Provider>
+        );
+    }
 }

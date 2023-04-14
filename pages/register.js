@@ -1,13 +1,15 @@
-import { useState } from "react";
+import {useContext, useState} from "react";
 import { View, StyleSheet, Image } from "react-native";
 import {auth, db} from "../firebaseConfig";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { Button, TextInput } from "react-native-paper";
 import { doc, setDoc} from "firebase/firestore"
 import {getFirestore} from "firebase/firestore";
+import {UserContext} from "../App";
 
 
-export default function Register ({setUser}) {
+export default function Register () {
+    const { user, setUser } = useContext(UserContext);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
