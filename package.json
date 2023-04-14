@@ -20,6 +20,7 @@
     "@rnmapbox/maps": "^10.0.0-rc.6",
     "expo": "~48.0.4",
     "expo-image-picker": "^14.1.1",
+    "expo-secure-store": "^12.1.1",
     "expo-status-bar": "~1.4.4",
     "firebase": "^9.17.2",
     "firebase-admin": "^11.5.0",

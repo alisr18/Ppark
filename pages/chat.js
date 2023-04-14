@@ -1,24 +1,21 @@
-import React, { useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useCallback, useContext } from 'react';
 import { TouchableOpacity, Text } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import { collection, addDoc, orderBy, query, onSnapshot } from 'firebase/firestore';
 import { auth, db } from "../firebaseConfig";
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
-import { signOut } from 'firebase/auth';
-import Login from "./login";
+import { AuthContext } from "../authContext";
 
 
 export default function ChatOverviewScreen() {
     const [messages, setMessages] = useState([]);
     const navigation = useNavigation();
+    const { user, logout } = useContext(AuthContext);
 
     //lager en signout knapp, denne kan flyttes på ved enighet, TRENGER HJELP HER!!
     const onSignOut = () => {
-        signOut(auth).catch(error => console.log(error));
-        return (
-            <Login setUser={null}></Login>
-        )
+        logout();
     };
 
     //legger til logout knapp i header, dette blir rendered før noe vises til user
@@ -71,7 +68,7 @@ export default function ChatOverviewScreen() {
             messages={messages}
             onSend={messages => onSend(messages)}
             user={{
-                _id: auth?.currentUser?.email,
+                _id: user.email,
                 avatar: 'https://i.pravatar.cc/300'
             }}
         />

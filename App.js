@@ -1,10 +1,6 @@
 
 
 import { NavigationContainer } from "@react-navigation/native"
-
-import Mapv from "./pages/mapv"
-import Chat from "./pages/chat"
-
 import ChatScreen from "./pages/chatscreen";
 import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
@@ -14,11 +10,13 @@ import Cars from "./pages/cars";
 import Parking from "./pages/parking";
 import Settings from "./pages/settings";
 import History from "./pages/history";
+import { AuthContext, AuthProvider } from "./authContext";
+import Mapv from "./pages/mapv";
 
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Provider, DefaultTheme, Text } from "react-native-paper";
-import {createContext, useState, useEffect, useContext} from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 
 import themeData from "./theme.json"
 import Login from "./pages/login";
@@ -30,9 +28,6 @@ const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 export const ThemeContext = createContext();
 export const SelectedThemeContext = createContext();
-
-export const UserContext = createContext();
-
 
 function ChatStackNavigator() {
     return (
@@ -55,33 +50,50 @@ function ProfileStackNavigator({route}) {
       <ProfileStack.Screen name="Parking" component={Parking} initialParams={{user: user}}/>
       <ProfileStack.Screen name="Settings" component={Settings}/>
       <ProfileStack.Screen name="History" component={History}/>
-        <ProfileStack.Screen name="Login" component={Login}/>
     </ProfileStack.Navigator>
   );
 }
 
 function MyTabs() {
-    const { user, setUser } = useContext(UserContext);
-  return (
-    <Tab.Navigator initialRouteName="Googel Map" screenOptions={{headerShown: false}}>
-      <Tab.Screen name="Chat" component={ChatStackNavigator}
-        options={{
-          tabBarIcon: 'chat',
-        }}/>
-      <Tab.Screen name="map"
-        options={{
-          tabBarIcon: 'map',
-        }}>
-        {(props) => <Mapv {...props} user={user}/>}
-      </Tab.Screen>
-      <Tab.Screen name="Profile" component={ProfileStackNavigator}
-        options={{
-          tabBarIcon: 'account',
-        }}
-        initialParams={{user: user}}
-      />
-    </Tab.Navigator>
-  )
+
+  const {user} = useContext(AuthContext);
+
+  if(!user) {
+    return (
+      <Tab.Navigator screenOptions={{headerShown: false}}>
+        <Tab.Screen name="Login" component={Login}
+          options={{
+            tabBarIcon: 'login',
+          }}/>
+        <Tab.Screen name="Register" component={Register}
+          options={{
+            tabBarIcon: 'account-plus',
+          }}/>
+      </Tab.Navigator>
+    )
+  }
+  else {
+    return (
+      <Tab.Navigator initialRouteName="Map" screenOptions={{headerShown: false}}>
+        <Tab.Screen name="Chat" component={ChatStackNavigator}
+          options={{
+            tabBarIcon: 'chat',
+          }}/>
+        <Tab.Screen name="Map"
+          options={{
+            tabBarIcon: 'map',
+          }}>
+          {(props) => <Mapv {...props} user={user}/>}
+        </Tab.Screen>
+        <Tab.Screen name="Profile" component={ProfileStackNavigator}
+          options={{
+            tabBarIcon: 'account',
+          }}
+          initialParams={{user: user}}
+        />
+      </Tab.Navigator>
+    )
+  }
 }
 
 export default function App() {
@@ -106,45 +118,22 @@ export default function App() {
     colors: themeData.schemes.light
   }
   
-  const [user, setUser] = useState(1);
 
-    if (!user) {
-        return (
-            <Provider theme={theme}>
-                <ThemeContext.Provider value={theme}>
-                    <UserContext.Provider value={{ user, setUser }}>
-                        <Register />
-                    </UserContext.Provider>
-                </ThemeContext.Provider>
-            </Provider>
-        );
-    } else if (user === 1) {
-        return (
-            <Provider theme={theme}>
-                <ThemeContext.Provider value={theme}>
-                    <UserContext.Provider value={{ user, setUser }}>
-                        <Login />
-                    </UserContext.Provider>
-                </ThemeContext.Provider>
-            </Provider>
-        );
-    } else {
-        return (
-            <Provider theme={theme}>
-                <ThemeContext.Provider value={theme}>
-                    <SelectedThemeContext.Provider value={selectedData}>
-                        <UserContext.Provider value={{ user, setUser }}>
-                            <NavigationContainer theme={theme}>
-                                <StatusBar
-                                    animated={true}
-                                    backgroundColor={theme.colors.elevation.level5}
-                                />
-                                <MyTabs />
-                            </NavigationContainer>
-                        </UserContext.Provider>
-                    </SelectedThemeContext.Provider>
-                </ThemeContext.Provider>
-            </Provider>
-        );
-    }
+  return (
+    <Provider theme={theme}>
+      <ThemeContext.Provider value={theme}>
+        <SelectedThemeContext.Provider value={selectedData}>
+          <AuthProvider>
+            <NavigationContainer theme={theme}>
+            <StatusBar
+            animated={true}
+            backgroundColor={theme.colors.elevation.level5}
+            />
+              <MyTabs/>
+            </NavigationContainer>
+          </AuthProvider>
+        </SelectedThemeContext.Provider>
+      </ThemeContext.Provider>
+    </Provider>
+  )
 }

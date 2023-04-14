@@ -1,41 +1,19 @@
 import { View, StyleSheet, Image } from "react-native";
-import React, {useContext, useState} from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import React, { useContext, useState } from "react";
 import { Button, TextInput } from "react-native-paper";
-import {UserContext} from "../App";
-
+import { AuthContext } from "../authContext";
 
 
 const Login = () => {
-    const { user, setUser } = useContext(UserContext);
     // Component state, mirrors the input fields
-    const [email, setEmail] = useState('test@uia.no'); // testusername: test@uia.no, testpassword: 123456
-    const [password, setPassword] = useState('123456');
+    const [email, setEmail] = useState(''); // testusername: test@uia.no, testpassword: 123456
+    const [password, setPassword] = useState(''); 
+    const { login } = useContext(AuthContext);
 
     // Logs in the user based on the value of the component state.
     // This function is called when the button declared below is pressed.
     const loginUser = () => {
-        signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                const user = userCredential.user;
-                console.log(`User has been signed in: ${user.email}`);
-
-                // Call the setter passed to us as a prop
-                setUser(user);
-                setEmail('');
-                setPassword('');
-            })
-            .catch((error) => {
-                console.log(`Error: ${error.code} ${error.message}`);
-                const errorCode = error.code;
-                const errorMessage = error.message;
-            });
-    }
-
-    const newUser = () => {
-        console.log('newUser pressed');
-        setUser(null);
+        login(email, password);
     }
 
     return (
@@ -65,11 +43,6 @@ const Login = () => {
             marginTop={10}
         >
         Login
-        </Button>
-        <Button
-            onPress={newUser}
-        >
-            New user? Register here!
         </Button>
       </View>
     );

@@ -4315,6 +4315,11 @@
     "compare-versions" "^3.4.0"
     "invariant" "^2.2.4"
 
+"expo-secure-store@^12.1.1":
+  "integrity" "sha512-phD8e8mlJWaESUBCpHq0GjS3OiqZ7g+I6SpTGQpt+xSS0pEE1ZUBXnIF+WR2OvoseKiS9ODzDl85CUlut/eNKw=="
+  "resolved" "https://registry.npmjs.org/expo-secure-store/-/expo-secure-store-12.1.1.tgz"
+  "version" "12.1.1"
+
 "expo-status-bar@~1.4.4":
   "integrity" "sha512-5DV0hIEWgatSC3UgQuAZBoQeaS9CqeWRZ3vzBR9R/+IUD87Adbi4FGhU10nymRqFXOizGsureButGZIXPs7zEA=="
   "resolved" "https://registry.npmjs.org/expo-status-bar/-/expo-status-bar-1.4.4.tgz"

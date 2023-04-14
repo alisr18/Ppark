@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import {View, StyleSheet, TouchableOpacity, Alert, Modal} from "react-native";
 import { Button, TextInput, Text, IconButton, Menu } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import {doc,getDoc,setDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "../firebaseConfig";
+import { AuthContext } from "../authContext";
 
 
 
@@ -24,12 +25,13 @@ const Account = () => {
     const [menuVisible, setMenuVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
 
+    const { user } = useContext(AuthContext);
+
 
     const navigate = useNavigation();
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const user = auth.currentUser;
             const userDoc = doc(db, 'users', user.uid);
             const userData = (await getDoc(userDoc)).data();
 
@@ -51,7 +53,6 @@ const Account = () => {
         setModalVisible(false);
     };
     const handleSave = async () => {
-        const user = auth.currentUser;
         const userId = user.uid;
         if (firstName !== "" && lastName !== "" && address !== "" && zipcode !== "" && city !== "") {
             await updateDoc(doc(db, "users", user.uid), {

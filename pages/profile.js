@@ -8,13 +8,14 @@ import {doc, getDoc, updateDoc} from "firebase/firestore";
 import { Modal, Platform } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import {ref, uploadBytes, getDownloadURL, getStorage} from "firebase/storage";
+import { AuthContext } from "../authContext";
 
 const color1 = "#436278";
 const color2 = "#357266";
 
 export default function Profile() {
 
-    const { user, setUser } = useContext(UserContext);
+    const { user, logout } = useContext(AuthContext);
 
 
     const theme = useContext(ThemeContext)
@@ -51,7 +52,6 @@ export default function Profile() {
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const user = auth.currentUser;
             const userDoc = doc(db, 'users', user.uid);
             const userData = (await getDoc(userDoc)).data();
 
@@ -72,9 +72,7 @@ export default function Profile() {
 
     const signOut = async () => {
         try {
-            await auth.signOut();
-            setUser(1);
-            navigation.navigate('Login');
+            logout();
         } catch (error) {
             console.log(error);
         }
@@ -119,7 +117,6 @@ export default function Profile() {
             console.log('Download URL:', downloadURL);
 
             // Save the download URL to Firestore
-            const user = auth.currentUser;
             const userRef = doc(db, 'users', user.uid);
             await updateDoc(userRef, {
                 profilePicture: downloadURL
