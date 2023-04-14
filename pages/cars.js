@@ -7,10 +7,11 @@ import { db } from "../firebaseConfig";
 import { doc, setDoc, updateDoc, getDoc } from "firebase/firestore";
 import { FormProvider, useController, useForm } from "react-hook-form";
 import { Input } from "../components/Input";
+import { AuthContext } from "../authContext";
 
 
-const Cars = ({route}) => {
-    const {user} = route.params;
+const Cars = () => {
+    const { user } = useContext(AuthContext);
 
     const navigate = useNavigation();
 

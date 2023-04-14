@@ -46,7 +46,7 @@ function ProfileStackNavigator({route}) {
     <ProfileStack.Navigator screenOptions={{headerShown: false}}>
       <ProfileStack.Screen name="ProfileScreen" component={Profile}/>
       <ProfileStack.Screen name="Account" component={Account}/>
-      <ProfileStack.Screen name="Cars" component={Cars} initialParams={{user: user}}/>
+      <ProfileStack.Screen name="Cars" component={Cars}/>
       <ProfileStack.Screen name="Parking" component={Parking} initialParams={{user: user}}/>
       <ProfileStack.Screen name="Settings" component={Settings}/>
       <ProfileStack.Screen name="History" component={History}/>
