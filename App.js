@@ -115,6 +115,7 @@ export default function App() {
     ...DefaultTheme,
     ...themeData,
     custom: 'property',
+    dark: false,
     colors: themeData.schemes.light
   }
   

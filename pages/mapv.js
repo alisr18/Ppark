@@ -1,16 +1,24 @@
 import React from 'react';
 import MapView from 'react-native-maps';
-import { StyleSheet, View, TextInput } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { TextInput } from "react-native-paper"
+import { ThemeContext } from '../App';
+import { useEffect } from 'react';
+import { useContext } from 'react';
 
-const Mapv = () => {
+function Mapv() {
+    const theme = useContext(ThemeContext)
     return (
         <View style={styles.container}>
-            <MapView loadingEnabled={true} style={styles.map} />
+            <MapView 
+            loadingEnabled={true} 
+            style={styles.map} 
+            customMapStyle={theme.dark ? theme.map.dark : theme.map.light}
+            />
             <View style={{ position: 'absolute', top: 10, width: '100%' }}>
                 <TextInput
-                    style={styles.searchbar}
+                mode='outlined'
                     placeholder={'Search'}
-                    placeholderTextColor={'#000'}
                 />
             </View>
         </View>
@@ -18,10 +26,6 @@ const Mapv = () => {
 }
 
 export default Mapv;
-
-
-
-
 
 const styles = StyleSheet.create({
     container: {
@@ -43,3 +47,4 @@ const styles = StyleSheet.create({
         fontSize: 18,
     }
 });
+
