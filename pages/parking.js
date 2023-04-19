@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
-import { useContext, useEffect, useState } from "react";
-import { View, StyleSheet, Image, TouchableOpacity, StatusBar, ScrollView } from "react-native";
+import { useContext, useEffect, useRef, useState } from "react";
+import { View, StyleSheet, Image, TouchableOpacity, StatusBar, ScrollView, FlatList, Animated } from "react-native";
 import { Button, TextInput, Avatar, Text, IconButton, Menu, List, Dialog, Appbar, Surface, Divider } from "react-native-paper";
 import { ThemeContext } from "../App";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -156,6 +156,11 @@ const Parking = ({ route }) => {
             </Dialog>
         )
     }
+    
+    const [scrollViewWidth, setScrollViewWidth] = useState(0);
+    const boxWidth = scrollViewWidth * 0.8;
+    const boxDistance = scrollViewWidth - boxWidth;
+    const halfBoxDistance = boxDistance / 2;
 
     const styles = StyleSheet.create({
         page: {
@@ -163,15 +168,11 @@ const Parking = ({ route }) => {
             //backgroundColor: "#191C1B",
         },
         carContainer: {
-            marginHorizontal: 30,
-            marginBottom: 20,
-            padding: 25,
-            borderWidth: 2,
             borderRadius: 12,
-            borderColor: theme.colors.surfaceDisabled,    
             height: 185,
+            padding: 16,
+            width: boxWidth,
             display: "flex",
-            alignSelf: "stretch",
             flexDirection: "column",
             justifyContent: "space-between"
         },
@@ -202,6 +203,42 @@ const Parking = ({ route }) => {
             height: 56,
         },
     })
+    const pan = useRef(new Animated.ValueXY()).current;
+
+    function RenderCard({item, index}) {
+        return (
+            <Animated.View
+              style={{
+                transform: [
+                  {
+                    scale: pan.x.interpolate({
+                      inputRange: [
+                        (index - 1) * boxWidth - halfBoxDistance,
+                        index * boxWidth - halfBoxDistance,
+                        (index + 1) * boxWidth - halfBoxDistance, // adjust positioning
+                      ],
+                      outputRange: [0.85, 1, 0.85], // scale down when out of scope
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
+              }}>
+              <Surface style={styles.carContainer} elevation={5}>
+                  <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                      <View>
+                          <Text style={styles.carName}>Gatenavn 123</Text>
+                          <Text style={styles.carPlate}>Until 18:00</Text>
+                      </View>
+                      <Text style={styles.carStatus}>Active for 23:21</Text>
+                  </View>
+                  <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
+                      <Text style={{...styles.carPlate, justifyContent: "flex-end"}}>56kr per hour</Text>
+                      <Button style={styles.carEdit} mode="contained" onPress={() => console.log("Stop pressed")}>Stop</Button>
+                  </View>
+              </Surface>
+            </Animated.View>
+        )
+    }
 
     return (
         <View style={styles.page}>
@@ -210,21 +247,35 @@ const Parking = ({ route }) => {
                     <Appbar.BackAction onPress={navigate.goBack} />
                 </Appbar.Header>
             </Appbar>
-            <View style={{alignItems: "center"}}>
-                <Surface style={styles.carContainer} elevation={0}>
-                    <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                        <View>
-                            <Text style={styles.carName}>Gatenavn 123</Text>
-                            <Text style={styles.carPlate}>Until 18:00</Text>
-                        </View>
-                        <Text style={styles.carStatus}>Active for 23:21</Text>
-                    </View>
-                    <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
-                        <Text style={{...styles.carPlate, justifyContent: "flex-end"}}>56kr per hour</Text>
-                        <Button style={styles.carEdit} mode="contained" onPress={() => console.log("Stop pressed")}>Stop</Button>
-                    </View>
-                </Surface>
-            </View>
+            <FlatList
+            horizontal
+            data={[{body: () => <Text>Yo</Text>, elevation: 3}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}]}
+            style={{ height: 0 }}
+            contentContainerStyle={{ paddingVertical: 10, height: 200  }}
+            contentInsetAdjustmentBehavior="never"
+            snapToAlignment="center"
+            decelerationRate="fast"
+            automaticallyAdjustContentInsets={false}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={2}
+            renderItem={RenderCard}
+            snapToInterval={boxWidth}
+            contentInset={{
+              left: -halfBoxDistance,
+              right: halfBoxDistance,
+            }}
+            contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
+            onLayout={(e) => {
+              setScrollViewWidth(e.nativeEvent.layout.width);
+            }}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: pan.x } } }],
+              {
+                useNativeDriver: false,
+              },
+            )}
+            keyExtractor={(item, index) => `${index}-${item}`}/>
             <ScrollView>
                 {parkingList.map(parking => 
                     <List.Item left={(props) => <List.Icon icon="parking" {...props}/>} right={() => <ParkingButtons {...{active: parking.Active, id: parking.id}}/>} title={parking.Address} description={`${parking.Zip}, ${parking.City}`}/>

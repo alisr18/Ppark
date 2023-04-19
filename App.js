@@ -17,6 +17,8 @@ import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Provider, DefaultTheme, Text } from "react-native-paper";
 import { createContext, useState, useEffect, useContext } from "react";
+import { setBackgroundColorAsync } from 'expo-navigation-bar';
+
 
 import themeData from "./theme.json"
 import Login from "./pages/login";
@@ -104,6 +106,10 @@ export default function App() {
 
   const selectedData = { storedTheme, setStoredTheme }
 
+  useEffect(() => {
+    setBackgroundColorAsync(theme.colors.elevation.level2)
+  }, [isDarkMode])
+
   const theme = isDarkMode ? {
     ...DefaultTheme,
     ...themeData,
@@ -127,7 +133,8 @@ export default function App() {
             <NavigationContainer theme={theme}>
             <StatusBar
             animated={true}
-            backgroundColor={theme.colors.elevation.level5}
+            backgroundColor={theme.colors.elevation.level2}
+            barStyle={isDarkMode ? "light-content" : "dark-content"}
             />
               <MyTabs/>
             </NavigationContainer>
