@@ -5,9 +5,12 @@ import { TextInput } from "react-native-paper"
 import { ThemeContext } from '../App';
 import { useEffect } from 'react';
 import { useContext } from 'react';
+import { AuthContext } from "../authContext";
 
 function Mapv() {
-    const theme = useContext(ThemeContext)
+    const theme = useContext(ThemeContext);
+    const { active } = useContext(AuthContext);
+
     return (
         <View style={styles.container}>
             <MapView 
