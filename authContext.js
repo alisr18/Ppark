@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { Alert } from "react-native";
 import { auth, db } from "./firebaseConfig";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated, sendPasswordResetEmail } from "firebase/auth";
 import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator } from 'react-native-paper';
 import { doc, getDoc } from "firebase/firestore";
@@ -76,6 +77,10 @@ export const AuthProvider = ({ children }) => {
                 if (onUserCreated) {
                     onUserCreated(result.user);
                 }
+            },
+            resetPassword: async (email) => {
+                await sendPasswordResetEmail(auth, email);
+                Alert.alert("Email sent to: ", email); // Outlook/hotmail blocks the emails from reaching the user. But it works with gmail
             },
         }}>
         {children}
