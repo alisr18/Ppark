@@ -11,7 +11,7 @@ import { AuthContext } from "../authContext";
 
 
 const Cars = () => {
-    const { user } = useContext(AuthContext);
+    const { user, active, setActive } = useContext(AuthContext);
 
     const navigate = useNavigation();
 
@@ -62,12 +62,9 @@ const Cars = () => {
 
     // Get cars from db
     const [cars, setCars] = useState([]);
-    const [active, setActive] = useState(null);
       
     useEffect(() => {
         const getCars = async() => {
-            
-            console.log("Fetching cars...");
             const carsRef = doc(db, "cars", user.uid); 
             const carsDoc = await getDoc(carsRef);
             

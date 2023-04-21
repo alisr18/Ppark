@@ -1,8 +1,10 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { auth } from "./firebaseConfig";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated } from "firebase/auth";
+import { Alert } from "react-native";
+import { auth, db } from "./firebaseConfig";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated, sendPasswordResetEmail } from "firebase/auth";
 import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator } from 'react-native-paper';
+import { doc, getDoc } from "firebase/firestore";
 
 export const AuthContext = createContext();
 
@@ -10,6 +12,7 @@ export const AuthProvider = ({ children }) => {
     
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [active, setActive] = useState(null);
 
     useEffect(() => {
 
@@ -17,9 +20,23 @@ export const AuthProvider = ({ children }) => {
             const storedUser = await SecureStore.getItemAsync('user');
             if (storedUser) {
                 setUser(JSON.parse(storedUser));
+                getCar(JSON.parse(storedUser));
             }
             setLoading(false);
         };
+
+        const getCar = async(usr) => {
+            const carsRef = doc(db, "cars", usr.uid); 
+            const carsDoc = await getDoc(carsRef);
+                
+            if (carsDoc.exists()) {
+                const carsData = carsDoc.data();  
+                const carsArray = Object.values(carsData);
+                    
+                const activeCar = carsArray.find((car) => car[2] === true);
+                setActive(activeCar);
+            }
+        }
 
         getUser();
 
@@ -27,6 +44,7 @@ export const AuthProvider = ({ children }) => {
             if (currentUser) {
                 SecureStore.setItemAsync('user', JSON.stringify(currentUser));
                 setUser(currentUser);
+                getCar(currentUser);
             }
         });
 
@@ -36,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     if (loading) {
-        return <ActivityIndicator size="large"/>
+        return <ActivityIndicator style={{marginVertical: 250}} size="large"/>
     }
 
     return (
@@ -44,6 +62,8 @@ export const AuthProvider = ({ children }) => {
         value={{
             user,
             setUser,
+            active,
+            setActive,
             login: async (email, password) => {
                 await signInWithEmailAndPassword(auth, email, password);
             },
@@ -57,6 +77,10 @@ export const AuthProvider = ({ children }) => {
                 if (onUserCreated) {
                     onUserCreated(result.user);
                 }
+            },
+            resetPassword: async (email) => {
+                await sendPasswordResetEmail(auth, email);
+                Alert.alert("Email sent to: ", email); // Outlook/hotmail blocks the emails from reaching the user. But it works with gmail
             },
         }}>
         {children}
