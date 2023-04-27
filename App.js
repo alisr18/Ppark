@@ -1,7 +1,7 @@
 
 
 import { NavigationContainer } from "@react-navigation/native"
-import ChatScreen from "./pages/chatscreen";
+import ChatScreen from "./pages/chatscreeen";
 import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
 import Profile from "./pages/profile";
@@ -24,6 +24,7 @@ import themeData from "./theme.json"
 import Login from "./pages/login";
 import Register from "./pages/register";
 import { useAsyncStorage } from "./components/AsyncStorage";
+import ChatHome from "./pages/chathome";
 
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
@@ -31,11 +32,19 @@ const ProfileStack = createStackNavigator();
 export const ThemeContext = createContext();
 export const SelectedThemeContext = createContext();
 
-function ChatStackNavigator() {
+function ChatStackNavigator({route}) {
+
+    const {user} = route.params;
+
     return (
-        <ChatStack.Navigator screenOptions={{ headerShown: true }}>
+        <ChatStack.Navigator screenOptions={{headerShown: true}}>
+            <ChatStack.Screen name="ChatHome" options={{ title: "Your friends" }}>
+                {(props) => <ChatHome {...props} user={user} />}
+            </ChatStack.Screen>
+            <ChatStack.Screen name="chat" options={({ route }) => ({ title: route.params.displayname })}>
+                {props => <ChatScreen {...props} user={user} /> }
+            </ChatStack.Screen>
             <ChatStack.Screen name="ChatOverview" component={ChatOverviewScreen} />
-            <ChatStack.Screen name="ChatScreen" component={ChatScreen} />
         </ChatStack.Navigator>
     );
 }
@@ -78,6 +87,7 @@ function MyTabs() {
     return (
       <Tab.Navigator initialRouteName="Map" screenOptions={{headerShown: false}}>
         <Tab.Screen name="Chat" component={ChatStackNavigator}
+          initialParams={{user: user}}
           options={{
             tabBarIcon: 'chat',
           }}/>
