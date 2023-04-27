@@ -1,14 +1,17 @@
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Image, TouchableOpacity, StatusBar, ScrollView, FlatList, Animated } from "react-native";
-import { Button, TextInput, Avatar, Text, IconButton, Menu, List, Dialog, Appbar, Surface, Divider } from "react-native-paper";
+import { Button, TextInput, Avatar, Text, IconButton, Menu, List, Dialog, Appbar, Surface, Divider, FAB } from "react-native-paper";
 import { ThemeContext } from "../App";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { addDoc, collection, doc, getDoc, getDocs, where, setDoc, updateDoc, query, deleteDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, where, setDoc, updateDoc, query, deleteDoc, GeoPoint, Timestamp } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { FormProvider, useController, useForm } from "react-hook-form";
 import { Input } from "../components/Input";
+import { geohashForLocation, geohashQueryBounds } from "geofire-common";
+import Geocoder from 'react-native-geocoding';
 
+Geocoder.init("AIzaSyDKLcD-5rqpTo-pXYbYWMtIFmiJsj_VAmQ"); 
 
 export const getParking = async (user_id) => {
     let tmpArray = []
@@ -47,13 +50,15 @@ const Parking = ({ route }) => {
         }
     )
 
-    const {control: editForm, handleSubmit: handleEdit, reset: setEditForm} = useForm()
-
     const {control: addForm, handleSubmit: handleAdd, reset: resetAddForm} = useForm()
+
+    const {control: editForm, handleSubmit: handleEdit, reset: setEditForm} = useForm()
 
     const [parkingList, setParkingList] = useState([])
 
     const [delteID, setDeleteID] = useState("")
+
+    const [loading, setLoading] = useState(false)
     
     const navigate = useNavigation();
 
@@ -70,21 +75,51 @@ const Parking = ({ route }) => {
         updateParking()
     }, [])
 
+    const center = Geocoder.from("Edvard Greigs Vei 28, 4023, Stavanger")
+    .then(json => json.results[0].geometry.location)
+    .catch(error => console.warn(error));
+    const radius = 10 * 1000
+
+    const addParkingSession = async (parking) => {
+        setLoading(true)
+        parking.uid = user.uid
+        const geohash = Geocoder.from(`${parking.Address}, ${parking.Zip}, ${parking.City}`)
+        addDoc(collection(db, "parking_session"), {
+            geohash: geohash,
+            start_time: parking.start,
+            end_time: parking.end,
+            
+        })
+            .then(() => {
+                updateParking()
+                setDialog({...openDialog, add: false})
+                setLoading(false)
+            })
+            .catch(error => console.log(error))
+    }
+
     const addParking = async (parking) => {
+        setLoading(true)
         parking.uid = user.uid
         addDoc(collection(db, "parking"), parking)
             .then(() => {
-                setDialog({...openDialog, add: false})
                 updateParking()
+                setDialog({...openDialog, add: false})
+                setLoading(false)
             })
             .catch(error => console.log(error))
     }
 
     const delParking = async (id) => {
+        setLoading(true)
         deleteDoc(doc(db, "parking", id)).then(() => {
             updateParking()
             setDialog({...openDialog, delete: false})
-        }).catch(error => console.log(error))
+            setLoading(false)
+        }).catch(error => {
+            console.log(error)
+            setLoading(false)
+        })
     }
 
     const openEdit = async (id) => {
@@ -119,7 +154,7 @@ const Parking = ({ route }) => {
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, add: false})}>Cancel</Button>
-                    <Button mode='contained' value="submit" onPress={handleAdd(p => addParking(p, user))}>Create</Button>
+                    <Button loading={loading} mode='contained' value="submit" onPress={handleAdd(p => addParking(p, user))}>Create</Button>
                 </Dialog.Actions>
             </Dialog>
         )
@@ -136,7 +171,7 @@ const Parking = ({ route }) => {
                     </Dialog.Content>
                     <Dialog.Actions>
                         <Button onPress={() => setDialog({...openDialog, edit: false})}>Cancel</Button>
-                        <Button mode='contained' value="submit" onPress={handleEdit(handleEditSubmit)}>Create</Button>
+                        <Button loading={loading} mode='contained' value="submit" onPress={handleEdit(handleEditSubmit)}>Save</Button>
                     </Dialog.Actions>
                 </Dialog>
         )
@@ -151,7 +186,7 @@ const Parking = ({ route }) => {
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, delete: false})}>Cancel</Button>
-                    <Button textColor={theme.colors.error} onPress={() => delParking(delteID)}>Delete</Button>
+                    <Button loading={loading} textColor={theme.colors.error} onPress={() => delParking(delteID)}>Delete</Button>
                 </Dialog.Actions>
             </Dialog>
         )
@@ -181,14 +216,13 @@ const Parking = ({ route }) => {
             alignSelf: "flex-start",
         },
         carStatus: {
+            marginLeft: 20,
             fontSize: 14,
             color: theme.colors.primary,
         },
         carPlate: {
             fontSize: 20,
             color: theme.colors.outline,
-        },
-        carEdit: {
         },
         dialogInput: {
             marginBottom: 10,
@@ -223,22 +257,24 @@ const Parking = ({ route }) => {
                   },
                 ],
               }}>
-              <Surface style={styles.carContainer} elevation={5}>
-                  <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-                      <View>
-                          <Text style={styles.carName}>Gatenavn 123</Text>
+              <Surface style={styles.carContainer} elevation={3}>
+                  <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                      <View style={{maxWidth: 500}}>
+                          <Text numberOfLines={1} style={styles.carName}>Gatenavn dwqwqfewf  123</Text>
                           <Text style={styles.carPlate}>Until 18:00</Text>
                       </View>
-                      <Text style={styles.carStatus}>Active for 23:21</Text>
+                        <Text style={styles.carStatus}>Active</Text>
                   </View>
                   <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
                       <Text style={{...styles.carPlate, justifyContent: "flex-end"}}>56kr per hour</Text>
-                      <Button style={styles.carEdit} mode="contained" onPress={() => console.log("Stop pressed")}>Stop</Button>
+                      <Button style={{width: 90}} mode="contained" onPress={() => console.log("Stop pressed")}>Stop</Button>
                   </View>
               </Surface>
             </Animated.View>
         )
     }
+
+
 
     return (
         <View style={styles.page}>
@@ -250,8 +286,8 @@ const Parking = ({ route }) => {
             <FlatList
             horizontal
             data={[{body: () => <Text>Yo</Text>, elevation: 3}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}]}
-            style={{ height: 0 }}
-            contentContainerStyle={{ paddingVertical: 10, height: 200  }}
+            style={{height: 0}}
+            contentContainerStyle={{ paddingTop: 10, paddingBottom: 25  }}
             contentInsetAdjustmentBehavior="never"
             snapToAlignment="center"
             decelerationRate="fast"
@@ -287,10 +323,8 @@ const Parking = ({ route }) => {
             </ScrollView>
 
             <View style={{position: "absolute", bottom: 20, right: 20}}>
-                <IconButton
+                <FAB
                     icon="plus"
-                    mode="contained"
-                    style={styles.addButton}
                     onPress={() => {resetAddForm();setDialog({...openDialog, add: true})}}
                 />
             </View>
