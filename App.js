@@ -11,7 +11,7 @@ import Parking from "./pages/parking";
 import Settings from "./pages/settings";
 import History from "./pages/history";
 import { AuthContext, AuthProvider } from "./authContext";
-import Mapv from "./pages/mapv";
+import Mapv from "./pages/Map/mapv";
 
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';

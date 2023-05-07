@@ -19,11 +19,6 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png"
-      },
-      "config": {
-        "googleMaps": {
-          "apiKey": "AIzaSyDFviNwbJMBXOwDzTPWUxgCamIiAjrW2mo"
-        }
       }
     },
     "web": {

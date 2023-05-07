@@ -1,18 +1,20 @@
-import React from 'react';
+import React ,{ useState } from 'react';
 import MapView from 'react-native-maps';
-import { StyleSheet, View } from 'react-native';
-import { TextInput } from "react-native-paper"
-import { ThemeContext } from '../App';
-import { useEffect } from 'react';
-import { useContext } from 'react';
-import { AuthContext } from "../authContext";
 
-function Mapv() {
+
+const Mapv = () => {
+
     const theme = useContext(ThemeContext);
     const { active } = useContext(AuthContext);
 
+
+
+
+
     return (
+        <SafeAreaView style={{flex: 1}}>
         <View style={styles.container}>
+
             <MapView 
             loadingEnabled={true} 
             style={styles.map} 
@@ -24,7 +26,9 @@ function Mapv() {
                     placeholder={'Search'}
                 />
             </View>
+
         </View>
+</SafeAreaView>
     );
 }
 
