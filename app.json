@@ -14,13 +14,31 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ppark",
+      "config": {
+        "googleMapsApiKey": "AIzaSyDFviNwbJMBXOwDzTPWUxgCamIiAjrW2mo"
+      }
+
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png"
-      }
+      },
+      "package": "com.Ppark",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDFviNwbJMBXOwDzTPWUxgCamIiAjrW2mo"
+        }}
     },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(Ppark) to use your location."
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
     }

@@ -1,4 +1,5 @@
 
+
 import React,{useState, useEffect} from 'react';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
@@ -12,7 +13,8 @@ import {useRef} from "react";
 
 const Ppark = require("../../icons/logo_light.png")
 
-
+//import Geocoder from 'react-native-geocoder';
+import Geocoder from 'react-native-geocoding';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -73,10 +75,9 @@ const mapv = () => {
             <MapView
                 ref={mapRef}
                 provider={PROVIDER_GOOGLE}
-              //  customMapStyle={{
-                //    myLocationButtonPosition: 'bottomRight',
-
-               // }}
+                customMapStyle={{
+                    myLocationButtonPosition: 'bottomRight',
+                }}
                 customMapStyle={theme.dark ? theme.map.dark : theme.map.light}
 
                 showsUserLocation={true}

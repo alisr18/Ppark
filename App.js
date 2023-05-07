@@ -11,7 +11,7 @@ import Parking from "./pages/parking";
 import Settings from "./pages/settings";
 import History from "./pages/history";
 import { AuthContext, AuthProvider } from "./authContext";
-import Map from "./pages/Map/map";
+import Mapv from "./pages/Map/mapv";
 
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
@@ -85,7 +85,7 @@ function MyTabs() {
   }
   else {
     return (
-      <Tab.Navigator initialRouteName="Map" screenOptions={{headerShown: false}}>
+      <Tab.Navigator initialRouteName="Mapv" screenOptions={{headerShown: false}}>
         <Tab.Screen name="Chat" component={ChatStackNavigator}
           initialParams={{user: user}}
           options={{
@@ -95,7 +95,7 @@ function MyTabs() {
           options={{
             tabBarIcon: 'map',
           }}>
-          {(props) => <Map {...props} user={user}/>}
+          {(props) => <Mapv {...props} user={user}/>}
         </Tab.Screen>
         <Tab.Screen name="Profile" component={ProfileStackNavigator}
           options={{

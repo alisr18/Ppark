@@ -18,7 +18,7 @@ export const getParking = async (user_id) => {
         tmp.id = doc.id
         tmpArray.push(tmp)
     }))
-    .catch(error => console.log(error))
+        .catch(error => console.log(error))
 
     return(tmpArray)
 }
@@ -54,7 +54,7 @@ const Parking = ({ route }) => {
     const [parkingList, setParkingList] = useState([])
 
     const [delteID, setDeleteID] = useState("")
-    
+
     const navigate = useNavigation();
 
     const theme = useContext(ThemeContext)
@@ -92,7 +92,7 @@ const Parking = ({ route }) => {
         setEditForm(parking)
         setDialog({...openDialog, edit: true})
     }
-    
+
     const openDelete = async (id) => {
         setDeleteID(id)
         setDialog({...openDialog, delete: true})
@@ -113,9 +113,9 @@ const Parking = ({ route }) => {
             <Dialog visible={openDialog.add} onDismiss={() => setDialog({...openDialog, add: false})}>
                 <Dialog.Title>Add Parking</Dialog.Title>
                 <Dialog.Content>
-                        <Input control={addForm} rules={{required: true}} name="Address" label="Address" style={styles.dialogInput}/>
-                        <Input control={addForm} rules={{required: true}} name="City" label="City" style={styles.dialogInput}/>
-                        <Input control={addForm} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="Zip" label="Zip Code" style={styles.dialogInput}/>
+                    <Input control={addForm} rules={{required: true}} name="Address" label="Address" style={styles.dialogInput}/>
+                    <Input control={addForm} rules={{required: true}} name="City" label="City" style={styles.dialogInput}/>
+                    <Input control={addForm} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="Zip" label="Zip Code" style={styles.dialogInput}/>
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, add: false})}>Cancel</Button>
@@ -127,18 +127,18 @@ const Parking = ({ route }) => {
 
     function EditDialog() {
         return (
-                <Dialog visible={openDialog.edit} onDismiss={() => setDialog({...openDialog, edit: false})}>
-                    <Dialog.Title>Edit Parking</Dialog.Title>
-                    <Dialog.Content>
-                            <Input control={editForm} rules={{required: true}} name="Address" label="Address" style={styles.dialogInput}/>
-                            <Input control={editForm} rules={{required: true}} name="City" label="City" style={styles.dialogInput}/>
-                            <Input control={editForm} rules={{required: true}} keyboardType='numeric' name="Zip" label="Zip Code" style={styles.dialogInput}/>
-                    </Dialog.Content>
-                    <Dialog.Actions>
-                        <Button onPress={() => setDialog({...openDialog, edit: false})}>Cancel</Button>
-                        <Button mode='contained' value="submit" onPress={handleEdit(handleEditSubmit)}>Create</Button>
-                    </Dialog.Actions>
-                </Dialog>
+            <Dialog visible={openDialog.edit} onDismiss={() => setDialog({...openDialog, edit: false})}>
+                <Dialog.Title>Edit Parking</Dialog.Title>
+                <Dialog.Content>
+                    <Input control={editForm} rules={{required: true}} name="Address" label="Address" style={styles.dialogInput}/>
+                    <Input control={editForm} rules={{required: true}} name="City" label="City" style={styles.dialogInput}/>
+                    <Input control={editForm} rules={{required: true}} keyboardType='numeric' name="Zip" label="Zip Code" style={styles.dialogInput}/>
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => setDialog({...openDialog, edit: false})}>Cancel</Button>
+                    <Button mode='contained' value="submit" onPress={handleEdit(handleEditSubmit)}>Create</Button>
+                </Dialog.Actions>
+            </Dialog>
         )
     }
 
@@ -157,6 +157,11 @@ const Parking = ({ route }) => {
         )
     }
     
+    const [scrollViewWidth, setScrollViewWidth] = useState(0);
+    const boxWidth = scrollViewWidth * 0.8;
+    const boxDistance = scrollViewWidth - boxWidth;
+    const halfBoxDistance = boxDistance / 2;
+
     const [scrollViewWidth, setScrollViewWidth] = useState(0);
     const boxWidth = scrollViewWidth * 0.8;
     const boxDistance = scrollViewWidth - boxWidth;
@@ -204,6 +209,7 @@ const Parking = ({ route }) => {
         },
     })
     const pan = useRef(new Animated.ValueXY()).current;
+<<<<<<< HEAD
 
     function RenderCard({item, index}) {
         return (
@@ -240,6 +246,44 @@ const Parking = ({ route }) => {
         )
     }
 
+=======
+
+    function RenderCard({item, index}) {
+        return (
+            <Animated.View
+                style={{
+                    transform: [
+                        {
+                            scale: pan.x.interpolate({
+                                inputRange: [
+                                    (index - 1) * boxWidth - halfBoxDistance,
+                                    index * boxWidth - halfBoxDistance,
+                                    (index + 1) * boxWidth - halfBoxDistance, // adjust positioning
+                                ],
+                                outputRange: [0.85, 1, 0.85], // scale down when out of scope
+                                extrapolate: 'clamp',
+                            }),
+                        },
+                    ],
+                }}>
+                <Surface style={styles.carContainer} elevation={5}>
+                    <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                        <View>
+                            <Text style={styles.carName}>Gatenavn 123</Text>
+                            <Text style={styles.carPlate}>Until 18:00</Text>
+                        </View>
+                        <Text style={styles.carStatus}>Active for 23:21</Text>
+                    </View>
+                    <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
+                        <Text style={{...styles.carPlate, justifyContent: "flex-end"}}>56kr per hour</Text>
+                        <Button style={styles.carEdit} mode="contained" onPress={() => console.log("Stop pressed")}>Stop</Button>
+                    </View>
+                </Surface>
+            </Animated.View>
+        )
+    }
+
+>>>>>>> 670226b (Autoplace, current position and mapViewdirection)
     return (
         <View style={styles.page}>
             <Appbar>
@@ -248,6 +292,7 @@ const Parking = ({ route }) => {
                 </Appbar.Header>
             </Appbar>
             <FlatList
+<<<<<<< HEAD
             horizontal
             data={[{body: () => <Text>Yo</Text>, elevation: 3}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}]}
             style={{ height: 0 }}
@@ -276,8 +321,38 @@ const Parking = ({ route }) => {
               },
             )}
             keyExtractor={(item, index) => `${index}-${item}`}/>
+=======
+                horizontal
+                data={[{body: () => <Text>Yo</Text>, elevation: 3}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}]}
+                style={{ height: 0 }}
+                contentContainerStyle={{ paddingVertical: 10, height: 200  }}
+                contentInsetAdjustmentBehavior="never"
+                snapToAlignment="center"
+                decelerationRate="fast"
+                automaticallyAdjustContentInsets={false}
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+                scrollEventThrottle={2}
+                renderItem={RenderCard}
+                snapToInterval={boxWidth}
+                contentInset={{
+                    left: -halfBoxDistance,
+                    right: halfBoxDistance,
+                }}
+                contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
+                onLayout={(e) => {
+                    setScrollViewWidth(e.nativeEvent.layout.width);
+                }}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { x: pan.x } } }],
+                    {
+                        useNativeDriver: false,
+                    },
+                )}
+                keyExtractor={(item, index) => `${index}-${item}`}/>
+>>>>>>> 670226b (Autoplace, current position and mapViewdirection)
             <ScrollView>
-                {parkingList.map(parking => 
+                {parkingList.map(parking =>
                     <List.Item left={(props) => <List.Icon icon="parking" {...props}/>} right={() => <ParkingButtons {...{active: parking.Active, id: parking.id}}/>} title={parking.Address} description={`${parking.Zip}, ${parking.City}`}/>
                 )}
                 <Divider leftInset={true}/>

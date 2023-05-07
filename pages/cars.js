@@ -38,6 +38,7 @@ const Cars = () => {
             const docSnap = await getDoc(docRef);
             const carInfo = [car.carName, car.regNr, false];
 
+
             if (docSnap.exists()) { // Adding to existing document
                 await updateDoc(docRef, {
                     [car.regNr]: carInfo,
@@ -67,10 +68,9 @@ const Cars = () => {
         const getCars = async() => {
             const carsRef = doc(db, "cars", user.uid); 
             const carsDoc = await getDoc(carsRef);
-            
+
             if (carsDoc.exists()) {
-                const carsData = carsDoc.data();  
-                
+                const carsData = carsDoc.data();
                 const carsArray = Object.values(carsData);
                 const other = carsArray.filter((car) => car[2] === false);
                 setCars(other);
@@ -88,9 +88,13 @@ const Cars = () => {
         try {
             const docRef = doc(db, "cars", user.uid);
             const carsDoc = await getDoc(docRef);
-            console.log(selectedCar[0]);
+            console.log("selector is here; ",selectedCar[0]);
             const carInfo = [car.carName, car.regNr, selectedCar[2]];
-            
+            console.log("selector 2 is here; ",selectedCar[2]);
+            console.log("selector 1 is here; ",selectedCar[1]);
+            console.log("selector 0 is here; ",selectedCar[0]);
+
+
             if (carsDoc.exists()) { 
                 const updatedDoc = {...carsDoc.data()};
                 delete updatedDoc[selectedCar[1]];
