@@ -29,7 +29,7 @@ export default function ChatHome({user, navigation}) {
         return (
             <TouchableOpacity onPress={() => navigation.navigate('chat', {displayname: item.displayname, uid: item.uid})}>
                 <View style={styles.myCard}>
-                    <Image source={{uri:'https://i.pravatar.cc'}} style={styles.img} />
+                    <Image source={{uri: item.profilePicture ? item.profilePicture : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"}} style={styles.img} />
                     <View>
                         <Text style={styles.text}>
                             {item.displayname}
