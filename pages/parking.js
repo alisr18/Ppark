@@ -1,15 +1,16 @@
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Image, TouchableOpacity, StatusBar, ScrollView, FlatList, Animated } from "react-native";
-import { Button, TextInput, Avatar, Text, IconButton, Menu, List, Dialog, Appbar, Surface, Divider, FAB } from "react-native-paper";
+import { Button, TextInput, Avatar, Text, IconButton, Menu, List, Dialog, Appbar, Surface, Divider, FAB, RadioButton } from "react-native-paper";
 import { ThemeContext } from "../App";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { addDoc, collection, doc, getDoc, getDocs, where, setDoc, updateDoc, query, deleteDoc, GeoPoint, Timestamp } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import { FormProvider, useController, useForm } from "react-hook-form";
+import { Controller, FormProvider, useController, useForm } from "react-hook-form";
 import { Input } from "../components/Input";
 import { geohashForLocation, geohashQueryBounds } from "geofire-common";
 import Geocoder from 'react-native-geocoding';
+import { DatePickerModal } from 'react-native-paper-dates';
 
 Geocoder.init("AIzaSyDKLcD-5rqpTo-pXYbYWMtIFmiJsj_VAmQ"); 
 
@@ -46,7 +47,10 @@ const Parking = ({ route }) => {
         {
             add: false,
             edit: false,
-            delete: false
+            delete: false,
+            session: false,
+            selectP: false,
+            date_picker: false
         }
     )
 
@@ -54,9 +58,11 @@ const Parking = ({ route }) => {
 
     const {control: editForm, handleSubmit: handleEdit, reset: setEditForm} = useForm()
 
+    const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm()
+
     const [parkingList, setParkingList] = useState([])
 
-    const [delteID, setDeleteID] = useState("")
+    const [parkingID, setparkingID] = useState("")
 
     const [loading, setLoading] = useState(false)
     
@@ -82,13 +88,15 @@ const Parking = ({ route }) => {
 
     const addParkingSession = async (parking) => {
         setLoading(true)
-        parking.uid = user.uid
         const geohash = Geocoder.from(`${parking.Address}, ${parking.Zip}, ${parking.City}`)
         addDoc(collection(db, "parking_session"), {
             geohash: geohash,
+            price: parking.price,
             start_time: parking.start,
             end_time: parking.end,
-            
+            active: true,
+            uid: user.uid
+
         })
             .then(() => {
                 updateParking()
@@ -96,6 +104,17 @@ const Parking = ({ route }) => {
                 setLoading(false)
             })
             .catch(error => console.log(error))
+    }
+
+    const testSession = () => {
+        addParkingSession({
+            Address: "Jon Lilletuns vei 9",
+            Zip: 4879,
+            City: "Grimstad",
+            price: 200,
+            start_time: new Date().setHours(12),
+            end_time: new Date().setHours(12)
+        })
     }
 
     const addParking = async (parking) => {
@@ -129,8 +148,13 @@ const Parking = ({ route }) => {
     }
     
     const openDelete = async (id) => {
-        setDeleteID(id)
+        setparkingID(id)
         setDialog({...openDialog, delete: true})
+    }
+    
+    const openSession = async (id) => {
+        if (id != "") updateSession("parkingID", id)
+        setDialog({...openDialog, session: true})
     }
 
     function ParkingButtons(props) {
@@ -138,7 +162,7 @@ const Parking = ({ route }) => {
             <View style={{flexDirection: "row", alignItems: "center"}}>
                 <IconButton icon="delete" backgroundColor={theme.colors.errorContainer} iconColor={theme.colors.onErrorContainer} onPress={() => openDelete(props.id)}/>
                 <Button mode="contained" buttonColor={theme.colors.tertiaryContainer} textColor={theme.colors.onTertiaryContainer} onPress={() => openEdit(props.id)}>Edit</Button>
-                <IconButton icon={props.active ?? false ? "pause" : "play"} backgroundColor={theme.colors.primary} iconColor={theme.colors.onPrimary} onPress={() => console.log("Start pressed")}/>
+                <IconButton icon={props.active ?? false ? "pause" : "play"} backgroundColor={theme.colors.primary} iconColor={theme.colors.onPrimary} onPress={() => openSession(props.id)}/>
             </View>
         )
     }
@@ -154,6 +178,75 @@ const Parking = ({ route }) => {
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, add: false})}>Cancel</Button>
+                    <Button loading={loading} mode='contained' value="submit" onPress={handleAdd(p => addParking(p, user))}>Create</Button>
+                </Dialog.Actions>
+            </Dialog>
+        )
+    }
+
+    function SelectParking() {
+        return (
+            <Dialog visible={openDialog.selectP} onDismiss={() => setDialog({...openDialog, selectP: false})}>
+                <Dialog.Title>Choose a parking spot</Dialog.Title>
+                <Dialog.Content>
+                    <Controller
+                    control={sessionForm}
+                    name="parkingID"
+                    render={({ field: { onChange, value } }) => (
+                        <RadioButton.Group onValueChange={onChange} value={value}>
+                            {
+                                parkingList.map(park => (
+                                    <View>
+                                        <RadioButton.Item label={park.Address} value={park.id} />
+                                    </View>
+                                ))
+                            }
+                        </RadioButton.Group>
+                      )}
+              
+                    />
+                    
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => setDialog({...openDialog, selectP: false})}>Ok</Button>
+                </Dialog.Actions>
+            </Dialog>
+        )
+    }
+
+    function SessionDialog() {
+        return (
+            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false})}>
+                <Dialog.Title>Start Parking Session</Dialog.Title>
+                <Dialog.Content>
+                        <Button onPress={() => setDialog({...openDialog, selectP: true})}>Select Parking Address</Button>
+                        <Input control={sessionForm} rules={{required: true, valueAsNumber: true}} name="Price" label="Price" style={styles.dialogInput}/>
+                        <Button onPress={() => setDialog({...openDialog, date_picker: true})} uppercase={false} mode="outlined">
+                            {watchSession("date")?.toString()}
+                        </Button>
+                        <Controller
+                        control={sessionForm}
+                        name="date"
+                        locale="en"
+                        defaultValue={new Date()}
+                        validRange={{startDate: new Date()}}
+                        render={({field: {value, onChange}}) => (
+                            <DatePickerModal
+                            mode="single"
+                            visible={openDialog.date_picker}
+                            onDismiss={() => setDialog({...openDialog, date_picker: false})}
+                            date={value}
+                            onConfirm={(date) => {
+                                date instanceof Date ? 
+                                    onChange(date)
+                                 : {}
+                        }}
+                            />
+                        )}
+                        />
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => setDialog({...openDialog, session: false})}>Cancel</Button>
                     <Button loading={loading} mode='contained' value="submit" onPress={handleAdd(p => addParking(p, user))}>Create</Button>
                 </Dialog.Actions>
             </Dialog>
@@ -180,13 +273,13 @@ const Parking = ({ route }) => {
     function DeleteDialog() {
         return (
             <Dialog visible={openDialog.delete} onDismiss={() => setDialog({...openDialog, delete: false})}>
-                <Dialog.Title>Delte Parking Spot</Dialog.Title>
+                <Dialog.Title>Delete Parking Spot</Dialog.Title>
                 <Dialog.Content>
                     <Text>Are you sure you want to delete this parking spot?</Text>
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, delete: false})}>Cancel</Button>
-                    <Button loading={loading} textColor={theme.colors.error} onPress={() => delParking(delteID)}>Delete</Button>
+                    <Button loading={loading} textColor={theme.colors.error} onPress={() => delParking(parkingID)}>Delete</Button>
                 </Dialog.Actions>
             </Dialog>
         )
@@ -283,10 +376,11 @@ const Parking = ({ route }) => {
                     <Appbar.BackAction onPress={navigate.goBack} />
                 </Appbar.Header>
             </Appbar>
+            <View>
+                
             <FlatList
             horizontal
             data={[{body: () => <Text>Yo</Text>, elevation: 3}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}]}
-            style={{height: 0}}
             contentContainerStyle={{ paddingTop: 10, paddingBottom: 25  }}
             contentInsetAdjustmentBehavior="never"
             snapToAlignment="center"
@@ -312,20 +406,24 @@ const Parking = ({ route }) => {
               },
             )}
             keyExtractor={(item, index) => `${index}-${item}`}/>
-            <ScrollView>
-                {parkingList.map(parking => 
+            </View>
+            <ScrollView style={{paddingBottom: 100}}>
+                {parkingList.length ? parkingList.map(parking => 
                     <List.Item left={(props) => <List.Icon icon="parking" {...props}/>} right={() => <ParkingButtons {...{active: parking.Active, id: parking.id}}/>} title={parking.Address} description={`${parking.Zip}, ${parking.City}`}/>
-                )}
-                <Divider leftInset={true}/>
+                ) : 
                 <TouchableOpacity onPress={() => {resetAddForm();setDialog({...openDialog, add: true})}}>
                     <List.Item right={() => <IconButton icon="plus"/>} title="Add Parking"/>
-                </TouchableOpacity>
+                </TouchableOpacity>}
+                <Divider leftInset={true}/>
+                <View style={{height: 100}}>
+
+                </View>
             </ScrollView>
 
-            <View style={{position: "absolute", bottom: 20, right: 20}}>
+            <View style={{position: "absolute", bottom: 15, right: 15}}>
                 <FAB
                     icon="plus"
-                    onPress={() => {resetAddForm();setDialog({...openDialog, add: true})}}
+                    onPress={() => {/* resetAddForm();setDialog({...openDialog, add: true}) */}}
                 />
             </View>
 
@@ -334,6 +432,10 @@ const Parking = ({ route }) => {
             <EditDialog/>
 
             <DeleteDialog/>
+
+            <SessionDialog/>
+
+            <SelectParking/>
         </View>
     );
 }
