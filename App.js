@@ -85,7 +85,7 @@ function MyTabs() {
   }
   else {
     return (
-      <Tab.Navigator initialRouteName="Map" screenOptions={{headerShown: false}}>
+      <Tab.Navigator initialRouteName="Mapv" screenOptions={{headerShown: false}}>
         <Tab.Screen name="Chat" component={ChatStackNavigator}
           initialParams={{user: user}}
           options={{

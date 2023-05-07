@@ -113,7 +113,7 @@ const Parking = ({ route }) => {
             City: "Grimstad",
             price: 200,
             start_time: new Date().setHours(12),
-            end_time: new Date().setHours(12)
+            stop_time: new Date().setHours(12)
         })
     }
 
@@ -423,7 +423,7 @@ const Parking = ({ route }) => {
             <View style={{position: "absolute", bottom: 15, right: 15}}>
                 <FAB
                     icon="plus"
-                    onPress={() => {/* resetAddForm();setDialog({...openDialog, add: true}) */}}
+                    onPress={() => {resetAddForm();setDialog({...openDialog, add: true})}}
                 />
             </View>
 
