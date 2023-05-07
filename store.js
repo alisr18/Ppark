@@ -1,7 +1,7 @@
 //import { Provider } from 'react-redux'
 
 import { configureStore } from '@reduxjs/toolkit'
-import navReducer from './slice/navSlice'
+import navReducer from './Slice/navSlice'
 
 
 
@@ -12,3 +12,4 @@ reducer:
         nav: navReducer,
 
     }});
+export  default store;
