@@ -11,7 +11,7 @@ import {googleapikey} from '@env'
 import * as Location from 'expo-location';
 import {useRef} from "react";
 
-const Ppark = require("../../icons/logo_light.png")
+const Ppark = require("../icons/logo_light.png")
 
 //import Geocoder from 'react-native-geocoder';
 import Geocoder from 'react-native-geocoding';
