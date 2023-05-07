@@ -1,6 +1,6 @@
 
 
-import React,{useState, useEffect} from 'react';
+import React,{useState, useEffect, useContext} from 'react';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import {Image, StyleSheet, View} from 'react-native';
@@ -15,6 +15,8 @@ const Ppark = require("../icons/logo_light.png")
 
 //import Geocoder from 'react-native-geocoder';
 import Geocoder from 'react-native-geocoding';
+import { ThemeContext } from '../App';
+import { AuthContext } from '../authContext';
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -46,7 +48,8 @@ const mapv = () => {
                 right: 50,
                 bottom: 50,
                 left: 50,
-                top: 50}
+                top: 50
+            }
         })
     }, [origin, destination])
 
@@ -77,8 +80,8 @@ const mapv = () => {
                 provider={PROVIDER_GOOGLE}
                 customMapStyle={{
                     myLocationButtonPosition: 'bottomRight',
+                    theme: theme.dark ? theme.map.dark : theme.map.light
                 }}
-                customMapStyle={theme.dark ? theme.map.dark : theme.map.light}
 
                 showsUserLocation={true}
                 showsMyLocationButton={true}

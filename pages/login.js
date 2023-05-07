@@ -8,7 +8,6 @@ import { Input } from "../components/Input";
 
 const Login = () => {
     // Component state, mirrors the input fields
-<<<<<<< HEAD
     const [email, setEmail] = useState(''); // testusername: test@uia.no, testpassword: 123456
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -45,11 +44,6 @@ const Login = () => {
             </Portal>
         )
     }
-=======
-    const [email, setEmail] = useState('test@uia.no'); // testusername: test@uia.no, testpassword: 123456
-    const [password, setPassword] = useState('123456');
-    const { login } = useContext(AuthContext);
->>>>>>> 670226b (Autoplace, current position and mapViewdirection)
 
     // Logs in the user based on the value of the component state.
     // This function is called when the button declared below is pressed.
