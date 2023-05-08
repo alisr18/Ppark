@@ -2,7 +2,7 @@
 
 import React,{useState, useEffect, useContext} from 'react';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { GooglePlacesAutocomplete  } from 'react-native-google-places-autocomplete';
 import {Image, StyleSheet, View, Alert, TouchableOpacity} from 'react-native';
 import { Dimensions } from 'react-native';
 import MapViewDirections from 'react-native-maps-directions';
@@ -25,7 +25,7 @@ const ASPECT_RATIO = width / height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-const mapv = () => {
+const map = () => {
 
 
 
@@ -78,7 +78,7 @@ const mapv = () => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         });
-           }
+    }
     function handleDestinationSelect(data,details) {
         const destinationLocation = {
             latitude: details.geometry.location.lat,
@@ -90,7 +90,7 @@ const mapv = () => {
         })
     }
 
-    const handleSerachRegion = (data, details) =>{
+    const handlePlaceSelection = (data, details) =>{
         const region= {
             longitude: details.geometry.location.lng,
             latitude: details.geometry.location.lat,
@@ -98,6 +98,7 @@ const mapv = () => {
             longitudeDelta: 0.05
 
         }
+
         try {
             setSearchRegion(region);
 
@@ -113,17 +114,15 @@ const mapv = () => {
 
     }
 
-    const handleSearch = ()=>
-    {
-        console.log("search button has been pressd. ")
-    }
 
-
-
+    const handleSearch = async (data, details) => {
+        console.log("button has been pressed!")
+    };
 
 
 
     return (
+
         <View style={styles.container}>
             <MapView
                 region={SearchRegion}
@@ -148,10 +147,12 @@ const mapv = () => {
                 }}
             >
                 {SearchRegion?.location && (
-                    <Marker coordinate={{latitude: SearchRegion.latitude, longtiude :SearchRegion.longitude}}
-                            description="A great city to visit"
+                    <Marker
+                        coordinate={{latitude: SearchRegion.latitude, longitude: SearchRegion.longitude}}
+                        description="A great city to visit"
+                    />
+                )}
 
-                    />)}
 
 
                 {origin?.location && (
@@ -188,7 +189,6 @@ const mapv = () => {
                 <GooglePlacesAutocomplete
                     placeholder="Where to park?"
                     styles={{
-                        textInputContainer: styles.textInputContainer,
                         textInput: styles.textInput,
                         listView: styles.listView,
                     }}
@@ -199,7 +199,7 @@ const mapv = () => {
                         </TouchableOpacity>  )}
 
                     fetchDetails={true}
-                    onPress={handleSerachRegion}
+                    onPress={handlePlaceSelection}
                     query={{
                         key: googleapikey,
                         language: 'en'
@@ -212,18 +212,18 @@ const mapv = () => {
                 </TouchableOpacity>
             </View>
         </View>
+
     )
 }
 
-export default mapv;
 
 
 
-
+export default map;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex:1
     },
 
 
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
         margin: 4,
         overflow: "hidden",
         backgroundColor: "#fff",
-        borderRadius: 30
+        borderRadius: 20
     },
     textInputContainer: {
         backgroundColor: '#f5f5f5',
