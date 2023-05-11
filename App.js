@@ -25,6 +25,7 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import { useAsyncStorage } from "./components/AsyncStorage";
 import ChatHome from "./pages/chathome";
+import Booking from "./pages/booking";
 
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
@@ -97,6 +98,12 @@ function MyTabs() {
           }}>
           {(props) => <Mapv {...props} user={user}/>}
         </Tab.Screen>
+          <Tab.Screen name="Booking"
+                      options={{
+                          tabBarIcon: 'lock',
+                      }}>
+              {(props) => <Booking {...props} user={user}/>}
+          </Tab.Screen>
         <Tab.Screen name="Profile" component={ProfileStackNavigator}
           options={{
             tabBarIcon: 'account',
