@@ -11,8 +11,10 @@ import { Input } from "../components/Input";
 import { geohashForLocation, geohashQueryBounds } from "geofire-common";
 import Geocoder from 'react-native-geocoding';
 import { DatePickerModal } from 'react-native-paper-dates';
+import {googleapikey} from '@env'
+import * as geofire from "geofire-common";
 
-Geocoder.init("AIzaSyDKLcD-5rqpTo-pXYbYWMtIFmiJsj_VAmQ"); 
+Geocoder.init(googleapikey);
 
 export const getParking = async (user_id) => {
     let tmpArray = []
@@ -106,6 +108,10 @@ const Parking = ({ route }) => {
             .catch(error => console.log(error))
     }
 
+
+
+
+
     const testSession = () => {
         addParkingSession({
             Address: "Jon Lilletuns vei 9",
@@ -116,6 +122,7 @@ const Parking = ({ route }) => {
             stop_time: new Date().setHours(12)
         })
     }
+
 
     const addParking = async (parking) => {
         setLoading(true)
@@ -157,6 +164,50 @@ const Parking = ({ route }) => {
         setDialog({...openDialog, session: true})
     }
 
+
+
+    const addParkings = async (parking) => {
+        setLoading(true)
+        try {
+            const { latitude, longitude } = await getCoordinates(parking.Address, parking.Zip, parking.City)
+            const hash = geofire.geohashForLocation([latitude, longitude]);
+
+
+            const newParking = {
+                ...parking,
+                geohash: hash,
+                latitude,
+                longitude,
+                uid: user.uid,
+                active: true,
+            }
+            await addDoc(collection(db, "parking"), newParking)
+            updateParking()
+            setDialog({ ...openDialog, add: false })
+            setLoading(false)
+        } catch (error) {
+            console.log(error)
+            setLoading(false)
+        }
+    }
+
+
+    const getCoordinates = async (address, zip, city) => {
+        const response = await Geocoder.from(`${address}, ${zip}, ${city}`)
+        const { lat, lng } = response.results[0].geometry.location
+        console.log(lat, lng)
+
+        return new GeoPoint(lat, lng)
+    }
+
+
+
+
+
+
+
+
+
     function ParkingButtons(props) {
         return (
             <View style={{flexDirection: "row", alignItems: "center"}}>
@@ -178,7 +229,7 @@ const Parking = ({ route }) => {
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, add: false})}>Cancel</Button>
-                    <Button loading={loading} mode='contained' value="submit" onPress={handleAdd(p => addParking(p, user))}>Create</Button>
+                    <Button loading={loading} mode='contained' value="submit"  onPress={handleAdd(p => addParkings(p))}>Create</Button>
                 </Dialog.Actions>
             </Dialog>
         )

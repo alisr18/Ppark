@@ -1,5 +1,3 @@
-
-
 import React,{useState, useEffect, useContext} from 'react';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import { GooglePlacesAutocomplete  } from 'react-native-google-places-autocomplete';
@@ -8,16 +6,22 @@ import { Dimensions } from 'react-native';
 import MapViewDirections from 'react-native-maps-directions';
 import {googleapikey} from '@env'
 import Icon from 'react-native-vector-icons/Ionicons'; //kansje tar det vek
-
 import * as Location from 'expo-location';
 import {useRef} from "react";
+import { db } from "../firebaseConfig";
 
 const Ppark = require("../icons/logo_light.png")
+const available = require("../icons/green_marker.png")
+const notAvailable=require("../icons/red_marker.png")
 
 //import Geocoder from 'react-native-geocoder';
 import Geocoder from 'react-native-geocoding';
 import { ThemeContext } from '../App';
 import { AuthContext } from '../authContext';
+
+const geofire = require('geofire-common');
+
+
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -28,21 +32,13 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const map = () => {
 
 
-
     const theme = useContext(ThemeContext);
     const { active } = useContext(AuthContext);
-
-
-
     const [origin, setOrigin] = useState({ latitude: 58.3343, longitude: 8.5781 })
     const [destination, setDestination] = useState({ latitude: null, longitude: null })
     const [SearchRegion, setSearchRegion] = useState(null)
-
-
-
     const mapRef = useRef(null)
-
-
+    const [parkingData, setParkingData] = useState([]);
 
 
     useEffect(() => {
@@ -117,9 +113,77 @@ const map = () => {
 
     const handleSearch = async (data, details) => {
         console.log("button has been pressed!")
-    };
+    }
 
 
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                if (SearchRegion) {
+                    const parkingData = await searchParkingWithinRadius(SearchRegion);
+                    setParkingData(prevState => [...prevState, ...parkingData]);
+                    console.log("Parking data", parkingData);
+                }
+            } catch (error) {
+                console.error("Error fetching parking data:", error);
+            }
+        };
+        fetchData();
+    }, [SearchRegion]);
+
+    function searchParkingWithinRadius(searchRegion) {
+        if (!searchRegion) return Promise.resolve([]);
+
+        const center = [searchRegion.latitude, searchRegion.longitude];
+        const radiusInM = 1000 / 20;
+
+        const bounds = geofire.geohashQueryBounds(center, radiusInM);
+        const promises = [];
+
+        for (const b of bounds) {
+            const q = db
+                .collection("parking")
+                .orderBy("geohash")
+                .startAt(b[0])
+                .endAt(b[1]);
+
+            promises.push(q.get());
+        }
+        console.log("promises data",promises);
+
+        return Promise.all(promises)
+            .then((snapshots) => {
+                const matchingDocs = [];
+
+                for (const snap of snapshots) {
+                    for (const doc of snap.docs) {
+                        const lat = doc.get("latitude");
+                        const lng = doc.get("longitude");
+
+                        if (lat && lng) {
+                            const distanceInKm = geofire.distanceBetween([lat, lng], center);
+                            const distanceInM = distanceInKm * 1000;
+
+                            if (distanceInM <= radiusInM) {
+                                matchingDocs.push(doc);
+                            }
+                        }
+                    }
+                }
+                console.log("matchingDocs data: ",matchingDocs);
+                return matchingDocs;
+            })
+            .catch((error) => {
+                console.error("Error searching for parking:", error);
+                return [];
+            });
+    }
+
+
+
+
+    // [END fs_geo_query_hashes]
 
     return (
 
@@ -127,12 +191,8 @@ const map = () => {
             <MapView
                 region={SearchRegion}
                 ref={mapRef}
-
                 provider={PROVIDER_GOOGLE}
-                customMapStyle={
-                    {theme: theme.dark ? theme.map.dark : theme.map.light}
-                }
-
+                customMapStyle={theme.dark ? theme.map.dark : theme.map.light}
                 showsUserLocation={true}
                 showsMyLocationButton={false}
                 userLocationUpdateInterval={2000}
@@ -143,12 +203,15 @@ const map = () => {
                     latitude: origin.latitude,
                     longitude: origin.longitude,
                     latitudeDelta: 0.01,
-                    longitudeDelta: 0.01
+                    longitudeDelta: 0.01,
                 }}
             >
                 {SearchRegion?.location && (
                     <Marker
-                        coordinate={{latitude: SearchRegion.latitude, longitude: SearchRegion.longitude}}
+                        coordinate={{
+                            latitude: SearchRegion.latitude,
+                            longitude: SearchRegion.longitude,
+                        }}
                         description="A great city to visit"
                     />
                 )}
@@ -158,51 +221,63 @@ const map = () => {
                 {origin?.location && (
                     <Marker
                         resizeMode="contain"
-                        coordinate={{ latitude: origin.latitude, longitude: origin.longitude }}
+                        coordinate={{
+                            latitude: origin.latitude,
+                            longitude: origin.longitude,
+                        }}
                         identifier={'origin'}
                     />
                 )}
                 {destination?.location && (
                     <Marker
                         resizeMode="contain"
-                        coordinate={{ latitude: destination.latitude, longitude: destination.longitude }}
+                        coordinate={{
+                            latitude: destination.latitude,
+                            longitude: destination.longitude,
+                        }}
                         identifier={'destination'}
                     />
                 )}
-
-                {origin && destination && (
-                    <MapViewDirections
-                        apikey={googleapikey}
-                        origin={{ latitude: origin.latitude, longitude: origin.longitude }}
-                        destination={{ latitude: destination.latitude, longitude: destination.longitude }}
-                        strokeColor={'black'}
-                        strokeWidth={2}
-                        optimizeWaypoints={true}
-                        onStart={(params) => {
-                            console.log(`Started routing between "${params.origin}" and "${params.destination}"`);
-                        }}
-                    />
-                )}
+                {origin &&
+                    destination && (
+                        <MapViewDirections
+                            apikey={googleapikey}
+                            origin={{
+                                latitude: origin.latitude,
+                                longitude: origin.longitude,
+                            }}
+                            destination={{
+                                latitude: destination.latitude,
+                                longitude: destination.longitude,
+                            }}
+                            strokeColor={'black'}
+                            strokeWidth={2}
+                            optimizeWaypoints={true}
+                            onStart={(params) => {
+                                console.log(
+                                    `Started routing between "${params.origin}" and "${params.destination}"`
+                                );
+                            }}
+                        />
+                    )}
             </MapView>
-
-            <View style={styles.searchContainer} >
+            <View style={styles.searchContainer}>
                 <GooglePlacesAutocomplete
                     placeholder="Where to park?"
                     styles={{
                         textInput: styles.textInput,
                         listView: styles.listView,
                     }}
-
                     renderRightButton={() => (
                         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-                            <Icon name='search-outline' size={24} color='#333' />
-                        </TouchableOpacity>  )}
-
+                            <Icon name="search-outline" size={24} color="#333" />
+                        </TouchableOpacity>
+                    )}
                     fetchDetails={true}
                     onPress={handlePlaceSelection}
                     query={{
                         key: googleapikey,
-                        language: 'en'
+                        language: 'en',
                     }}
                 />
             </View>
