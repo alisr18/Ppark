@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/Ionicons'; //kansje tar det vek
 import * as Location from 'expo-location';
 import {useRef} from "react";
 import { db } from "../firebaseConfig";
-
+import { collection, getDocs, addDoc, orderBy, query,startAt,endAt, onSnapshot } from 'firebase/firestore';
 const Ppark = require("../icons/logo_light.png")
 const available = require("../icons/green_marker.png")
 const notAvailable=require("../icons/red_marker.png")
@@ -132,54 +132,30 @@ const map = () => {
         fetchData();
     }, [SearchRegion]);
 
-    function searchParkingWithinRadius(searchRegion) {
+    async function searchParkingWithinRadius(searchRegion) {
         if (!searchRegion) return Promise.resolve([]);
 
         const center = [searchRegion.latitude, searchRegion.longitude];
-        const radiusInM = 1000 / 20;
+        const radiusInM = 100000 / 20;
 
         const bounds = geofire.geohashQueryBounds(center, radiusInM);
         const promises = [];
 
         for (const b of bounds) {
-            const q = db
-                .collection("parking")
-                .orderBy("geohash")
-                .startAt(b[0])
-                .endAt(b[1]);
+            const z = collection(db, 'parking');
+            const q = query(z, orderBy('geohash', 'asc'),startAt(b[0]),endAt(b[1]));
 
-            promises.push(q.get());
+
+           await (getDocs(q).then(res => res.docs.map(doc => {
+                promises.push(doc.data())
+                console.log(doc.data())
+            })));
+
         }
         console.log("promises data",promises);
 
-        return Promise.all(promises)
-            .then((snapshots) => {
-                const matchingDocs = [];
-
-                for (const snap of snapshots) {
-                    for (const doc of snap.docs) {
-                        const lat = doc.get("latitude");
-                        const lng = doc.get("longitude");
-
-                        if (lat && lng) {
-                            const distanceInKm = geofire.distanceBetween([lat, lng], center);
-                            const distanceInM = distanceInKm * 1000;
-
-                            if (distanceInM <= radiusInM) {
-                                matchingDocs.push(doc);
-                            }
-                        }
-                    }
-                }
-                console.log("matchingDocs data: ",matchingDocs);
-                return matchingDocs;
-            })
-            .catch((error) => {
-                console.error("Error searching for parking:", error);
-                return [];
-            });
+        return promises
     }
-
 
 
 
