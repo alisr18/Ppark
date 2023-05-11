@@ -1,5 +1,3 @@
-
-
 import { NavigationContainer } from "@react-navigation/native"
 import ChatScreen from "./pages/chatscreeen";
 import ChatOverviewScreen from "./pages/chat";
@@ -26,7 +24,7 @@ import Register from "./pages/register";
 import { useAsyncStorage } from "./components/AsyncStorage";
 import ChatHome from "./pages/chathome";
 import Booking from "./pages/booking";
-
+import { initStripe } from "@stripe/stripe-react-native";
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
@@ -122,6 +120,12 @@ export default function App() {
   const isDarkMode = storedTheme === "auto" ? colorScheme : storedTheme === "dark"
 
   const selectedData = { storedTheme, setStoredTheme }
+
+    useEffect(() => {
+        initStripe({
+            publishableKey: "pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu",  // replace with your test key
+        });
+    }, []);
 
   useEffect(() => {
     setBackgroundColorAsync(theme.colors.elevation.level2)
