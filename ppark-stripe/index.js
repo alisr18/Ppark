@@ -17,19 +17,3 @@ const logger = require("firebase-functions/logger");
 //   logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-
-
-const functions = require("firebase-functions");
-const stripe = require("stripe")("sk_test_51N6fSEKQs9J7J5wlYNWINitEm62EWudMnxQ9qLO1tCGoTKUKQe47dqmZ3UTwLzLZDMwdvNvU2Wa6rFsqenLGUIQW00Es8Cx6VH");
-
-exports.createPaymentIntent = functions.https.onRequest(async (request, response) => {
-    const { amount } = request.body;
-    const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency: "usd",
-    });
-
-    response.send({
-        clientSecret: paymentIntent.client_secret,
-    });
-});

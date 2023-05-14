@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { IconButton, Text, Button } from "react-native-paper";
 import { CardField, useStripe } from "@stripe/stripe-react-native";
+import firebase from 'firebase/app';
+import axios from 'axios';
 
 function Booking({ navigation }) {
     const { confirmPayment } = useStripe();
     const [showModal, setShowModal] = useState(false);
+    const [cardDetails, setCardDetails] = useState(null);  // Add this line
+
 
     const handleGoBack = () => {
         navigation.goBack(); // Handle the go back action
@@ -19,20 +23,38 @@ function Booking({ navigation }) {
 
 
 
+
     const handleConfirmPayment = async () => {
-        // Call the confirmPayment function to process the payment
-        const { error } = await confirmPayment();
-        if (error) {
-            // Handle the error
-            console.log("Payment failed:", error);
-        } else {
-            // Payment succeeded
+        if (!cardDetails) {
+            // Show an alert or perform any other desired action to indicate that all fields are required
+            alert("Please enter card details.");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                "https://us-central1-ppark-998b8.cloudfunctions.net/createPaymentIntent",
+                {
+                    amount: 420, // replace with your amount
+                }
+            );
+            const { clientSecret } = response.data;
+
+            await confirmPayment(clientSecret, {
+                type: "Card",
+                card: cardDetails,
+            });
+
             console.log("Payment successful!");
-            // Close the modal after successful payment
             setShowModal(false);
+            alert("Payment successful!")
             // Proceed with other actions, such as navigating to a success screen
+        } catch (error) {
+            console.log("Payment failed:", error);
+            // Handle the error
         }
     };
+
 
     const handleContactOwner = () => {
         // Handle the contact owner action
@@ -181,13 +203,6 @@ function Booking({ navigation }) {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <TouchableOpacity
-                            style={styles.closeButton}
-                            onPress={() => setShowModal(false)}
-                        >
-                            <IconButton icon="close" size={24} />
-                        </TouchableOpacity>
-                        <Text style={styles.modalTitle}>Enter Card Details</Text>
                         <CardField
                             postalCodeEnabled={true}
                             placeholder={{
@@ -199,10 +214,9 @@ function Booking({ navigation }) {
                             }}
                             style={styles.cardField}
                             onCardChange={(cardDetails) => {
-                                console.log(cardDetails);
+                                setCardDetails(cardDetails);
                             }}
                             onFocus={(focusedField) => {
-                                console.log("focusField", focusedField);
                             }}
                         />
                         <Button

@@ -9,6 +9,23 @@
         "firebase-debug.log",
         "firebase-debug.*.log"
       ]
+    },
+    {
+      "source": "ppark-stripe",
+      "codebase": "ppark-stripe",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
     }
-  ]
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  }
 }
