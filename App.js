@@ -11,7 +11,7 @@ import Settings from "./pages/settings";
 import History from "./pages/history";
 import { AuthContext, AuthProvider } from "./authContext";
 import Mapv from "./pages/mapv";
-
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Provider, DefaultTheme, Text } from "react-native-paper";
@@ -122,15 +122,7 @@ export default function App() {
 
   const selectedData = { storedTheme, setStoredTheme }
 
-    useEffect(() => {
-        async function initializeStripe() {
-            await initStripe({
-                publishableKey: 'pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu', // replace with your publishable key
-            });
-        }
 
-        initializeStripe();
-    }, []);
 
 
   useEffect(() => {
@@ -154,6 +146,7 @@ export default function App() {
   
 
   return (
+      <StripeProvider publishableKey="pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu">
     <Provider theme={theme}>
       <ThemeContext.Provider value={theme}>
         <SelectedThemeContext.Provider value={selectedData}>
@@ -170,5 +163,6 @@ export default function App() {
         </SelectedThemeContext.Provider>
       </ThemeContext.Provider>
     </Provider>
-  )
+      </StripeProvider>
+  );
 }
