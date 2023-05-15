@@ -9,8 +9,10 @@ import { db } from "../firebaseConfig";
 import { Controller, FormProvider, useController, useForm } from "react-hook-form";
 import { Input } from "../components/Input";
 import { geohashForLocation, geohashQueryBounds } from "geofire-common";
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import Geocoder from 'react-native-geocoding';
-import { DatePickerModal } from 'react-native-paper-dates';
+import RNDateTimePicker from "@react-native-community/datetimepicker";
 
 Geocoder.init("AIzaSyDKLcD-5rqpTo-pXYbYWMtIFmiJsj_VAmQ"); 
 
@@ -23,7 +25,6 @@ export const getParking = async (user_id) => {
         tmpArray.push(tmp)
     }))
     .catch(error => console.log(error))
-
     return(tmpArray)
 }
 
@@ -58,7 +59,7 @@ const Parking = ({ route }) => {
 
     const {control: editForm, handleSubmit: handleEdit, reset: setEditForm} = useForm()
 
-    const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm()
+    const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm({date: new Date()})
 
     const [parkingList, setParkingList] = useState([])
 
@@ -79,6 +80,7 @@ const Parking = ({ route }) => {
 
     useEffect(() => {
         updateParking()
+        updateSession("date", new Date())
     }, [])
 
     const center = Geocoder.from("Edvard Greigs Vei 28, 4023, Stavanger")
@@ -229,20 +231,15 @@ const Parking = ({ route }) => {
                         name="date"
                         locale="en"
                         defaultValue={new Date()}
-                        validRange={{startDate: new Date()}}
-                        render={({field: {value, onChange}}) => (
-                            <DatePickerModal
-                            mode="single"
-                            visible={openDialog.date_picker}
-                            onDismiss={() => setDialog({...openDialog, date_picker: false})}
-                            date={value}
-                            onConfirm={(date) => {
-                                date instanceof Date ? 
-                                    onChange(date)
-                                 : {}
-                        }}
-                            />
-                        )}
+                        render={({value, onChange}) => 
+                                openDialog.date_picker &&
+                                        <RNDateTimePicker
+                                        
+                                        minimumDate={new Date()}
+                                        value={value ?? new Date()}
+                                        onChange={onChange}
+                                        />
+                        }
                         />
                 </Dialog.Content>
                 <Dialog.Actions>
