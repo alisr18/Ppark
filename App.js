@@ -1,9 +1,8 @@
-
-
 import { NavigationContainer } from "@react-navigation/native"
 import ChatScreen from "./pages/chatscreeen";
 import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
+import { getFunctions } from 'firebase/functions';
 import Profile from "./pages/profile";
 import Account from "./pages/account";
 import Cars from "./pages/cars";
@@ -12,20 +11,21 @@ import Settings from "./pages/settings";
 import History from "./pages/history";
 import { AuthContext, AuthProvider } from "./authContext";
 import Mapv from "./pages/mapv";
-
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { Provider, DefaultTheme, Text } from "react-native-paper";
 import { createContext, useState, useEffect, useContext } from "react";
 import { setBackgroundColorAsync } from 'expo-navigation-bar';
 
+import { initStripe } from '@stripe/stripe-react-native';
 
 import themeData from "./theme.json"
 import Login from "./pages/login";
 import Register from "./pages/register";
 import { useAsyncStorage } from "./components/AsyncStorage";
 import ChatHome from "./pages/chathome";
-
+import Booking from "./pages/booking";
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
@@ -97,6 +97,12 @@ function MyTabs() {
           }}>
           {(props) => <Mapv {...props} user={user}/>}
         </Tab.Screen>
+          <Tab.Screen name="Booking"
+                      options={{
+                          tabBarIcon: 'lock',
+                      }}>
+              {(props) => <Booking {...props} user={user}/>}
+          </Tab.Screen>
         <Tab.Screen name="Profile" component={ProfileStackNavigator}
           options={{
             tabBarIcon: 'account',
@@ -115,6 +121,9 @@ export default function App() {
   const isDarkMode = storedTheme === "auto" ? colorScheme : storedTheme === "dark"
 
   const selectedData = { storedTheme, setStoredTheme }
+
+
+
 
   useEffect(() => {
     setBackgroundColorAsync(theme.colors.elevation.level2)
@@ -137,6 +146,7 @@ export default function App() {
   
 
   return (
+      <StripeProvider publishableKey="pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu">
     <Provider theme={theme}>
       <ThemeContext.Provider value={theme}>
         <SelectedThemeContext.Provider value={selectedData}>
@@ -153,5 +163,6 @@ export default function App() {
         </SelectedThemeContext.Provider>
       </ThemeContext.Provider>
     </Provider>
-  )
+      </StripeProvider>
+  );
 }
