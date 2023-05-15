@@ -5,23 +5,40 @@ import {collection, getDocs, query, where} from "firebase/firestore";
 
 export default function ChatHome({user, navigation}) {
     const [users, setUsers] = useState(null)
+    const [myUsers, setMyUsers] = useState(null)
+
+
+
     // async funksjon som går inn i firestore og henter ut data om alle users i "users" dokumentet. Setter så dette inn i "users" variabel i useStaten.
+    const getMyUsers = async () => {
+        let tmpArray2 = []
+        const docRefC = collection(db, "chatrooms")
+
+        const snap = await getDocs(query(docRefC));
+        snap.docs.map(doc => {console.log(doc.id), tmpArray2.push(doc.id), setMyUsers(tmpArray2)})
+
+
+
+    }
+
+
     const getUsers = async () => {
         console.log(user)
         let tmpArray = []
-        const docRef = collection(db, "users")
-        await getDocs(query(docRef, where('uid', '!=', user.uid))).then(result => result.docs.map(doc => {
-            let allUsers = doc.data()
-            tmpArray.push(allUsers)
-            setUsers(tmpArray)
-        }))
+
+        const docRefU = collection(db, "users")
+
+        await getDocs(query(docRefU, where('uid', '!=', user.uid))).then(result => result.docs.map(doc => {
+                let allUsers = doc.data()
+                tmpArray.push(allUsers)
+                setUsers(tmpArray)
+            }))
     }
 
     useEffect(() => {
-        console.log("hi")
-
         getUsers()
-        console.log(users)
+        getMyUsers()
+        console.log(myUsers)
 
     }, [])
 
