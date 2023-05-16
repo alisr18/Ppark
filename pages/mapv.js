@@ -11,6 +11,7 @@ import {useRef} from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, addDoc, orderBy, query,startAt,endAt, onSnapshot } from 'firebase/firestore';
 import {Button, Text, TextInput, Portal, Dialog, IconButton, TouchableRipple} from "react-native-paper";
+import { useNavigation } from '@react-navigation/native';
 
 const Ppark = require("../icons/logo_light.png")
 const available = require("../icons/green_marker.png")
@@ -20,6 +21,7 @@ const notAvailable=require("../icons/red_marker.png")
 import Geocoder from 'react-native-geocoding';
 import { ThemeContext } from '../App';
 import { AuthContext } from '../authContext';
+import Booking from './booking';
 
 const geofire = require('geofire-common');
 
@@ -41,6 +43,8 @@ const map = () => {
     const [SearchRegion, setSearchRegion] = useState(null)
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
+
+    const navigation = useNavigation();
 
 
     useEffect(() => {
@@ -161,6 +165,11 @@ const map = () => {
 
     // [END fs_geo_query_hashes]
 
+    const handleBooking = (spot) => {
+        navigation.navigate('Booking', { spot: spot });
+    }
+
+
     return (
 
         <View style={styles.container}>
@@ -208,7 +217,7 @@ const map = () => {
                                     style={styles.marker}
                                     resizeMode='contain'
                                 />
-                                <Callout tooltip onPress={() => console.log(spots.Address, "pressed")}>
+                                <Callout tooltip onPress={() => handleBooking(spots)}>
                                     <View style={styles.callout}>
                                         <Text style={styles.text}>{spots.Address}</Text>
                                         <Text style={styles.text}>{spots.Zip} {spots.City}</Text>

@@ -31,6 +31,7 @@ const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 export const ThemeContext = createContext();
 export const SelectedThemeContext = createContext();
+const MapStack = createStackNavigator();
 
 function ChatStackNavigator({route}) {
 
@@ -65,6 +66,17 @@ function ProfileStackNavigator({route}) {
   );
 }
 
+function MapStackNavigator({route}) {
+  const user = route.params;
+
+  return(
+    <MapStack.Navigator screenOptions={{headerShown: false}}>
+      <MapStack.Screen name="Map" component={Mapv}/>
+      <MapStack.Screen name="Booking" component={Booking}/>
+    </MapStack.Navigator>
+  );
+}
+
 function MyTabs() {
 
   const {user} = useContext(AuthContext);
@@ -85,24 +97,18 @@ function MyTabs() {
   }
   else {
     return (
-      <Tab.Navigator initialRouteName="Mapv" screenOptions={{headerShown: false}}>
+      <Tab.Navigator initialRouteName="Map" screenOptions={{headerShown: false}}>
         <Tab.Screen name="Chat" component={ChatStackNavigator}
           initialParams={{user: user}}
           options={{
             tabBarIcon: 'chat',
           }}/>
-        <Tab.Screen name="Map"
+        <Tab.Screen name="Map" component={MapStackNavigator}
           options={{
             tabBarIcon: 'map',
-          }}>
-          {(props) => <Mapv {...props} user={user}/>}
-        </Tab.Screen>
-          <Tab.Screen name="Booking"
-                      options={{
-                          tabBarIcon: 'lock',
-                      }}>
-              {(props) => <Booking {...props} user={user}/>}
-          </Tab.Screen>
+          }}
+          initialParams={{user: user}}
+        />
         <Tab.Screen name="Profile" component={ProfileStackNavigator}
           options={{
             tabBarIcon: 'account',
