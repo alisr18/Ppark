@@ -14,11 +14,14 @@ export default function ChatHome({user, navigation}) {
 
         await getDocs(query(docRefC)).then(res => res.docs.map(doc => {
             tmpArray2.push(doc.id)
-            setMyUsers(tmpArray2)
+            
         }))
+
+        setMyUsers(tmpArray2)
+        getUsers(tmpArray2);
     }
-    const getUsers = async () => {
-        console.log(myUsers)
+    
+    const getUsers = async (collectedUsers) => {
         console.log(user)
 
         let tmpArray = []
@@ -26,7 +29,7 @@ export default function ChatHome({user, navigation}) {
         const docRefU = collection(db, "users")
 
         await getDocs(query(docRefU, where("uid", "!=", user.uid))).then(res => res.docs.map(async doc => {
-            await myUsers.forEach(chatroom_id => {
+            await collectedUsers.forEach(chatroom_id => {
                 let split = chatroom_id.split("-")
                 if ((split[0] === user.uid && split[1] === doc.id) || (split[1] === user.uid && split[0] === doc.id)) {
                     console.log(doc.id)
@@ -34,23 +37,14 @@ export default function ChatHome({user, navigation}) {
                     tmpArray.push(doc.data())
                     setUsers(tmpArray)
                 }
-
             })
-
         }))
-
-
-
-
     }
-
 
     useEffect(() => {
         getMyUsers()
-        getUsers()
 
         console.log(myUsers)
-
     }, [])
 
     const RenderCard = ({item}) => {
