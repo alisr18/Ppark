@@ -1489,7 +1489,6 @@
   "version" "0.5.0"
 
 "@firebase/app-check@0.7.0":
-
   "integrity" "sha512-y0raLJpEtiL+wonfInFMaSfBV/EDvr356ZHMWbpr5F7fR0/I3cC0h7U6SKpKhrbSHJ0fOYIe0xbih20KTlpcnA=="
   "resolved" "https://registry.npmjs.org/@firebase/app-check/-/app-check-0.7.0.tgz"
   "version" "0.7.0"
@@ -1511,9 +1510,9 @@
     "tslib" "^2.1.0"
 
 "@firebase/app-types@0.6.3":
-  version "0.6.3"
-  resolved "https://registry.npmjs.org/@firebase/app-types/-/app-types-0.6.3.tgz"
-  integrity sha512-/M13DPPati7FQHEQ9Minjk1HGLm/4K4gs9bR4rzLCWJg64yGtVC0zNg9gDpkw9yc2cvol/mNFxqTtd4geGrwdw==
+  "integrity" "sha512-/M13DPPati7FQHEQ9Minjk1HGLm/4K4gs9bR4rzLCWJg64yGtVC0zNg9gDpkw9yc2cvol/mNFxqTtd4geGrwdw=="
+  "resolved" "https://registry.npmjs.org/@firebase/app-types/-/app-types-0.6.3.tgz"
+  "version" "0.6.3"
 
 "@firebase/app-types@0.9.0", "@firebase/app-types@0.x":
   "integrity" "sha512-AeweANOIo0Mb8GiYm3xhTEBVCmPwTYAu9Hcd2qSkLuga/6+j9b1Jskl5bpiSQWy9eJ/j5pavxj6eYogmnuzm+Q=="
@@ -1593,9 +1592,9 @@
     "@firebase/util" "1.9.3"
 
 "@firebase/database-types@^0.7.0":
-  version "0.7.3"
-  resolved "https://registry.npmjs.org/@firebase/database-types/-/database-types-0.7.3.tgz"
-  integrity sha512-dSOJmhKQ0nL8O4EQMRNGpSExWCXeHtH57gGg0BfNAdWcKhC8/4Y+qfKLfWXzyHvrSecpLmO0SmAi/iK2D5fp5A==
+  "integrity" "sha512-dSOJmhKQ0nL8O4EQMRNGpSExWCXeHtH57gGg0BfNAdWcKhC8/4Y+qfKLfWXzyHvrSecpLmO0SmAi/iK2D5fp5A=="
+  "resolved" "https://registry.npmjs.org/@firebase/database-types/-/database-types-0.7.3.tgz"
+  "version" "0.7.3"
   dependencies:
     "@firebase/app-types" "0.6.3"
 
@@ -4792,7 +4791,7 @@
     "node-fetch" "^2.6.7"
     "protobufjs" "^7.2.2"
 
-"firebase@^9.22.0":
+"firebase@^9.22.0", "firebase@9.x.x":
   "integrity" "sha512-Ay1u8IOfhPh58RFAHF7A9cKHACCgV6uI2bhkzKdkjnV0n2AAxn4tDtdXvJ3BEbfhF4WWBC2dFcEXH8cd14ptaw=="
   "resolved" "https://registry.npmjs.org/firebase/-/firebase-9.22.0.tgz"
   "version" "9.22.0"
@@ -4980,10 +4979,18 @@
   "resolved" "https://registry.npmjs.org/gensync/-/gensync-1.0.0-beta.2.tgz"
   "version" "1.0.0-beta.2"
 
-"geofire-common@^6.0.0":
+"geofire-common@^6.0.0", "geofire-common@6.0.0":
   "integrity" "sha512-dQ2qKWMtHUEKT41Kw4dmAtMjvEyhWv1XPnHHlK5p5l5+0CgwHYQjhonGE2QcPP60cBYijbJ/XloeKDMU4snUQg=="
   "resolved" "https://registry.npmjs.org/geofire-common/-/geofire-common-6.0.0.tgz"
   "version" "6.0.0"
+
+"geofire@^6.0.0":
+  "integrity" "sha512-bFDNq+d2iXpn61JCMZ5eQ3Yicko56a2bR1DoAXbnme9KGV8yYySHw1rrHIEiL368qLrFaP9cLAOHAqVWPuhUxQ=="
+  "resolved" "https://registry.npmjs.org/geofire/-/geofire-6.0.0.tgz"
+  "version" "6.0.0"
+  dependencies:
+    "@firebase/database-types" "^0.7.0"
+    "geofire-common" "6.0.0"
 
 "geojson-rbush@3.x":
   "integrity" "sha512-oVltQTXolxvsz1sZnutlSuLDEcQAKYC/uXt9zDzJJ6bu0W+baTI8LZBaTup5afzibEH4N3jlq2p+a152wlBJ7w=="

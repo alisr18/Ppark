@@ -22,6 +22,7 @@ import Geocoder from 'react-native-geocoding';
 import { ThemeContext } from '../App';
 import { AuthContext } from '../authContext';
 import Booking from './booking';
+//import { region } from 'firebase-functions/v1';
 
 const geofire = require('geofire-common');
 
@@ -40,9 +41,11 @@ const map = () => {
     const { active } = useContext(AuthContext);
     const [origin, setOrigin] = useState({ latitude: 58.3343, longitude: 8.5781 })
     const [destination, setDestination] = useState({ latitude: null, longitude: null })
-    const [SearchRegion, setSearchRegion] = useState(null)
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
+
+    const [SearchRegion, setSearchRegion] = useState({latitude: 58.3343, longitude: 8.5781});
+    const [prevRegion, setPrevRegion] = useState({ latitude: 0, longitude: 0 });
 
     const navigation = useNavigation();
 
@@ -70,8 +73,8 @@ const map = () => {
             return
         }
         let location = await Location.getCurrentPositionAsync({})
-        setOrigin({ latitude: location.coords.latitude, longitude: location.coords.longitude })
-
+        setOrigin({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+        setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude });
 
 
         mapRef.current.animateToRegion({
@@ -122,14 +125,47 @@ const map = () => {
     }
 
 
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    function getDistanceMoved(lat1, lon1, lat2, lon2) {
+        
+        var earthRadius = 6371;
+        var dLat = deg2rad(lat2 - lat1);
+        var dLon = deg2rad(lon2 - lon1);
+
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        var d = earthRadius * c;
+        return d;
+    }
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 if (SearchRegion) {
-                    const parkingData = await searchParkingWithinRadius(SearchRegion);
-                    setParkingData(prevState => [...prevState, ...parkingData]);
-                    console.log("Parking data", parkingData);
+
+                    const distance = prevRegion ? getDistanceMoved (
+                        prevRegion.latitude,
+                        prevRegion.longitude,
+                        SearchRegion.latitude,
+                        SearchRegion.longitude
+                    ) : null;
+
+                    const treshold = 5; // Oppdatere når bruker flytter denne avstanden (km)
+
+                    if (!prevRegion || distance >= treshold) {
+                        const parkingData = await searchParkingWithinRadius(SearchRegion);
+                        setParkingData(prevState => [...prevState, ...parkingData]);
+                        setPrevRegion(SearchRegion);
+                        console.log("Parking data:", parkingData);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching parking data:", error);
@@ -142,7 +178,7 @@ const map = () => {
         if (!searchRegion) return Promise.resolve([]);
 
         const center = [searchRegion.latitude, searchRegion.longitude];
-        const radiusInM = 100000 / 20;
+        const radiusInM = 5000;
 
         const bounds = geofire.geohashQueryBounds(center, radiusInM);
         const promises = [];
@@ -154,7 +190,6 @@ const map = () => {
 
             await (getDocs(q).then(res => res.docs.map(doc => {
                 promises.push(doc.data())
-                console.log(doc.data())
             })));
 
         }
@@ -190,6 +225,13 @@ const map = () => {
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
+                onRegionChangeComplete={region => {
+                    if (Math.abs(region.latitude - SearchRegion?.latitude || 0) > 0.001 ||
+                        Math.abs(region.longitude - SearchRegion?.longitude || 0) > 0.001) {
+                        setSearchRegion(region);
+                    }
+                }}
+                
             >
                 {SearchRegion?.location && (
                     <Marker
@@ -319,9 +361,7 @@ const map = () => {
                 />
             </View>
             <View style={styles.currentLocationButton}>
-                <TouchableOpacity onPress={getCurrentLocationPermission}>
-                    <Icon name="my-location" size={28} color="#333" />
-                </TouchableOpacity>
+                <IconButton icon="map-marker-account" size={28} iconColor="black" onPress={getCurrentLocationPermission}/>
             </View>
         </View>
 
@@ -368,7 +408,7 @@ const styles = StyleSheet.create({
 
     searchContainer: {
         position: 'absolute',
-        top: 0,
+        top: 5,
         left: 0,
         right: 0,
         margin: 4,
