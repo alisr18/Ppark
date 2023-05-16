@@ -1,27 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import {View, Text, FlatList, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import { db } from "../firebaseConfig";
-import {collection, getDocs, query, where} from "firebase/firestore";
+import {collection, getDocs, query, where, collectionGroup, getDoc} from "firebase/firestore";
 
 export default function ChatHome({user, navigation}) {
     const [users, setUsers] = useState(null)
-    // async funksjon som går inn i firestore og henter ut data om alle users i "users" dokumentet. Setter så dette inn i "users" variabel i useStaten.
-    const getUsers = async () => {
-        console.log(user)
-        let tmpArray = []
-        const docRef = collection(db, "users")
-        await getDocs(query(docRef, where('uid', '!=', user.uid))).then(result => result.docs.map(doc => {
-            let allUsers = doc.data()
-            tmpArray.push(allUsers)
-            setUsers(tmpArray)
+    const [myUsers, setMyUsers] = useState(null)
+
+    const getMyUsers = async () => {
+
+        let tmpArray2 = []
+        const docRefC = collection(db, "chatrooms")
+
+        await getDocs(query(docRefC)).then(res => res.docs.map(doc => {
+            tmpArray2.push(doc.id)
+            setMyUsers(tmpArray2)
         }))
     }
+    const getUsers = async () => {
+        console.log(myUsers)
+        console.log(user)
+
+        let tmpArray = []
+
+        const docRefU = collection(db, "users")
+
+        await getDocs(query(docRefU, where("uid", "!=", user.uid))).then(res => res.docs.map(async doc => {
+            await myUsers.forEach(chatroom_id => {
+                let split = chatroom_id.split("-")
+                if ((split[0] === user.uid && split[1] === doc.id) || (split[1] === user.uid && split[0] === doc.id)) {
+                    console.log(doc.id)
+                    console.log(doc.data())
+                    tmpArray.push(doc.data())
+                    setUsers(tmpArray)
+                }
+
+            })
+
+        }))
+
+
+
+
+    }
+
 
     useEffect(() => {
-        console.log("hi")
-
+        getMyUsers()
         getUsers()
-        console.log(users)
+
+        console.log(myUsers)
 
     }, [])
 

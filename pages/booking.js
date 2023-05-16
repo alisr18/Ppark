@@ -5,11 +5,13 @@ import { CardField, useStripe } from "@stripe/stripe-react-native";
 import firebase from 'firebase/app';
 import axios from 'axios';
 
-function Booking({ navigation }) {
+function Booking({ route, navigation }) {
     const { confirmPayment } = useStripe();
     const [showModal, setShowModal] = useState(false);
     const [cardDetails, setCardDetails] = useState(null);  // Add this line
 
+    const { spot } = route.params;
+    console.log(spot);
 
     const handleGoBack = () => {
         navigation.goBack(); // Handle the go back action
@@ -162,7 +164,7 @@ function Booking({ navigation }) {
                 <IconButton
                     icon="close"
                     size={24}
-                    onPress={() => setShowModal(false)}
+                    onPress={() => handleGoBack()}
                 />
                 <Text style={styles.headerText}>Order Confirmation</Text>
             </View>
@@ -203,6 +205,11 @@ function Booking({ navigation }) {
             >
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
+                        <IconButton
+                            icon="close"
+                            size={24}
+                            onPress={() => setShowModal(false)}
+                        />
                         <CardField
                             postalCodeEnabled={true}
                             placeholder={{
