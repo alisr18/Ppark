@@ -1,7 +1,7 @@
 import React,{useState, useEffect, useContext} from 'react';
-import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE, Marker, Callout} from 'react-native-maps';
 import { GooglePlacesAutocomplete  } from 'react-native-google-places-autocomplete';
-import {Image, StyleSheet, View, Alert, TouchableOpacity} from 'react-native';
+import {Image, StyleSheet, View, Alert, TouchableOpacity, TouchableHighlight} from 'react-native';
 import { Dimensions } from 'react-native';
 import MapViewDirections from 'react-native-maps-directions';
 import {googleapikey} from '@env'
@@ -10,6 +10,8 @@ import * as Location from 'expo-location';
 import {useRef} from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, addDoc, orderBy, query,startAt,endAt, onSnapshot } from 'firebase/firestore';
+import {Button, Text, TextInput, Portal, Dialog, IconButton, TouchableRipple} from "react-native-paper";
+
 const Ppark = require("../icons/logo_light.png")
 const available = require("../icons/green_marker.png")
 const notAvailable=require("../icons/red_marker.png")
@@ -146,18 +148,16 @@ const map = () => {
             const q = query(z, orderBy('geohash', 'asc'),startAt(b[0]),endAt(b[1]));
 
 
-           await (getDocs(q).then(res => res.docs.map(doc => {
+            await (getDocs(q).then(res => res.docs.map(doc => {
                 promises.push(doc.data())
                 console.log(doc.data())
             })));
 
         }
-        console.log("promises data",promises);
+        console.log("promises data: ", promises);
 
         return promises
     }
-
-
 
     // [END fs_geo_query_hashes]
 
@@ -191,6 +191,58 @@ const map = () => {
                         description="A great city to visit"
                     />
                 )}
+
+
+                {parkingData.map((spots, index) => {
+                    if (spots.active) {
+                        return (
+                            <Marker
+                                key={index}
+                                coordinate={{
+                                    latitude: spots.latitude,
+                                    longitude: spots.longitude,
+                                }}
+                            >
+                                <Image
+                                    source={available}
+                                    style={styles.marker}
+                                    resizeMode='contain'
+                                />
+                                <Callout tooltip onPress={() => console.log(spots.Address, "pressed")}>
+                                    <View style={styles.callout}>
+                                        <Text style={styles.text}>{spots.Address}</Text>
+                                        <Text style={styles.text}>{spots.Zip} {spots.City}</Text>
+                                        <Text style={styles.text}>Book now</Text>
+                                    </View>
+                                </Callout>
+                            </Marker>
+                        );
+                    }
+                    else {
+                        return (
+                            <Marker
+                                key={index}
+                                coordinate={{
+                                    latitude: spots.latitude,
+                                    longitude: spots.longitude,
+                                }}
+                            >
+                                <Image
+                                    source={notAvailable}
+                                    style={styles.marker}
+                                    resizeMode='contain'
+                                />
+                                <Callout tooltip onPress={() => alert("Spot is currently unavailable")}>
+                                    <View style={styles.callout}>
+                                        <Text style={styles.text}>{spots.Address}</Text>
+                                        <Text style={styles.text}>{spots.Zip} {spots.City}</Text>
+                                        <Text style={styles.text}>Spot is currently unavailable</Text>
+                                    </View>
+                                </Callout>
+                            </Marker>
+                        );
+                    }
+                })}
 
 
 
@@ -283,6 +335,27 @@ const styles = StyleSheet.create({
         height: '100%',
     },
 
+    callout: {
+        flexDirection: 'column',
+        alignSelf: 'flex-start',
+        flex: 1,
+        borderWidth: 0.5,
+        borderRadius: 10,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        width: 150,
+    },
+    text: {
+        color: 'white',
+        marginVertical: 4,
+        marginHorizontal: 10,
+        alignContent: 'center',
+    },
+    marker: {
+        width: 35,
+        height: 35, 
+    },
+
 
     searchContainer: {
         position: 'absolute',
@@ -292,7 +365,7 @@ const styles = StyleSheet.create({
         margin: 4,
         overflow: "hidden",
         backgroundColor: "#fff",
-        borderRadius: 20
+        borderRadius: 20,
     },
     textInputContainer: {
         backgroundColor: '#f5f5f5',
