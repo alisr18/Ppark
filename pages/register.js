@@ -31,6 +31,7 @@ export default function Register () {
                     displayname,
                     firstName,
                     lastName,
+                    balance: 0.00,
                 });
                 
                 signIn();
