@@ -49,12 +49,15 @@ export default function Profile() {
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [image, setImage] = useState(null);
+    let [balance, setBalance] = useState(null);
+    let balanceValue = balance ? balance.toString() : '';
+
 
     useEffect(() => {
         const fetchUserData = async () => {
             const userDoc = doc(db, 'users', user.uid);
             const userData = (await getDoc(userDoc)).data();
-
+            setBalance(userData.balance);
             setFname(userData.firstName);
             setLname(userData.lastName);
             const test = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
@@ -63,7 +66,6 @@ export default function Profile() {
             } else {
                 setProfilePictureURL(test);
             }
-
 
         };
 
@@ -173,6 +175,19 @@ export default function Profile() {
                     <Text style={styles.profileName}>
                         {fname} {lname}
                     </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Avatar.Icon
+                            size={24}
+                            icon="cash" // replace with the icon you want to use for balance
+                            style={{
+                                backgroundColor: theme.colors.tertiaryContainer,
+                                marginRight: 5,  // adds space to the right of the icon
+                            }}
+                        />
+                        <Text style={styles.balanceText}>
+                                     {balanceValue} NOK
+                        </Text>
+                    </View>
                 </Surface>
 
                 <Surface style={styles.countdownContainer} elevation={3}>
