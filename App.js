@@ -67,12 +67,16 @@ function ProfileStackNavigator({route}) {
 }
 
 function MapStackNavigator({route}) {
-  const user = route.params;
+  const {user} = useContext(AuthContext);
+  const user1 = route.params;
 
   return(
     <MapStack.Navigator screenOptions={{headerShown: false}}>
       <MapStack.Screen name="Map" component={Mapv}/>
       <MapStack.Screen name="Booking" component={Booking}/>
+      <MapStack.Screen name="chat" options={({ route }) => ({ title: route.params.displayname })}>
+          {props => <ChatScreen {...props} user={user} user1={user1} /> }
+      </MapStack.Screen>
     </MapStack.Navigator>
   );
 }

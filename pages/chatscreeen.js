@@ -9,6 +9,8 @@ import {addDoc, collection, doc, getDocs, orderBy, query, serverTimestamp, setDo
 export default function ChatScreen({user, route}) {
     const [messages, setMessages] = useState([]);
     const {uid} = route.params
+    console.log(uid)
+    console.log(user.uid)
 
     const getAllMessages = async () => {
         const docid = uid > user.uid ? user.uid + "-" + uid : uid + "-" + user.uid
