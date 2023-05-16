@@ -13,6 +13,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import Geocoder from 'react-native-geocoding';
 import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { DateController } from "../components/DateController"
 
 Geocoder.init("AIzaSyDKLcD-5rqpTo-pXYbYWMtIFmiJsj_VAmQ"); 
 
@@ -66,6 +67,8 @@ const Parking = ({ route }) => {
     const [parkingID, setparkingID] = useState("")
 
     const [loading, setLoading] = useState(false)
+
+    const [date, setDate] = useState()
     
     const navigate = useNavigation();
 
@@ -80,7 +83,7 @@ const Parking = ({ route }) => {
 
     useEffect(() => {
         updateParking()
-        updateSession("date", new Date())
+        setDate(new Date())
     }, [])
 
     const center = Geocoder.from("Edvard Greigs Vei 28, 4023, Stavanger")
@@ -218,7 +221,7 @@ const Parking = ({ route }) => {
 
     function SessionDialog() {
         return (
-            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false})}>
+            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false, date_picker: false})}>
                 <Dialog.Title>Start Parking Session</Dialog.Title>
                 <Dialog.Content>
                         <Button onPress={() => setDialog({...openDialog, selectP: true})}>Select Parking Address</Button>
@@ -226,21 +229,21 @@ const Parking = ({ route }) => {
                         <Button onPress={() => setDialog({...openDialog, date_picker: true})} uppercase={false} mode="outlined">
                             {watchSession("date")?.toString()}
                         </Button>
-                        <Controller
-                        control={sessionForm}
-                        name="date"
-                        locale="en"
-                        defaultValue={new Date()}
-                        render={({value, onChange}) => 
-                                openDialog.date_picker &&
-                                        <RNDateTimePicker
-                                        
-                                        minimumDate={new Date()}
-                                        value={value ?? new Date()}
-                                        onChange={onChange}
-                                        />
-                        }
-                        />
+                            <DateController
+                                control={sessionForm}
+                                name="date"
+                                open={openDialog.date_picker}
+                                minimumDate={date}
+                                defaultValue={date}
+                                onChange={(e, v) => {
+                                if (e.type === 'dismissed') {
+                                    setDialog({...openDialog, date_picker: false})
+                                } else {
+                                    console.log(v)
+                                    onChange(e); // Set the value to the selected timestamp
+                                }
+                                }}
+                            />
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, session: false})}>Cancel</Button>
@@ -413,7 +416,7 @@ const Parking = ({ route }) => {
                 </TouchableOpacity>}
                 <Divider leftInset={true}/>
                 <View style={{height: 100}}>
-
+                    
                 </View>
             </ScrollView>
 
@@ -433,6 +436,9 @@ const Parking = ({ route }) => {
             <SessionDialog/>
 
             <SelectParking/>
+
+            <Text>{JSON.stringify(watchSession("date"))}</Text>
+            <Button onPress={() => handleSession((data) => console.log(data))}>Test</Button>
         </View>
     );
 }
