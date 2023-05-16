@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import { GiftedChat } from "react-native-gifted-chat";
 
 import { db } from "../firebaseConfig";
-import {addDoc, collection, getDocs, orderBy, query, serverTimestamp} from "firebase/firestore";
+import {addDoc, collection, doc, getDocs, orderBy, query, serverTimestamp, setDoc} from "firebase/firestore";
 
 
 export default function ChatScreen({user, route}) {
@@ -38,6 +38,9 @@ export default function ChatScreen({user, route}) {
         setMessages(previousMessages => GiftedChat.append(previousMessages, mymsg))
         const docid = uid > user.uid ? user.uid + "-" + uid : uid + "-" + user.uid
         console.log(mymsg)
+        setDoc(doc(db, "chatrooms", docid),{
+
+        })
         addDoc(collection(db, `chatrooms/${docid}/messages`), {...mymsg, createdAt: serverTimestamp()})
 
 
