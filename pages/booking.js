@@ -11,7 +11,8 @@ function Booking({ route, navigation }) {
     const [cardDetails, setCardDetails] = useState(null);  // Add this line
 
     const { spot } = route.params;
-    console.log(spot);
+    console.log("spot:", spot);
+
 
     const handleGoBack = () => {
         navigation.goBack(); // Handle the go back action
@@ -58,9 +59,7 @@ function Booking({ route, navigation }) {
     };
 
 
-    const handleContactOwner = () => {
-        // Handle the contact owner action
-    };
+    const handleContactOwner = () => navigation.navigate('chat', {displayname: spot.Address ,uid: spot.uid});
 
     const styles = StyleSheet.create({
         container: {
