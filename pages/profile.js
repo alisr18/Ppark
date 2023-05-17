@@ -1,6 +1,6 @@
 import {useContext, useEffect, useState} from "react";
 import {scrollview, View, StyleSheet, Image, TouchableOpacity, ScrollView} from "react-native";
-import { Button, TextInput, Text, Avatar, Card, Surface, List } from "react-native-paper";
+import { Button, TextInput, Text, Avatar, Card, Surface, List, Dialog } from "react-native-paper";
 import {useNavigation } from '@react-navigation/native';
 import {ThemeContext, UserContext} from "../App";
 import {auth, db} from "../firebaseConfig";
@@ -15,7 +15,7 @@ const color2 = "#357266";
 
 export default function Profile() {
 
-    const { user, logout } = useContext(AuthContext);
+    const { user, userData, logout } = useContext(AuthContext);
 
 
     const theme = useContext(ThemeContext)
@@ -37,40 +37,12 @@ export default function Profile() {
         )
     }
 
-    const [fname, setFname] = useState("");
-    const [lname, setLname] = useState("");
-
 
     const [profilePictureURL, setProfilePictureURL] = useState("");
 
-
-    useEffect(() => {
-    }, [fname, lname, profilePictureURL]);
-
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [image, setImage] = useState(null);
-    let [balance, setBalance] = useState(null);
-    let balanceValue = balance ? balance.toString() : '';
-
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            const userDoc = doc(db, 'users', user.uid);
-            const userData = (await getDoc(userDoc)).data();
-            setBalance(userData.balance);
-            setFname(userData.firstName);
-            setLname(userData.lastName);
-            const test = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-            if (userData.profilePicture) {
-                setProfilePictureURL(userData.profilePicture);
-            } else {
-                setProfilePictureURL(test);
-            }
-
-        };
-
-        fetchUserData();
-    }, []);
+    let balanceValue = userData?.balance ? userData.balance.toString() : '';
 
     const signOut = async () => {
         try {
@@ -146,9 +118,9 @@ export default function Profile() {
                 >
 
                     <TouchableOpacity onPress={() => setIsModalVisible(true)}>
-                        {profilePictureURL ? (
+                        {userData?.profilePicture ? (
                             <Avatar.Image
-                                source={{ uri: profilePictureURL }}
+                                source={{ uri: userData.profilePicture }}
                                 size={70}
                                 marginTop={20}
                                 style={{ backgroundColor: theme.colors.tertiaryContainer }}
@@ -173,7 +145,7 @@ export default function Profile() {
                         />
                     </TouchableOpacity>
                     <Text style={styles.profileName}>
-                        {fname} {lname}
+                        {userData?.firstName ?? ""} {userData?.lastName ?? ""} 
                     </Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Avatar.Icon
@@ -222,36 +194,6 @@ export default function Profile() {
                     </View>
                 </Surface>
             </View>
-
-            {/* Add the Modal component */}
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={isModalVisible}
-                onRequestClose={() => {
-                    setIsModalVisible(!isModalVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalTitle}>Change Profile Picture</Text>
-                        <Button mode="contained" onPress={pickAndUploadImage}>
-                            Choose Image
-                        </Button>
-                        {image && (
-                            <Image
-                                source={{ uri: profilePictureURL }}
-                                style={{ width: 200, height: 200, marginTop: 10 }}
-                            />
-                        )}
-                        <Button mode="outlined" onPress={closeModal} style={{ marginTop: 20 }}>
-                            Close
-                        </Button>
-                    </View>
-                </View>
-            </Modal>
-
-            {/*...*/}
 
             <TouchableOpacity style={styles.listButton} onPress={() => handlePress("Account")}>
                 <List.Item
@@ -326,6 +268,30 @@ export default function Profile() {
         />
     </TouchableOpacity>
         </View>
+
+    <Dialog
+        //animationType="slide"
+        visible={isModalVisible}
+        onDismiss={() => setIsModalVisible(prev => !prev)}
+    >
+        <Dialog.Title>Change Profile Picture</Dialog.Title>
+            <Dialog.Content style={{display: "flex", alignItems: "center"}}>
+                {userData?.profilePicture && (
+                    <Image
+                        source={{ uri: userData.profilePicture }}
+                        style={{ width: 200, height: 200 }}
+                    />
+                )}
+            </Dialog.Content>
+            <Dialog.Actions>
+                <Button onPress={closeModal}>
+                    Close
+                </Button>
+                <Button mode="contained" onPress={pickAndUploadImage}>
+                    Choose Image
+                </Button>
+            </Dialog.Actions>
+    </Dialog>
 </ScrollView>
     )
 }
@@ -344,7 +310,7 @@ const styles = StyleSheet.create({
     },
     profileName: {
         fontSize: 34,
-        marginTop: 15,
+        marginTop: 10,
         alignSelf: "center",
     },
     countdownContainer: {

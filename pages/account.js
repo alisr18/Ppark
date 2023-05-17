@@ -25,15 +25,13 @@ const Account = () => {
     const [menuVisible, setMenuVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
 
-    const { user } = useContext(AuthContext);
+    const { user, userData, getUserData } = useContext(AuthContext);
 
 
     const navigate = useNavigation();
 
     useEffect(() => {
         const fetchUserData = async () => {
-            const userDoc = doc(db, 'users', user.uid);
-            const userData = (await getDoc(userDoc)).data();
 
             if (userData) {
                 setFirstName(userData.firstName || '');
@@ -63,6 +61,7 @@ const Account = () => {
                 city,
             });
             Alert.alert("Profile updated.");
+            getUserData(userId)
         } else {
             Alert.alert("All fields are required.");
         }
