@@ -41,7 +41,9 @@ function ChatStackNavigator({route}) {
     return (
         <ChatStack.Navigator screenOptions={{headerShown: false}}>
             <ChatStack.Screen name="ChatHome" component={ChatHome}/>
-            <ChatStack.Screen name="chat" component={ChatScreen}/>
+            <ChatStack.Screen name="chat">
+                {props => <ChatScreen {...props} user={user} /> }
+            </ChatStack.Screen>
             <ChatStack.Screen name="ChatOverview" component={ChatOverviewScreen} />
         </ChatStack.Navigator>
     );
@@ -129,7 +131,7 @@ export default function App() {
 
   const selectedData = { storedTheme, setStoredTheme }
 
-  initStripe({publishableKey: "pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu"})
+
 
 
   useEffect(() => {
@@ -153,7 +155,7 @@ export default function App() {
   
 
   return (
-      <StripeProvider>
+      <StripeProvider publishableKey="pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu">
     <Provider theme={theme}>
       <ThemeContext.Provider value={theme}>
         <SelectedThemeContext.Provider value={selectedData}>

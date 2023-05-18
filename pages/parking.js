@@ -101,27 +101,27 @@ const Parking = ({ route }) => {
 
     const addParkingSession = async (parking) => {
         setLoading(true)
-        const geohash = Geocoder.from(`${parking.Address}, ${parking.Zip}, ${parking.City}`)
-        addDoc(collection(db, "parking_session"), {
-            geohash: geohash,
+        parking_spot = parkingList.filter(park => park.id == parking.parkingID)[0]
+        const new_doc = {
+            geohash: parking_spot.geohash,
+            latitude: parking_spot.latitude,
+            longitude: parking_spot.longitude,
+            Address: parking_spot.Address,
+            parkingID: parking.parkingID,
             price: parking.price,
-            start_time: parking.start,
-            end_time: parking.end,
+            start_time: parking.start_time,
+            end_time: parking.end_time,
             active: true,
             uid: user.uid
-
-        })
+        }
+        console.log(new_doc)
+        addDoc(collection(db, "parking_session"), new_doc)
             .then(() => {
-                updateParking()
                 setDialog({...openDialog, add: false})
                 setLoading(false)
             })
             .catch(error => console.log(error))
     }
-
-
-
-
 
     const testSession = () => {
         addParkingSession({
@@ -130,7 +130,8 @@ const Parking = ({ route }) => {
             City: "Grimstad",
             price: 200,
             start_time: new Date().setHours(12),
-            stop_time: new Date().setHours(12)
+            stop_time: new Date().setHours(18),
+            uid: user.uid
         })
     }
 
@@ -282,7 +283,7 @@ const Parking = ({ route }) => {
                 <Dialog.Title>Start Parking Session</Dialog.Title>
                 <Dialog.Content>
                         <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0].Address  : "Select Parking Address"}</Button>
-                        <Input control={sessionForm} right={<TextInput.Affix text={userData?.balance ?? ""} />} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="Price" label="Price per Hour" style={styles.dialogInput}/>
+                        <Input control={sessionForm} right={<TextInput.Affix text={userData?.balance ?? ""} />} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="price" label="Price per Hour" style={styles.dialogInput}/>
                         <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                             <Text>Start Time:</Text>
                             <View style={{display: "flex", flexDirection: "row"}}>
@@ -298,7 +299,7 @@ const Parking = ({ route }) => {
                             <Text>End Time:</Text>
                             <View style={{display: "flex", flexDirection: "row"}}>
                                 <Button onPress={() => setDialog({...openDialog, end_date: true})} uppercase={false} mode="contained-tonal" style={{marginRight: 5}}>
-                                    {watchSession("end_date")?.toLocaleDateString() ?? "Date"}
+                                    {watchSession("end_time")?.toLocaleDateString() ?? "Date"}
                                 </Button>
                                 <Button onPress={() => setDialog({...openDialog, end_time: true})} uppercase={false} mode="contained-tonal">
                                     {watchSession("end_time") ? `${watchSession("end_time")?.getHours()}:${watchSession("end_time")?.getMinutes()}` : "Time"}
@@ -324,7 +325,8 @@ const Parking = ({ route }) => {
                         />
                         <DateController
                             control={sessionForm}
-                            name="end_date"
+                            name="end_time"
+                            modalName="end_date"
                             open={openDialog.end_date}
                             defaultValue={date}
                             setOpen={setDialog}
@@ -332,6 +334,7 @@ const Parking = ({ route }) => {
                         <DateController
                             control={sessionForm}
                             name="end_time"
+                            modalName="end_time"
                             mode="time"
                             open={openDialog.end_time}
                             defaultValue={date}
@@ -340,7 +343,7 @@ const Parking = ({ route }) => {
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, session: false})}>Cancel</Button>
-                    <Button loading={loading} mode='contained' value="submit" onPress={handleSession(p => console.log(p))}>Start</Button>
+                    <Button loading={loading} mode='contained' value="submit" onPress={handleSession(addParkingSession)}>Start</Button>
                 </Dialog.Actions>
             </Dialog>
         )
@@ -529,8 +532,7 @@ const Parking = ({ route }) => {
             <SessionDialog/>
 
             <SelectParking/>
-
-            <Button onPress={() => handleSession((data) => console.log(data))}>Test</Button>
+            
         </View>
     );
 }

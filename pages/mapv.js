@@ -380,11 +380,11 @@ const MapDashboard = () => {
                         textInputContainer: styles.textInputContainer,
                         row: styles.row,
                         predefinedPlacesDescription: styles.predefinedPlacesDescription,
-                        separator: styles.separator
+                        separator: styles.separator,
                     }}
                     renderRightButton={() => (
                         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-                            <List.Icon color={theme.colors.onSurface} size={24} icon="map-search"/>
+                            <List.Icon color={theme.colors.onSurface} size={24} icon="magnify"/>
                         </TouchableOpacity>
                     )}
                     fetchDetails={true}
@@ -479,5 +479,7 @@ const styleSheet = (theme) => StyleSheet.create({
         height: 1,
       backgroundColor: theme.colors.onSurfaceDisabled,
     },
-
+    predefinedPlacesDescription: {
+        color: theme.colors.onSurface,
+    }
 });
