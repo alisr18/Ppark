@@ -26,6 +26,7 @@ import { useAsyncStorage } from "./components/AsyncStorage";
 import ChatHome from "./pages/chathome";
 import Booking from "./pages/booking";
 import MapDashboard from "./pages/mapv";
+import mapv from "./pages/mapv";
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();

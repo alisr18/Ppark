@@ -9,6 +9,7 @@ import {DateController} from "../components/DateController";
 import {Input} from "../components/Input";
 import {addDoc, collection} from "firebase/firestore";
 import {db} from "../firebaseConfig";
+import {useNavigation} from "@react-navigation/native";
 
 function Booking({ route, navigation }) {
     const { confirmPayment } = useStripe();
@@ -16,7 +17,6 @@ function Booking({ route, navigation }) {
     const [totalEnd, setTotalend] = useState(new Date());  // Add this line
     const [cardDetails, setCardDetails] = useState(null);  // Add this line
     const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm({date: new Date()})
-
 
     const { spot } = route.params;
     const [date, setDate] = useState()
@@ -71,7 +71,7 @@ function Booking({ route, navigation }) {
             const response = await axios.post(
                 "https://us-central1-ppark-998b8.cloudfunctions.net/createPaymentIntent",
                 {
-                    amount: 420, // replace with your amount
+                    amount: amount // replace with your amount
                 }
             );
             const { clientSecret } = response.data;
@@ -90,6 +90,7 @@ function Booking({ route, navigation }) {
                 console.log("Payment", paymentResult.paymentIntent.status);
                 alert("Payment " + paymentResult.paymentIntent.status); 
                 setShowModal(false);
+                successPayment()
             }
         } catch (error) {
             console.log("Payment failed:", error);
@@ -108,8 +109,16 @@ function Booking({ route, navigation }) {
     const now = new Date();
     const end = totalEnd ?? now
     let totalHours = (end - now)/3600000;
-    console.log(totalHours)
+    const finalprice = (spot.price > 0 && totalHours > 0) ? (spot.price * totalHours).toFixed(2) : null;
+    const amount = finalprice * 100;
+
+
+
+    console.log(finalprice)
     const handleContactOwner = () => navigation.navigate('chat', {displayname: spot.Address ,uid: spot.uid});
+    const successPayment = () => {
+        navigation.navigate('MapScreen');
+    };
 
     const styles = StyleSheet.create({
         container: {
@@ -226,7 +235,7 @@ function Booking({ route, navigation }) {
             </View>
             <View style={styles.hourlyRateContainer}>
                 <Text style={styles.hourlyRatePrefix}>Hourly Rate: </Text>
-                <Text style={styles.hourlyRateHighlight}>$0.70</Text>
+                <Text style={styles.hourlyRateHighlight}>{spot.price} NOK</Text>
             </View>
 
             <View>
@@ -286,7 +295,7 @@ function Booking({ route, navigation }) {
 
             <View style={styles.sectionContainer}>
                 <Text style={styles.hourlyRatePrefix}>Total cost (incl fees):</Text>
-                <Text style={styles.totalCost}>$4.20</Text>
+                <Text style={styles.totalCost}>{finalprice} NOK</Text>
                 <View style={styles.buttonContainer}>
                     <Button
                         mode="contained"
