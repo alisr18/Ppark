@@ -39,8 +39,6 @@ export const AuthProvider = ({ children }) => {
             await collectedUsers.forEach(chatroom_id => {
                 let split = chatroom_id.split("-")
                 if ((split[0] === id && split[1] === doc.id) || (split[1] === id && split[0] === doc.id)) {
-                    console.log(doc.id)
-                    console.log(doc.data())
                     tmpArray.push(doc.data())
                     setChatUsers(tmpArray)
                 }

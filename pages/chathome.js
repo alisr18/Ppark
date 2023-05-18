@@ -3,12 +3,23 @@ import {View, Text, FlatList, StyleSheet, Image, TouchableOpacity} from 'react-n
 import { db } from "../firebaseConfig";
 import {collection, getDocs, query, where, collectionGroup, getDoc} from "firebase/firestore";
 import { AuthContext } from "../authContext";
+import { useIsFocused } from '@react-navigation/native';
 
 export default function ChatHome({user, navigation}) {
 
-    const { chatUsers, myChatUsers } = useContext(AuthContext);
-    console.log("users: ", chatUsers)
+    const { chatUsers, myChatUsers, getMyChatUsers } = useContext(AuthContext);
     console.log("samtale-id: ", myChatUsers)
+
+    const isFocused = useIsFocused();
+
+    useEffect(() => {
+        console.log("Called")
+
+        if(isFocused){
+            getMyChatUsers(user.uid)
+        }
+        console.log("users:")
+    }, [isFocused])
 
     const RenderCard = ({item}) => {
         return (
