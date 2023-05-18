@@ -28,7 +28,7 @@ const Map = () => {
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
 
-    const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
+    const [SearchRegion, setSearchRegion] = useState({latitude: 58.3343, longitude: 8.5781, latitudeDelta: 0.1, longitudeDelta: 0.1});
     const [prevRegion, setPrevRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
     const [prevZoom, setPrevZoom] = useState(null);
 
