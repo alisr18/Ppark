@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
 import { IconButton, Text, Button } from "react-native-paper";
-import { CardField, useStripe } from "@stripe/stripe-react-native";
+import { CardField, useStripe, confirmPayment } from "@stripe/stripe-react-native";
 import firebase from 'firebase/app';
 import axios from 'axios';
 
@@ -11,8 +11,6 @@ function Booking({ route, navigation }) {
     const [cardDetails, setCardDetails] = useState(null);  // Add this line
 
     const { spot } = route.params;
-    console.log("spot:", spot);
-
 
     const handleGoBack = () => {
         navigation.goBack(); // Handle the go back action
@@ -28,6 +26,7 @@ function Booking({ route, navigation }) {
 
 
     const handleConfirmPayment = async () => {
+
         if (!cardDetails) {
             // Show an alert or perform any other desired action to indicate that all fields are required
             alert("Please enter card details.");
@@ -43,17 +42,24 @@ function Booking({ route, navigation }) {
             );
             const { clientSecret } = response.data;
 
-            await confirmPayment(clientSecret, {
-                type: "Card",
+            const paymentResult = await confirmPayment(clientSecret, {
+                paymentMethodType: "Card",
                 card: cardDetails,
             });
+            console.log(paymentResult);
 
-            console.log("Payment successful!");
-            setShowModal(false);
-            alert("Payment successful!")
-            // Proceed with other actions, such as navigating to a success screen
+            if (paymentResult.error) {
+                console.log("Payment failed in Stripe:", paymentResult.error.message);
+                alert("Payment failed: " + paymentResult.error.message);
+            } 
+            else if (paymentResult.paymentIntent) {
+                console.log("Payment", paymentResult.paymentIntent.status);
+                alert("Payment " + paymentResult.paymentIntent.status); 
+                setShowModal(false);
+            }
         } catch (error) {
             console.log("Payment failed:", error);
+            alert("Payment failed");
             // Handle the error
         }
     };

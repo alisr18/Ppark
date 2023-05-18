@@ -132,7 +132,7 @@ export default function App() {
 
   const selectedData = { storedTheme, setStoredTheme }
 
-
+  initStripe({publishableKey: "pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu"})
 
 
   useEffect(() => {
@@ -156,7 +156,7 @@ export default function App() {
   
 
   return (
-      <StripeProvider publishableKey="pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu">
+      <StripeProvider>
     <Provider theme={theme}>
       <ThemeContext.Provider value={theme}>
         <SelectedThemeContext.Provider value={selectedData}>
