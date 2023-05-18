@@ -82,6 +82,8 @@ const Parking = ({ route }) => {
 
     const theme = useContext(ThemeContext)
 
+    const test = watchSession("end_time") ? watchSession("end_time").getHours() : 0
+
     const updateParking = async () => {
         const parkingArray = await getParking(user.uid)
         setParkingList(parkingArray)
@@ -92,12 +94,8 @@ const Parking = ({ route }) => {
     useEffect(() => {
         updateParking()
         setDate(new Date())
-    }, [])
-
-    const center = Geocoder.from("Edvard Greigs Vei 28, 4023, Stavanger")
-    .then(json => json.results[0].geometry.location)
-    .catch(error => console.warn(error));
-    const radius = 10 * 1000
+        updateSession("end_time", new Date())
+    }, [openDialog.session])
 
     const addParkingSession = async (parking) => {
         setLoading(true)
@@ -117,31 +115,6 @@ const Parking = ({ route }) => {
         console.log(new_doc)
         addDoc(collection(db, "parking_session"), new_doc)
             .then(() => {
-                setDialog({...openDialog, add: false})
-                setLoading(false)
-            })
-            .catch(error => console.log(error))
-    }
-
-    const testSession = () => {
-        addParkingSession({
-            Address: "Jon Lilletuns vei 9",
-            Zip: 4879,
-            City: "Grimstad",
-            price: 200,
-            start_time: new Date().setHours(12),
-            stop_time: new Date().setHours(18),
-            uid: user.uid
-        })
-    }
-
-
-    const addParking = async (parking) => {
-        setLoading(true)
-        parking.uid = user.uid
-        addDoc(collection(db, "parking"), parking)
-            .then(() => {
-                updateParking()
                 setDialog({...openDialog, add: false})
                 setLoading(false)
             })

@@ -391,7 +391,7 @@ const styleSheet = (theme) => StyleSheet.create({
         margin: 4,
         overflow: "hidden",
         display: "flex",
-        backgroundColor: theme.colors.surface,
+        backgroundColor: theme.colors.elevation.level5,
         borderRadius: 20,
     },
     textInputContainer: {
@@ -402,7 +402,7 @@ const styleSheet = (theme) => StyleSheet.create({
     },
     textInput: {
         color: theme.colors.onSurface,
-        backgroundColor: theme.colors.surface,
+        backgroundColor: theme.colors.elevation.level5,
     },
     listView: {
         backgroundColor: theme.colors.surface,

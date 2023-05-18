@@ -10,18 +10,18 @@ import { useNavigation } from "@react-navigation/native";
 
 
 export default function ChatScreen({user, route}) {
-    const { getMyChatUsers } = useContext(AuthContext);
+    const { getMyChatUsers, chatUsers } = useContext(AuthContext);
     const theme = useTheme()
     const navigate = useNavigation();
 
     const [messages, setMessages] = useState([]);
     const {uid} = route.params
-    
-    const [avatar, setAvatar] = useState()
+
+    const [recipient, setRecipient] = useState()
     
     useEffect(() => {
         if (uid) {
-            0
+            setRecipient(chatUsers.filter(usr => usr.uid == uid)[0])
         }
     }, [uid])
 
@@ -31,7 +31,7 @@ export default function ChatScreen({user, route}) {
         const allMessages = await getDocs(query(docRef, orderBy("createdAt", "desc"))).then(res => res.docs.map(doc => {
             return {
                 ...doc.data(),
-                user: {...doc.data().user, avatar: avatar ? avatar : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"},
+                user: {...doc.data().user, avatar: recipient?.profilePicture ? recipient.profilePicture : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"},
                 createdAt: doc.data().createdAt.toDate(),
             }
         }))
@@ -70,9 +70,9 @@ export default function ChatScreen({user, route}) {
             containerStyle={{
               backgroundColor: theme.colors.elevation.level5,
               borderTopWidth: 0,
-              /* padding: 4,
+              padding: 4,
               borderRadius: 25,
-              margin: 6 */
+              margin: 6
             }}
           />
         );
@@ -84,18 +84,18 @@ export default function ChatScreen({user, route}) {
             {...props}
             textStyle={{
                 right: {
-                    color: theme.colors.onPrimaryContainer
+                    color: theme.colors.onTertiaryContainer
                 },
                 left: {
-                    color: theme.colors.onTertiaryContainer
+                    color: theme.colors.onSecondaryContainer
                 }
             }}
             wrapperStyle={{
                 right: {
-                    backgroundColor: theme.colors.primaryContainer
+                    backgroundColor: theme.colors.tertiaryContainer
                 },
                 left: {
-                    backgroundColor: theme.colors.tertiaryContainer
+                    backgroundColor: theme.colors.secondaryContainer
                 }
             }}
           />
@@ -104,12 +104,10 @@ export default function ChatScreen({user, route}) {
 
     return (
         <View style={{flex: 1}}>
-            <Appbar>
-                <Appbar.Header>
-                    <Appbar.BackAction onPress={navigate.goBack} />
-                    <Appbar.Content title="user"/>
-                </Appbar.Header>
-            </Appbar>
+            <Appbar.Header>
+                <Appbar.BackAction onPress={navigate.goBack} />
+                <Appbar.Content title={`${recipient?.firstName ?? ""} ${recipient?.lastName ?? ""}`}/>
+            </Appbar.Header>
             <GiftedChat
                 messages={messages}
                 onSend={messages => onSend(messages)}

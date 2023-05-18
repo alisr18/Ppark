@@ -6,7 +6,7 @@ import { useIsFocused } from '@react-navigation/native';
 
 export default function ChatHome({navigation}) {
 
-    const { chatUsers, myChatUsers, getMyChatUsers } = useContext(AuthContext);
+    const { chatUsers, getMyChatUsers } = useContext(AuthContext);
 
     const isFocused = useIsFocused();
 
