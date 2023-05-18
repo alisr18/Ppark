@@ -44,7 +44,7 @@ const map = () => {
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
 
-    const [SearchRegion, setSearchRegion] = useState({latitude: 58.3343, longitude: 8.5781});
+    const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0});
     const [prevRegion, setPrevRegion] = useState({ latitude: 0, longitude: 0 });
 
     const navigation = useNavigation();
@@ -125,47 +125,12 @@ const map = () => {
     }
 
 
-    function deg2rad(deg) {
-        return deg * (Math.PI / 180);
-    }
-
-    function getDistanceMoved(lat1, lon1, lat2, lon2) {
-        
-        var earthRadius = 6371;
-        var dLat = deg2rad(lat2 - lat1);
-        var dLon = deg2rad(lon2 - lon1);
-
-        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        var d = earthRadius * c;
-        return d;
-    }
-
-
     useEffect(() => {
         const fetchData = async () => {
             try {
                 if (SearchRegion) {
-
-                    const distance = prevRegion ? getDistanceMoved (
-                        prevRegion.latitude,
-                        prevRegion.longitude,
-                        SearchRegion.latitude,
-                        SearchRegion.longitude
-                    ) : null;
-
-                    const treshold = 5; // Oppdatere når bruker flytter denne avstanden (km)
-
-                    if (!prevRegion || distance >= treshold) {
-                        const parkingData = await searchParkingWithinRadius(SearchRegion);
-                        setParkingData(prevState => [...prevState, ...parkingData]);
-                        setPrevRegion(SearchRegion);
-                        console.log("Parking data:", parkingData);
-                    }
+                    const parkingData = await searchParkingWithinRadius(SearchRegion);
+                    setParkingData(prevState => [...prevState, ...parkingData]); 
                 }
             } catch (error) {
                 console.error("Error fetching parking data:", error);
@@ -174,11 +139,25 @@ const map = () => {
         fetchData();
     }, [SearchRegion]);
 
+
     async function searchParkingWithinRadius(searchRegion) {
         if (!searchRegion) return Promise.resolve([]);
 
         const center = [searchRegion.latitude, searchRegion.longitude];
-        const radiusInM = 5000;
+
+        let radiusInM; // Radius for markers (m)
+
+        if (searchRegion.latitudeDelta && searchRegion.longitudeDelta) {
+            radiusInM = Math.max(searchRegion.latitudeDelta, searchRegion.longitudeDelta) * 10000; 
+            if (radiusInM > 10000) {
+                radiusInM = 10000;
+            } 
+        }
+        else {
+            radiusInM = 1000;
+        }
+        
+        console.log("Search radius in meter:", radiusInM);
 
         const bounds = geofire.geohashQueryBounds(center, radiusInM);
         const promises = [];
@@ -204,6 +183,25 @@ const map = () => {
         navigation.navigate('Booking', { spot: spot });
     }
 
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    function getDistanceMoved(lat1, lon1, lat2, lon2) {
+        
+        var earthRadius = 6371;
+        var dLat = deg2rad(lat2 - lat1);
+        var dLon = deg2rad(lon2 - lon1);
+
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        var d = earthRadius * c;
+        return d;
+    }
 
     return (
 
@@ -216,7 +214,7 @@ const map = () => {
                 showsUserLocation={true}
                 showsMyLocationButton={false}
                 userLocationUpdateInterval={2000}
-                followsUserLocation={true}
+                followsUserLocation={false}
                 showsTraffic={true}
                 style={styles.map}
                 initialRegion={{
@@ -226,24 +224,28 @@ const map = () => {
                     longitudeDelta: 0.01,
                 }}
                 onRegionChangeComplete={region => {
-                    if (Math.abs(region.latitude - SearchRegion?.latitude || 0) > 0.001 ||
-                        Math.abs(region.longitude - SearchRegion?.longitude || 0) > 0.001) {
+                    
+                    const distance = prevRegion ? getDistanceMoved (
+                        prevRegion.latitude,
+                        prevRegion.longitude,
+                        region.latitude,
+                        region.longitude
+                    ) : null;
+                    
+                    console.log("Distance moved:", distance);
+                    const zoomLevel = Math.max(region.latitudeDelta, region.longitudeDelta);
+                    
+                    const threshold = zoomLevel * 12; // Oppdaterer når brukeren flytter denne avstanden (km)
+                    console.log("Distance needed:", threshold);
+
+                    if (!prevRegion || distance >= threshold) {
+                        console.log("Moved >", threshold);
                         setSearchRegion(region);
+                        setPrevRegion(region);
                     }
                 }}
-                
             >
-                {SearchRegion?.location && (
-                    <Marker
-                        coordinate={{
-                            latitude: SearchRegion.latitude,
-                            longitude: SearchRegion.longitude,
-                        }}
-                        description="A great city to visit"
-                    />
-                )}
-
-
+                
                 {parkingData.map((spots, index) => {
                     if (spots.active) {
                         return (
@@ -296,6 +298,16 @@ const map = () => {
                 })}
 
 
+
+                {SearchRegion?.location && (
+                    <Marker
+                        coordinate={{
+                            latitude: SearchRegion.latitude,
+                            longitude: SearchRegion.longitude,
+                        }}
+                        description="A great city to visit"
+                    />
+                )}
 
                 {origin?.location && (
                     <Marker
