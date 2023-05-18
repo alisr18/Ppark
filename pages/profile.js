@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from "react";
-import {scrollview, View, StyleSheet, Image, TouchableOpacity, ScrollView} from "react-native";
+import {View, StyleSheet, Image, TouchableOpacity, ScrollView} from "react-native";
 import { Button, TextInput, Text, Avatar, Card, Surface, List, Dialog } from "react-native-paper";
 import {useNavigation } from '@react-navigation/native';
 import {ThemeContext, UserContext} from "../App";

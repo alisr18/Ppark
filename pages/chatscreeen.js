@@ -1,14 +1,16 @@
 import React, {useState, useEffect, useContext} from "react";
 import { View, Text } from 'react-native';
-import { GiftedChat } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
 
 import { db } from "../firebaseConfig";
 import {addDoc, collection, doc, getDocs, orderBy, query, serverTimestamp, setDoc} from "firebase/firestore";
 import {AuthContext} from "../authContext";
+import { useTheme } from "react-native-paper";
 
 
 export default function ChatScreen({user, route}) {
     const { getMyChatUsers } = useContext(AuthContext);
+    const theme = useTheme()
 
     const [messages, setMessages] = useState([]);
     const {uid} = route.params
@@ -48,15 +50,51 @@ export default function ChatScreen({user, route}) {
         })
         addDoc(collection(db, `chatrooms/${docid}/messages`), {...mymsg, createdAt: serverTimestamp()})
         getMyChatUsers(user.uid)
-
+        getAllMessages()
 
     }
+
+    const customtInputToolbar = props => {
+        return (
+          <InputToolbar
+            {...props}
+            containerStyle={{
+              backgroundColor: theme.colors.primaryContainer,
+              borderTopColor: "#E8E8E8",
+              borderTopWidth: 1,
+              padding: 4,
+              borderRadius: 25,
+              margin: 6
+            }}
+          />
+        );
+      };
+
+    const customBubble = (props) => {
+        return (
+          <Bubble
+            {...props}
+            textStyle={{
+                right: {
+                    color: theme.colors.onPrimaryContainer
+                }
+            }}
+            wrapperStyle={{
+              right: {
+                backgroundColor: theme.colors.primaryContainer
+              }
+            }}
+          />
+        )
+      }
 
     return (
         <View style={{flex: 1}}>
             <GiftedChat
                 messages={messages}
                 onSend={messages => onSend(messages)}
+                renderInputToolbar={props => customtInputToolbar(props)}
+                renderBubble={props => customBubble(props)}
                 user={{
                     _id: user.uid,
                 }}

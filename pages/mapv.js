@@ -403,9 +403,6 @@ const map = () => {
     )
 }
 
-
-
-
 export default map;
 
 const styleSheet = (theme) => StyleSheet.create({

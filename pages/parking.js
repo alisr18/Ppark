@@ -17,6 +17,7 @@ import { DateController } from "../components/DateController"
 import { DatePickerModal } from 'react-native-paper-dates';
 import {googleapikey} from '@env'
 import * as geofire from "geofire-common";
+import { AuthContext } from "../authContext";
 
 Geocoder.init(googleapikey);
 
@@ -46,7 +47,7 @@ export const getParkingDetail = async (id) => {
 
 const Parking = ({ route }) => {
 
-    const {user} = route.params
+    const {user, userData} = useContext(AuthContext)
 
     const [openDialog, setDialog] = useState(
         {
@@ -281,7 +282,7 @@ const Parking = ({ route }) => {
                 <Dialog.Title>Start Parking Session</Dialog.Title>
                 <Dialog.Content>
                         <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0].Address  : "Select Parking Address"}</Button>
-                        <Input control={sessionForm} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="Price" label="Price" style={styles.dialogInput}/>
+                        <Input control={sessionForm} right={<TextInput.Affix text={userData?.balance ?? ""} />} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="Price" label="Price per Hour" style={styles.dialogInput}/>
                         <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                             <Text>Start Time:</Text>
                             <View style={{display: "flex", flexDirection: "row"}}>
