@@ -20,12 +20,6 @@ const Login = () => {
         return (
             <Portal>
                 <Dialog visible={resetDialog} onDismiss={() => setResetDialog(false)}>
-                    <IconButton
-                        icon="close"
-                        onPress={() => setResetDialog(false)}
-                        size={20}
-                        style={{ position: 'absolute', alignSelf: "flex-end", top: 0, right: 10, margin: 10 }}
-                    />
                     <Dialog.Title style={{ marginLeft: 40 }}>
                         Reset Password
                     </Dialog.Title>
@@ -39,6 +33,7 @@ const Login = () => {
                                 alert("Please provide a valid account email");
                             }
                         })}>Send Email</Button>
+                        <Button onPress={() => setResetDialog(false)}>Cancel</Button>
                     </Dialog.Content>
                 </Dialog>
             </Portal>
