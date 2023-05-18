@@ -23,13 +23,13 @@ const Map = () => {
 
     const theme = useTheme();
     const styles = styleSheet(theme)
-    const [origin, setOrigin] = useState({ latitude: 58.3343, longitude: 8.5781 })
-    const [destination, setDestination] = useState({ latitude: null, longitude: null })
+    const [origin, setOrigin] = useState({latitude: 58.3343, longitude: 8.5781, latitudeDelta: 0.1, longitudeDelta: 0.1})
+    const [destination, setDestination] = useState({ latitude: null, longitude: null, latitudeDelta: 0.1, longitudeDelta: 0.1})
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
 
     const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
-    const [prevRegion, setPrevRegion] = useState({ latitude: 0, longitude: 0 });
+    const [prevRegion, setPrevRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
     const [prevZoom, setPrevZoom] = useState(null);
 
     const navigation = useNavigation();
