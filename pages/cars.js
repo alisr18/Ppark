@@ -11,7 +11,7 @@ import { AuthContext } from "../authContext";
 
 
 const Cars = () => {
-    const { user, active, setActive } = useContext(AuthContext);
+    const { user, active, setActive, cars, setCars } = useContext(AuthContext);
 
     const navigate = useNavigation();
 
@@ -60,9 +60,6 @@ const Cars = () => {
         }
     }
 
-
-    // Get cars from db
-    const [cars, setCars] = useState([]);
       
     useEffect(() => {
         const getCars = async() => {

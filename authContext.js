@@ -1,8 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { Alert } from "react-native";
 import { auth, db } from "./firebaseConfig";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated, sendPasswordResetEmail } from "firebase/auth";
-import * as SecureStore from 'expo-secure-store';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated, sendPasswordResetEmail, setPersistence } from "firebase/auth";
 import { ActivityIndicator } from 'react-native-paper';
 import {collection, doc, getDoc, getDocs, query, where} from "firebase/firestore";
 
@@ -16,6 +15,7 @@ export const AuthProvider = ({ children }) => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [active, setActive] = useState(null);
+    const [cars, setCars] = useState([]);
 
     const getMyChatUsers = async (id) => {
 
@@ -46,15 +46,6 @@ export const AuthProvider = ({ children }) => {
         }))
     }
 
-    const getUser = async() => {
-        const storedUser = await SecureStore.getItemAsync('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-            getCar(JSON.parse(storedUser));
-        }
-        setLoading(false);
-    };
-
     const getUserData = async (id) => {
         const userDoc = doc(db, 'users', id);
         const uData = (await getDoc(userDoc)).data();
@@ -63,29 +54,34 @@ export const AuthProvider = ({ children }) => {
     }
 
     const getCar = async(usr) => {
+        console.log(usr);
         const carsRef = doc(db, "cars", usr.uid); 
         const carsDoc = await getDoc(carsRef);
-            
+
         if (carsDoc.exists()) {
-            const carsData = carsDoc.data();  
+            const carsData = carsDoc.data();
             const carsArray = Object.values(carsData);
-                
+            const other = carsArray.filter((car) => car[2] === false);
+            setCars(other);
+            
             const activeCar = carsArray.find((car) => car[2] === true);
             setActive(activeCar);
-        }
+        } 
     }
-
-    const authListener = onAuthStateChanged(auth, (currentUser) => {
-        if (currentUser) {
-            SecureStore.setItemAsync('user', JSON.stringify(currentUser));
-            setUser(currentUser);
-            getCar(currentUser);
-        }
-    });
 
     useEffect(() => {
 
-        getUser();
+        const authListener = onAuthStateChanged(auth, (currentUser) => {
+            if (currentUser) {
+                setUser(currentUser);
+                getCar(currentUser);
+            }
+            else {
+                setUser(null);
+                setActive(null);
+            }
+            setLoading(false);
+        });
 
         return () => {
             authListener();
@@ -120,12 +116,13 @@ export const AuthProvider = ({ children }) => {
             getMyChatUsers,
             active,
             setActive,
+            cars,
+            setCars,
             login: async (email, password) => {
                 await signInWithEmailAndPassword(auth, email, password);
             },
             logout: async () => {
                 await signOut(auth);
-                await SecureStore.deleteItemAsync('user');
                 setUser(null);
             },
             register: async (email, password, onUserCreated) => {
