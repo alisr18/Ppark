@@ -1,11 +1,11 @@
 import React, {useState, useEffect, useContext} from "react";
 import { View, Text } from 'react-native';
-import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
+import { Bubble, Composer, GiftedChat, InputToolbar, Send, Time } from "react-native-gifted-chat";
 
 import { db } from "../firebaseConfig";
 import {addDoc, collection, doc, getDocs, orderBy, query, serverTimestamp, setDoc} from "firebase/firestore";
 import {AuthContext} from "../authContext";
-import { Appbar, useTheme } from "react-native-paper";
+import { Appbar, IconButton, useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 
 
@@ -67,13 +67,20 @@ export default function ChatScreen({user, route}) {
         return (
           <InputToolbar
             {...props}
+            
             containerStyle={{
-              backgroundColor: theme.colors.elevation.level5,
-              borderTopWidth: 0,
-              padding: 4,
-              borderRadius: 25,
-              margin: 6
+                backgroundColor: theme.colors.elevation.level5,
+                borderTopWidth: 0,
+                padding: 4,
+                borderRadius: 25,
+                margin: 6
             }}
+            renderComposer={(props) => <Composer textInputStyle={{color: theme.colors.onSurface}} {...props}/>}
+            renderSend={(props) => 
+                <Send {...props} containerStyle={{margin: 0, padding: 0, backgroundColor: "black"}}>
+                    <IconButton style={{}} icon="magnify"/>
+                </Send>
+            }
           />
         );
       };
@@ -82,6 +89,21 @@ export default function ChatScreen({user, route}) {
         return (
           <Bubble
             {...props}
+            containerStyle={{
+            }}
+            renderTime={(props) => (
+                <Time
+                {...props}
+                timeTextStyle={{
+                    right: {
+                        color: theme.colors.onSurfaceDisabled
+                    },
+                    left: {
+                        color: theme.colors.onSurfaceDisabled
+                    }
+                }}
+                />
+            )}
             textStyle={{
                 right: {
                     color: theme.colors.onTertiaryContainer
@@ -106,7 +128,7 @@ export default function ChatScreen({user, route}) {
         <View style={{flex: 1}}>
             <Appbar.Header>
                 <Appbar.BackAction onPress={navigate.goBack} />
-                <Appbar.Content title={`${recipient?.firstName ?? ""} ${recipient?.lastName ?? ""}`}/>
+                <Appbar.Content title={recipient?.displayname}/>
             </Appbar.Header>
             <GiftedChat
                 messages={messages}

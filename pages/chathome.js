@@ -24,10 +24,11 @@ export default function ChatHome({navigation}) {
             </Appbar.Header>
             <ScrollView>
                 {
-                    chatUsers && chatUsers.map(chat => (
+                    chatUsers?.length ? chatUsers.map(chat => (
                         <>
                             <List.Item
                             title={chat.displayname}
+                            key={chat.uid}
                             description="Item description"
                             onPress={() => navigation.navigate('chat', {displayname: chat.displayname, uid: chat.uid})}
                             left={props => 
@@ -38,7 +39,13 @@ export default function ChatHome({navigation}) {
                             />
                             <Divider/>
                         </>
-                    ))
+                    )) : 
+                    <List.Item
+                        title={"No Messages"}
+                        key={"no_message"}
+                        description="You have no messages or conversations with other users"
+                        onPress={() => navigation.navigate('chat', {displayname: chat.displayname, uid: chat.uid})}
+                    />
                 }
             </ScrollView>
         </>

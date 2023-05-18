@@ -214,7 +214,7 @@ const Parking = ({ route }) => {
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, add: false})}>Cancel</Button>
-                    <Button loading={loading} mode='contained' value="submit"  onPress={handleAdd(p => addParkings(p))}>Create</Button>
+                    <Button loading={loading} disabled={loading} mode='contained' value="submit"  onPress={handleAdd(p => addParkings(p))}>Create</Button>
                 </Dialog.Actions>
             </Dialog>
         )
