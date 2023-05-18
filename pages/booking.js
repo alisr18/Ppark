@@ -97,18 +97,18 @@ function Booking({ route, navigation }) {
             // Handle the error
         }
     };
-    useEffect(() => {const endDateTime = watchSession('end_time');
+    useEffect(() => {
+        const endDateTime = watchSession('end_time');
         if (endDateTime) {
-            const totalEndHours = endDateTime.getHours();
-            setTotalend(totalEndHours)
+            setTotalend(endDateTime)
         }
     }, [watchSession("end_time")]);
 
 
-    const end = totalEnd.getTime()
     const now = new Date();
-    let totalStart = now.getTime();
-    console.log(end)
+    const end = totalEnd ?? now
+    let totalHours = (end - now)/3600000;
+    console.log(totalHours)
     const handleContactOwner = () => navigation.navigate('chat', {displayname: spot.Address ,uid: spot.uid});
 
     const styles = StyleSheet.create({
