@@ -16,12 +16,14 @@ import { useNavigation } from '@react-navigation/native';
 const Ppark = require("../icons/logo_light.png")
 const available = require("../icons/green_marker.png")
 const notAvailable=require("../icons/red_marker.png")
+let zoomThreshold = 0.05;
 
 //import Geocoder from 'react-native-geocoder';
 import Geocoder from 'react-native-geocoding';
 import { ThemeContext } from '../App';
 import { AuthContext } from '../authContext';
 import Booking from './booking';
+//import { region } from 'firebase-functions/v1';
 
 const geofire = require('geofire-common');
 
@@ -41,9 +43,12 @@ const map = () => {
     const { active } = useContext(AuthContext);
     const [origin, setOrigin] = useState({ latitude: 58.3343, longitude: 8.5781 })
     const [destination, setDestination] = useState({ latitude: null, longitude: null })
-    const [SearchRegion, setSearchRegion] = useState(null)
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
+
+    const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0});
+    const [prevRegion, setPrevRegion] = useState({ latitude: 0, longitude: 0 });
+    const [prevZoom, setPrevZoom] = useState(null);
 
     const navigation = useNavigation();
 
@@ -71,8 +76,8 @@ const map = () => {
             return
         }
         let location = await Location.getCurrentPositionAsync({})
-        setOrigin({ latitude: location.coords.latitude, longitude: location.coords.longitude })
-
+        setOrigin({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+        setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude });
 
 
         mapRef.current.animateToRegion({
@@ -123,14 +128,12 @@ const map = () => {
     }
 
 
-
     useEffect(() => {
         const fetchData = async () => {
             try {
                 if (SearchRegion) {
                     const parkingData = await searchParkingWithinRadius(SearchRegion);
-                    setParkingData(prevState => [...prevState, ...parkingData]);
-                    console.log("Parking data", parkingData);
+                    setParkingData(parkingData); 
                 }
             } catch (error) {
                 console.error("Error fetching parking data:", error);
@@ -139,11 +142,28 @@ const map = () => {
         fetchData();
     }, [SearchRegion]);
 
+
     async function searchParkingWithinRadius(searchRegion) {
         if (!searchRegion) return Promise.resolve([]);
 
         const center = [searchRegion.latitude, searchRegion.longitude];
-        const radiusInM = 100000 / 20;
+
+        let radiusInM; // Radius for markers (m)
+
+        if (searchRegion.latitudeDelta && searchRegion.longitudeDelta) {
+            radiusInM = Math.max(searchRegion.latitudeDelta, searchRegion.longitudeDelta) * 10000; 
+            if (radiusInM > 15000) {
+                radiusInM = 15000;
+            } 
+            else if (radiusInM < 2000) {
+                radiusInM = 2000;
+            }
+        }
+        else {
+            radiusInM = 2000;
+        }
+        
+        console.log("Search radius in meter:", radiusInM);
 
         const bounds = geofire.geohashQueryBounds(center, radiusInM);
         const promises = [];
@@ -155,7 +175,6 @@ const map = () => {
 
             await (getDocs(q).then(res => res.docs.map(doc => {
                 promises.push(doc.data())
-                console.log(doc.data())
             })));
 
         }
@@ -170,6 +189,25 @@ const map = () => {
         navigation.navigate('Booking', { spot: spot });
     }
 
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+
+    function getDistanceMoved(lat1, lon1, lat2, lon2) {
+        
+        var earthRadius = 6371;
+        var dLat = deg2rad(lat2 - lat1);
+        var dLon = deg2rad(lon2 - lon1);
+
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        var d = earthRadius * c;
+        return d;
+    }
 
     return (
 
@@ -182,7 +220,7 @@ const map = () => {
                 showsUserLocation={true}
                 showsMyLocationButton={false}
                 userLocationUpdateInterval={2000}
-                followsUserLocation={true}
+                followsUserLocation={false}
                 showsTraffic={true}
                 style={styles.map}
                 initialRegion={{
@@ -191,18 +229,39 @@ const map = () => {
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
+                onRegionChangeComplete={region => {
+                    
+                    const distance = prevRegion ? getDistanceMoved (
+                        prevRegion.latitude,
+                        prevRegion.longitude,
+                        region.latitude,
+                        region.longitude
+                    ) : null;
+                    
+                    const zoomLevel = Math.max(region.latitudeDelta, region.longitudeDelta);
+                    
+                    const threshold = zoomLevel * 12; // Oppdaterer når brukeren flytter denne avstanden (km)
+                    
+                    const zoomChange = Math.abs((prevZoom || 0) - region.latitudeDelta);
+                                      
+                    if ((region.latitudeDelta * 5) < 10 && zoomThreshold == 10) {
+                        zoomThreshold = region.latitudeDelta * 5;
+                    }
+
+                    if (!prevRegion || distance >= threshold || (zoomChange >= zoomThreshold && zoomThreshold < 10)) {
+                        console.log("Moved >", threshold, "or Zoomchange >", zoomThreshold);
+                        setSearchRegion(region);
+                        setPrevRegion(region);
+                        
+                        zoomThreshold = region.latitudeDelta * 5;
+                        if (zoomThreshold > 10) {
+                            zoomThreshold = 10;
+                        }
+                        setPrevZoom(region.latitudeDelta);
+                    }
+                }}
             >
-                {SearchRegion?.location && (
-                    <Marker
-                        coordinate={{
-                            latitude: SearchRegion.latitude,
-                            longitude: SearchRegion.longitude,
-                        }}
-                        description="A great city to visit"
-                    />
-                )}
-
-
+                
                 {parkingData.map((spots, index) => {
                     if (spots.active) {
                         return (
@@ -255,6 +314,16 @@ const map = () => {
                 })}
 
 
+
+                {SearchRegion?.location && (
+                    <Marker
+                        coordinate={{
+                            latitude: SearchRegion.latitude,
+                            longitude: SearchRegion.longitude,
+                        }}
+                        description="A great city to visit"
+                    />
+                )}
 
                 {origin?.location && (
                     <Marker
@@ -372,7 +441,7 @@ const styleSheet = (theme) => StyleSheet.create({
     },
     searchContainer: {
         position: 'absolute',
-        top: 0,
+        top: 5,
         left: 0,
         right: 0,
         margin: 4,

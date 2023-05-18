@@ -119,6 +119,7 @@ export const AuthProvider = ({ children }) => {
             chatUsers,
             setUser,
             getUserData,
+            getMyChatUsers,
             active,
             setActive,
             login: async (email, password) => {
