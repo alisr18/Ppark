@@ -87,16 +87,6 @@ const Map = () => {
             longitudeDelta: 0.01,
         });
     }
-    function handleDestinationSelect(data,details) {
-        const destinationLocation = {
-            latitude: details.geometry.location.lat,
-            longitude: details.geometry.location.lng
-        }
-        setDestination(destinationLocation)
-        mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
-            edgePadding: { top: 50, right: 50, left:50, bottom: 50}
-        })
-    }
 
     const handlePlaceSelection = (data, details) =>{
         const region= {

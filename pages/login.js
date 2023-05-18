@@ -24,7 +24,7 @@ const Login = () => {
                         icon="close"
                         onPress={() => setResetDialog(false)}
                         size={20}
-                        style={{ position: 'absolute', top: 0, left: 0, margin: 10 }}
+                        style={{ position: 'absolute', alignSelf: "flex-end", top: 0, right: 10, margin: 10 }}
                     />
                     <Dialog.Title style={{ marginLeft: 40 }}>
                         Reset Password
@@ -45,8 +45,6 @@ const Login = () => {
         )
     }
 
-    // Logs in the user based on the value of the component state.
-    // This function is called when the button declared below is pressed.
 
     const resetErrorMessage = () => {
         setErrorMessage('');
@@ -101,12 +99,10 @@ const Login = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        //backgroundColor: '#0E3B43',
         alignItems: 'center',
         justifyContent: 'center',
     },
     login_field: {
-        //backgroundColor: '#D0DCD4',
         width: 250,
     },
     logo: {

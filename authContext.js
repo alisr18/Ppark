@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { Alert } from "react-native";
 import { auth, db } from "./firebaseConfig";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated, sendPasswordResetEmail, setPersistence } from "firebase/auth";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, onUserCreated, sendPasswordResetEmail } from "firebase/auth";
 import { ActivityIndicator } from 'react-native-paper';
 import {collection, doc, getDoc, getDocs, query, where} from "firebase/firestore";
 

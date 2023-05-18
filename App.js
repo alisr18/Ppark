@@ -152,12 +152,12 @@ export default function App() {
   }
   
 
-  return (      
-  <StripeProvider>
-      <Provider theme={theme}>
-        <ThemeContext.Provider value={theme}>
-          <SelectedThemeContext.Provider value={selectedData}>
-            <AuthProvider>
+  return (  
+    <AuthProvider>    
+      <StripeProvider>
+        <Provider theme={theme}>
+          <ThemeContext.Provider value={theme}>
+            <SelectedThemeContext.Provider value={selectedData}>
               <NavigationContainer theme={theme}>
               <StatusBar
               animated={true}
@@ -166,10 +166,10 @@ export default function App() {
               />
                 <MyTabs/>
               </NavigationContainer>
-            </AuthProvider>
-          </SelectedThemeContext.Provider>
-        </ThemeContext.Provider>
-      </Provider>
-    </StripeProvider>
+            </SelectedThemeContext.Provider>
+          </ThemeContext.Provider>
+        </Provider>
+      </StripeProvider>
+    </AuthProvider>
   );
 }

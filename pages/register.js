@@ -95,8 +95,7 @@ export default function Register () {
             icon="account-plus" 
             mode="contained" 
             onPress={registerPressed} 
-            //buttonColor="#357266" 
-            //textColor='#D0DCD4'
+            disabled={!displayname || !firstName || !lastName || !email || !password}
             marginTop={10}
         >
         Register
@@ -108,12 +107,10 @@ export default function Register () {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        //backgroundColor: '#0E3B43',
         alignItems: 'center',
         justifyContent: 'center',
     },
     register_field: {
-        //backgroundColor: '#D0DCD4',
         width: 250,
     },
     logo: {
