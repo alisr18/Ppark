@@ -26,6 +26,7 @@ import Register from "./pages/register";
 import { useAsyncStorage } from "./components/AsyncStorage";
 import ChatHome from "./pages/chathome";
 import Booking from "./pages/booking";
+import MapDashboard from "./pages/mapv";
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
@@ -38,13 +39,9 @@ function ChatStackNavigator({route}) {
     const {user} = route.params;
 
     return (
-        <ChatStack.Navigator screenOptions={{headerShown: true}}>
-            <ChatStack.Screen name="ChatHome" options={{ title: "Your friends" }}>
-                {(props) => <ChatHome {...props} user={user} />}
-            </ChatStack.Screen>
-            <ChatStack.Screen name="chat" options={({ route }) => ({ title: route.params.displayname })}>
-                {props => <ChatScreen {...props} user={user} /> }
-            </ChatStack.Screen>
+        <ChatStack.Navigator screenOptions={{headerShown: false}}>
+            <ChatStack.Screen name="ChatHome" component={ChatHome}/>
+            <ChatStack.Screen name="chat" component={ChatScreen}/>
             <ChatStack.Screen name="ChatOverview" component={ChatOverviewScreen} />
         </ChatStack.Navigator>
     );
@@ -72,7 +69,7 @@ function MapStackNavigator({route}) {
 
   return(
     <MapStack.Navigator screenOptions={{headerShown: false}}>
-      <MapStack.Screen name="Map" component={Mapv}/>
+      <MapStack.Screen name="Map" component={MapDashboard}/>
       <MapStack.Screen name="Booking" component={Booking}/>
       <MapStack.Screen name="chat" options={({ route }) => ({ title: route.params.displayname })}>
           {props => <ChatScreen {...props} user={user} user1={user1} /> }

@@ -35,7 +35,7 @@ const ASPECT_RATIO = width / height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-const map = () => {
+const MapDashboard = () => {
 
 
     const theme = useContext(ThemeContext);
@@ -403,7 +403,7 @@ const map = () => {
     )
 }
 
-export default map;
+export default MapDashboard;
 
 const styleSheet = (theme) => StyleSheet.create({
     container: {
