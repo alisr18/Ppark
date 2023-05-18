@@ -46,10 +46,10 @@ export const AuthProvider = ({ children }) => {
     }
 
 
-    const getUserData = async (id) => {
-        const userDoc = doc(db, 'users', id);
+    const getUserData = async () => {
+        const userDoc = doc(db, 'users', user.uid);
         const uData = (await getDoc(userDoc)).data();
-        console.log(uData)
+        console.log("uData:", uData)
         setUserData(uData)
     }
 
