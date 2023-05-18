@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 const Ppark = require("../icons/logo_light.png")
 const available = require("../icons/green_marker.png")
 const notAvailable=require("../icons/red_marker.png")
+let zoomThreshold = 0.05;
 
 //import Geocoder from 'react-native-geocoder';
 import Geocoder from 'react-native-geocoding';
@@ -46,6 +47,7 @@ const map = () => {
 
     const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0});
     const [prevRegion, setPrevRegion] = useState({ latitude: 0, longitude: 0 });
+    const [prevZoom, setPrevZoom] = useState(null);
 
     const navigation = useNavigation();
 
@@ -130,7 +132,7 @@ const map = () => {
             try {
                 if (SearchRegion) {
                     const parkingData = await searchParkingWithinRadius(SearchRegion);
-                    setParkingData(prevState => [...prevState, ...parkingData]); 
+                    setParkingData(parkingData); 
                 }
             } catch (error) {
                 console.error("Error fetching parking data:", error);
@@ -149,12 +151,15 @@ const map = () => {
 
         if (searchRegion.latitudeDelta && searchRegion.longitudeDelta) {
             radiusInM = Math.max(searchRegion.latitudeDelta, searchRegion.longitudeDelta) * 10000; 
-            if (radiusInM > 10000) {
-                radiusInM = 10000;
+            if (radiusInM > 15000) {
+                radiusInM = 15000;
             } 
+            else if (radiusInM < 2000) {
+                radiusInM = 2000;
+            }
         }
         else {
-            radiusInM = 1000;
+            radiusInM = 2000;
         }
         
         console.log("Search radius in meter:", radiusInM);
@@ -232,16 +237,26 @@ const map = () => {
                         region.longitude
                     ) : null;
                     
-                    console.log("Distance moved:", distance);
                     const zoomLevel = Math.max(region.latitudeDelta, region.longitudeDelta);
                     
                     const threshold = zoomLevel * 12; // Oppdaterer når brukeren flytter denne avstanden (km)
-                    console.log("Distance needed:", threshold);
+                    
+                    const zoomChange = Math.abs((prevZoom || 0) - region.latitudeDelta);
+                                      
+                    if ((region.latitudeDelta * 5) < 10 && zoomThreshold == 10) {
+                        zoomThreshold = region.latitudeDelta * 5;
+                    }
 
-                    if (!prevRegion || distance >= threshold) {
-                        console.log("Moved >", threshold);
+                    if (!prevRegion || distance >= threshold || (zoomChange >= zoomThreshold && zoomThreshold < 10)) {
+                        console.log("Moved >", threshold, "or Zoomchange >", zoomThreshold);
                         setSearchRegion(region);
                         setPrevRegion(region);
+                        
+                        zoomThreshold = region.latitudeDelta * 5;
+                        if (zoomThreshold > 10) {
+                            zoomThreshold = 10;
+                        }
+                        setPrevZoom(region.latitudeDelta);
                     }
                 }}
             >
