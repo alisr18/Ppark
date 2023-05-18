@@ -10,7 +10,7 @@ import Parking from "./pages/parking";
 import Settings from "./pages/settings";
 import History from "./pages/history";
 import { AuthContext, AuthProvider } from "./authContext";
-import Mapv from "./pages/mapv";
+import Map from "./pages/mapv";
 import { StripeProvider } from '@stripe/stripe-react-native';
 import { StatusBar, useColorScheme, View } from "react-native"
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
@@ -71,7 +71,7 @@ function MapStackNavigator({route}) {
 
   return(
     <MapStack.Navigator screenOptions={{headerShown: false}}>
-      <MapStack.Screen name="Map" component={MapDashboard}/>
+      <MapStack.Screen name="MapScreen" component={Map}/>
       <MapStack.Screen name="Booking" component={Booking}/>
       <MapStack.Screen name="chat" options={({ route }) => ({ title: route.params.displayname })}>
           {props => <ChatScreen {...props} user={user} user1={user1} /> }
