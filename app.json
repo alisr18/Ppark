@@ -19,7 +19,6 @@
       "config": {
         "googleMapsApiKey": "AIzaSyDFviNwbJMBXOwDzTPWUxgCamIiAjrW2mo"
       }
-
     },
     "android": {
       "adaptiveIcon": {
@@ -29,7 +28,13 @@
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyDFviNwbJMBXOwDzTPWUxgCamIiAjrW2mo"
-        }}
+        }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE"
+      ]
     },
     "plugins": [
       [
@@ -41,7 +46,11 @@
     ],
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8c4973fc-da19-49b1-be6a-62a1f4efc8b7"
+      }
     }
-
   }
 }
