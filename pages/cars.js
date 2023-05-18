@@ -331,6 +331,7 @@ const Cars = () => {
                         <Input control={editForm} defaultValue={selectedCar[1]} rules={{required: true}} name="regNr" label="Registration Number" style={styles.dialogInput}/>                
                     </Dialog.Content>
                     <Dialog.Actions>
+                        <Button onPress={() => setDialog({...openDialog, edit: false})}>Cancel</Button>
                         <ActivationBtn/>
                         <Button mode='contained' value="submit" onPress={handleEdit(p => edit(p, user))}>Edit</Button>                
                     </Dialog.Actions>               
@@ -364,6 +365,7 @@ const Cars = () => {
                         <Input control={addForm} rules={{required: true}} name="carName" label="Car Name" style={styles.dialogInput}/>
                         <Input control={addForm} rules={{required: true}} name="regNr" label="Registration Number" style={styles.dialogInput}/>
                         <Button mode='contained' value="submit" onPress={handleAdd(p => add(p, user))}>Add</Button>
+                        <Button onPress={() => setDialog({...openDialog, add: false})}>Cancel</Button>
                     </Dialog.Content>
                 </Dialog>
             </Portal>

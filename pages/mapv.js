@@ -1,53 +1,35 @@
-import React,{useState, useEffect, useContext} from 'react';
+import React,{useState, useEffect } from 'react';
 import MapView, {PROVIDER_GOOGLE, Marker, Callout} from 'react-native-maps';
 import { GooglePlacesAutocomplete  } from 'react-native-google-places-autocomplete';
 import {Image, StyleSheet, View, Alert, TouchableOpacity, TouchableHighlight} from 'react-native';
-import { Dimensions } from 'react-native';
-import MapViewDirections from 'react-native-maps-directions';
 import {googleapikey} from '@env'
-import Icon from 'react-native-vector-icons/Ionicons'; //kansje tar det vek
 import * as Location from 'expo-location';
 import {useRef} from "react";
 import { db } from "../firebaseConfig";
-import { collection, getDocs, addDoc, orderBy, query,startAt,endAt, onSnapshot } from 'firebase/firestore';
-import {Button, Text, TextInput, Portal, Dialog, IconButton, TouchableRipple, FAB, List, useTheme} from "react-native-paper";
+import { collection, getDocs, orderBy, query,startAt,endAt } from 'firebase/firestore';
+import { Text, FAB, List, useTheme } from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
 
-const Ppark = require("../icons/logo_light.png")
 const available = require("../icons/green_marker.png")
 const notAvailable=require("../icons/red_marker.png")
 let zoomThreshold = 0.05;
 
-//import Geocoder from 'react-native-geocoder';
-import Geocoder from 'react-native-geocoding';
-import { ThemeContext } from '../App';
-import { AuthContext } from '../authContext';
-import Booking from './booking';
-//import { region } from 'firebase-functions/v1';
 
 const geofire = require('geofire-common');
 
-
-
-const { width, height } = Dimensions.get('window');
-const ASPECT_RATIO = width / height;
-
-const LATITUDE_DELTA = 0.0922;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
 const Map = () => {
 
 
     const theme = useTheme();
     const styles = styleSheet(theme)
-    const { active } = useContext(AuthContext);
-    const [origin, setOrigin] = useState({ latitude: 58.3343, longitude: 8.5781 })
-    const [destination, setDestination] = useState({ latitude: null, longitude: null })
+    const [origin, setOrigin] = useState({latitude: 58.3343, longitude: 8.5781, latitudeDelta: 0.1, longitudeDelta: 0.1})
+    const [destination, setDestination] = useState({ latitude: null, longitude: null, latitudeDelta: 0.1, longitudeDelta: 0.1})
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
 
-    const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0});
-    const [prevRegion, setPrevRegion] = useState({ latitude: 0, longitude: 0 });
+    const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
+    const [prevRegion, setPrevRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
     const [prevZoom, setPrevZoom] = useState(null);
 
     const navigation = useNavigation();
@@ -86,16 +68,6 @@ const Map = () => {
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
         });
-    }
-    function handleDestinationSelect(data,details) {
-        const destinationLocation = {
-            latitude: details.geometry.location.lat,
-            longitude: details.geometry.location.lng
-        }
-        setDestination(destinationLocation)
-        mapRef.current.fitToSuppliedMarkers(['origin', 'destination'], {
-            edgePadding: { top: 50, right: 50, left:50, bottom: 50}
-        })
     }
 
     const handlePlaceSelection = (data, details) =>{
@@ -213,7 +185,12 @@ const Map = () => {
 
         <View style={styles.container}>
             <MapView
-                region={SearchRegion}
+                region={{
+                    latitude: SearchRegion.latitude,
+                    longitude: SearchRegion.longitude,
+                    latitudeDelta: SearchRegion.latitudeDelta,
+                    longitudeDelta: SearchRegion.longitudeDelta,
+                }}
                 ref={mapRef}
                 provider={PROVIDER_GOOGLE}
                 customMapStyle={theme.dark ? theme.map.dark : theme.map.light}
