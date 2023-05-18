@@ -10,7 +10,7 @@ import * as Location from 'expo-location';
 import {useRef} from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, addDoc, orderBy, query,startAt,endAt, onSnapshot } from 'firebase/firestore';
-import {Button, Text, TextInput, Portal, Dialog, IconButton, TouchableRipple, FAB, List} from "react-native-paper";
+import {Button, Text, TextInput, Portal, Dialog, IconButton, TouchableRipple, FAB, List, useTheme} from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
 
 const Ppark = require("../icons/logo_light.png")
@@ -38,7 +38,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const Map = () => {
 
 
-    const theme = useContext(ThemeContext);
+    const theme = useTheme();
     const styles = styleSheet(theme)
     const { active } = useContext(AuthContext);
     const [origin, setOrigin] = useState({ latitude: 58.3343, longitude: 8.5781 })
@@ -352,7 +352,7 @@ const Map = () => {
 
 export default Map;
 
-const styles = StyleSheet.create({
+const styleSheet = (theme) => StyleSheet.create({
     container: {
         flex:1
     },

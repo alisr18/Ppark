@@ -155,7 +155,6 @@ export default function App() {
   
 
   return (
-      <StripeProvider publishableKey="pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu">
     <Provider theme={theme}>
       <ThemeContext.Provider value={theme}>
         <SelectedThemeContext.Provider value={selectedData}>
@@ -172,6 +171,5 @@ export default function App() {
         </SelectedThemeContext.Provider>
       </ThemeContext.Provider>
     </Provider>
-      </StripeProvider>
   );
 }
