@@ -35,7 +35,7 @@ const ASPECT_RATIO = width / height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-const map = () => {
+const Map = () => {
 
 
     const theme = useContext(ThemeContext);
@@ -311,61 +311,6 @@ const map = () => {
                         );
                     }
                 })}
-
-
-
-                {SearchRegion?.location && (
-                    <Marker
-                        coordinate={{
-                            latitude: SearchRegion.latitude,
-                            longitude: SearchRegion.longitude,
-                        }}
-                        description="A great city to visit"
-                    />
-                )}
-
-                {origin?.location && (
-                    <Marker
-                        resizeMode="contain"
-                        coordinate={{
-                            latitude: origin.latitude,
-                            longitude: origin.longitude,
-                        }}
-                        identifier={'origin'}
-                    />
-                )}
-                {destination?.location && (
-                    <Marker
-                        resizeMode="contain"
-                        coordinate={{
-                            latitude: destination.latitude,
-                            longitude: destination.longitude,
-                        }}
-                        identifier={'destination'}
-                    />
-                )}
-                {origin &&
-                    destination && (
-                        <MapViewDirections
-                            apikey={googleapikey}
-                            origin={{
-                                latitude: origin.latitude,
-                                longitude: origin.longitude,
-                            }}
-                            destination={{
-                                latitude: destination.latitude,
-                                longitude: destination.longitude,
-                            }}
-                            strokeColor={'black'}
-                            strokeWidth={2}
-                            optimizeWaypoints={true}
-                            onStart={(params) => {
-                                console.log(
-                                    `Started routing between "${params.origin}" and "${params.destination}"`
-                                );
-                            }}
-                        />
-                    )}
             </MapView>
             <View style={styles.searchContainer}>
                 <GooglePlacesAutocomplete
@@ -398,7 +343,7 @@ const map = () => {
 
 
 
-export default map;
+export default Map;
 
 const styles = StyleSheet.create({
     container: {
