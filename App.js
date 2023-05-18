@@ -1,6 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native"
 import ChatScreen from "./pages/chatscreeen";
-import ChatOverviewScreen from "./pages/chat";
 import {createStackNavigator} from "@react-navigation/stack";
 import { getFunctions } from 'firebase/functions';
 import Profile from "./pages/profile";
@@ -44,7 +43,6 @@ function ChatStackNavigator({route}) {
             <ChatStack.Screen name="chat">
                 {props => <ChatScreen {...props} user={user} /> }
             </ChatStack.Screen>
-            <ChatStack.Screen name="ChatOverview" component={ChatOverviewScreen} />
         </ChatStack.Navigator>
     );
 }

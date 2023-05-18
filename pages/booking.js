@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
-import { IconButton, Text, Button } from "react-native-paper";
+import {IconButton, Text, Button, Dialog, TextInput} from "react-native-paper";
 import { CardField, useStripe, confirmPayment } from "@stripe/stripe-react-native";
 import firebase from 'firebase/app';
 import axios from 'axios';
+import {useForm} from "react-hook-form";
+import {DateController} from "../components/DateController";
+import {Input} from "../components/Input";
+import {addDoc, collection} from "firebase/firestore";
+import {db} from "../firebaseConfig";
 
 function Booking({ route, navigation }) {
     const { confirmPayment } = useStripe();
     const [showModal, setShowModal] = useState(false);
     const [cardDetails, setCardDetails] = useState(null);  // Add this line
+    const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm({date: new Date()})
 
     const { spot } = route.params;
-
+    const [date, setDate] = useState()
+    const [loading, setLoading] = useState(false)
     const handleGoBack = () => {
         navigation.goBack(); // Handle the go back action
     };
@@ -23,7 +30,40 @@ function Booking({ route, navigation }) {
 
 
 
+    const addbooking = async (booking) => {
+        setLoading(true)
+        const new_doc = {
+            price: parking.price,
 
+            uid: user.uid
+        }
+        console.log(new_doc)
+        addDoc(collection(db, "orders"), new_doc)
+            .then(() => {
+                setDialog({...openDialog, add: false})
+                setLoading(false)
+            })
+            .catch(error => console.log(error))
+    }
+
+    const [openDialog, setDialog] = useState(
+        {
+            add: false,
+            edit: false,
+            delete: false,
+            session: false,
+            selectP: false,
+            date: false,
+            start_date: false,
+            start_time: false,
+            end_date: false,
+            end_time: false
+        }
+    )
+
+    const openSessionDialog = () => {
+        setDialog({ ...openDialog, session: true });
+    };
 
     const handleConfirmPayment = async () => {
 
@@ -64,7 +104,76 @@ function Booking({ route, navigation }) {
         }
     };
 
-
+    function SessionDialog() {
+        return (
+            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false, start_date: false, start_time: false, end_date: false, end_time: false})}>
+                <Dialog.Title>Start Parking Session</Dialog.Title>
+                <Dialog.Content>
+                    <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0].Address  : "Select Parking Address"}</Button>
+                    <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                        <Text>Start Time:</Text>
+                        <View style={{display: "flex", flexDirection: "row"}}>
+                            <Button onPress={() => setDialog({...openDialog, start_date: true})} uppercase={false} mode="contained-tonal" style={{marginRight: 5}}>
+                                {watchSession("start_time")?.toLocaleDateString() ?? "Date"}
+                            </Button>
+                            <Button onPress={() => setDialog({...openDialog, start_time: true})} uppercase={false} mode="contained-tonal">
+                                {watchSession("start_time") ? `${watchSession("start_time")?.getHours()}:${watchSession("start_time")?.getMinutes()}` : "Time"}
+                            </Button>
+                        </View>
+                    </View>
+                    <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                        <Text>End Time:</Text>
+                        <View style={{display: "flex", flexDirection: "row"}}>
+                            <Button onPress={() => setDialog({...openDialog, end_date: true})} uppercase={false} mode="contained-tonal" style={{marginRight: 5}}>
+                                {watchSession("end_time")?.toLocaleDateString() ?? "Date"}
+                            </Button>
+                            <Button onPress={() => setDialog({...openDialog, end_time: true})} uppercase={false} mode="contained-tonal">
+                                {watchSession("end_time") ? `${watchSession("end_time")?.getHours()}:${watchSession("end_time")?.getMinutes()}` : "Time"}
+                            </Button>
+                        </View>
+                    </View>
+                    <DateController
+                        control={sessionForm}
+                        name="start_time"
+                        modalName="start_date"
+                        open={openDialog.start_date}
+                        defaultValue={date}
+                        setOpen={setDialog}
+                    />
+                    <DateController
+                        control={sessionForm}
+                        name="start_time"
+                        modalName="start_time"
+                        mode="time"
+                        open={openDialog.start_time}
+                        defaultValue={date}
+                        setOpen={setDialog}
+                    />
+                    <DateController
+                        control={sessionForm}
+                        name="end_time"
+                        modalName="end_date"
+                        open={openDialog.end_date}
+                        defaultValue={date}
+                        setOpen={setDialog}
+                    />
+                    <DateController
+                        control={sessionForm}
+                        name="end_time"
+                        modalName="end_time"
+                        mode="time"
+                        open={openDialog.end_time}
+                        defaultValue={date}
+                        setOpen={setDialog}
+                    />
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => setDialog({...openDialog, session: false})}>Cancel</Button>
+                    <Button loading={loading} mode='contained' value="submit" onPress={handleSession(addbooking)}>Start</Button>
+                </Dialog.Actions>
+            </Dialog>
+        )
+    }
     const handleContactOwner = () => navigation.navigate('chat', {displayname: spot.Address ,uid: spot.uid});
 
     const styles = StyleSheet.create({
@@ -163,6 +272,7 @@ function Booking({ route, navigation }) {
         },
     });
 
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -177,9 +287,12 @@ function Booking({ route, navigation }) {
                 <Text style={styles.hourlyRatePrefix}>Hourly Rate: </Text>
                 <Text style={styles.hourlyRateHighlight}>$0.70</Text>
             </View>
-            <View style={styles.sectionContainer2}>
-                <Text style={styles.hourlyRatePrefix}>Rent until: </Text>
-            </View>
+            <Text>
+                Text to display before the dialog
+                <Text>
+                    <Button onPress={openSessionDialog}>Open Session Dialog</Button>
+                </Text>
+            </Text>
             <View style={styles.sectionContainer}>
                 <Text style={styles.hourlyRatePrefix}>Total cost (incl fees):</Text>
                 <Text style={styles.totalCost}>$4.20</Text>
@@ -239,9 +352,11 @@ function Booking({ route, navigation }) {
                         >
                             Confirm Payment
                         </Button>
+
                     </View>
                 </View>
             </Modal>
+            <SessionDialog/>
         </View>
     );
 }

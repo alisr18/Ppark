@@ -169,7 +169,7 @@ const Map = () => {
         const promises = [];
 
         for (const b of bounds) {
-            const z = collection(db, 'parking');
+            const z = collection(db, 'parking_session');
             const q = query(z, orderBy('geohash', 'asc'),startAt(b[0]),endAt(b[1]));
 
 
@@ -280,6 +280,7 @@ const Map = () => {
                                 <Callout tooltip onPress={() => handleBooking(spots)}>
                                     <View style={styles.callout}>
                                         <Text style={styles.text}>{spots.Address}</Text>
+                                        <Text style={styles.text}>{spots.price} NOK/h</Text>
                                         <Text style={styles.text}>{spots.Zip} {spots.City}</Text>
                                         <Text style={styles.text}>Book now</Text>
                                     </View>
