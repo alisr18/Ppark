@@ -9,7 +9,11 @@ import { db } from "../firebaseConfig";
 import { Controller, FormProvider, useController, useForm } from "react-hook-form";
 import { Input } from "../components/Input";
 import { geohashForLocation, geohashQueryBounds } from "geofire-common";
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 import Geocoder from 'react-native-geocoding';
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { DateController } from "../components/DateController"
 import { DatePickerModal } from 'react-native-paper-dates';
 import {googleapikey} from '@env'
 import * as geofire from "geofire-common";
@@ -25,7 +29,6 @@ export const getParking = async (user_id) => {
         tmpArray.push(tmp)
     }))
     .catch(error => console.log(error))
-
     return(tmpArray)
 }
 
@@ -60,13 +63,15 @@ const Parking = ({ route }) => {
 
     const {control: editForm, handleSubmit: handleEdit, reset: setEditForm} = useForm()
 
-    const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm()
+    const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm({date: new Date()})
 
     const [parkingList, setParkingList] = useState([])
 
     const [parkingID, setparkingID] = useState("")
 
     const [loading, setLoading] = useState(false)
+
+    const [date, setDate] = useState()
     
     const navigate = useNavigation();
 
@@ -81,6 +86,7 @@ const Parking = ({ route }) => {
 
     useEffect(() => {
         updateParking()
+        setDate(new Date())
     }, [])
 
     const center = Geocoder.from("Edvard Greigs Vei 28, 4023, Stavanger")
@@ -267,7 +273,7 @@ const Parking = ({ route }) => {
 
     function SessionDialog() {
         return (
-            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false})}>
+            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false, date_picker: false})}>
                 <Dialog.Title>Start Parking Session</Dialog.Title>
                 <Dialog.Content>
                         <Button onPress={() => setDialog({...openDialog, selectP: true})}>Select Parking Address</Button>
@@ -275,26 +281,21 @@ const Parking = ({ route }) => {
                         <Button onPress={() => setDialog({...openDialog, date_picker: true})} uppercase={false} mode="outlined">
                             {watchSession("date")?.toString()}
                         </Button>
-                        <Controller
-                        control={sessionForm}
-                        name="date"
-                        locale="en"
-                        defaultValue={new Date()}
-                        validRange={{startDate: new Date()}}
-                        render={({field: {value, onChange}}) => (
-                            <DatePickerModal
-                            mode="single"
-                            visible={openDialog.date_picker}
-                            onDismiss={() => setDialog({...openDialog, date_picker: false})}
-                            date={value}
-                            onConfirm={(date) => {
-                                date instanceof Date ? 
-                                    onChange(date)
-                                 : {}
-                        }}
+                            <DateController
+                                control={sessionForm}
+                                name="date"
+                                open={openDialog.date_picker}
+                                minimumDate={date}
+                                defaultValue={date}
+                                onChange={(e, v) => {
+                                if (e.type === 'dismissed') {
+                                    setDialog({...openDialog, date_picker: false})
+                                } else {
+                                    console.log(v)
+                                    onChange(e); // Set the value to the selected timestamp
+                                }
+                                }}
                             />
-                        )}
-                        />
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, session: false})}>Cancel</Button>
@@ -467,7 +468,7 @@ const Parking = ({ route }) => {
                 </TouchableOpacity>}
                 <Divider leftInset={true}/>
                 <View style={{height: 100}}>
-
+                    
                 </View>
             </ScrollView>
 
@@ -487,6 +488,9 @@ const Parking = ({ route }) => {
             <SessionDialog/>
 
             <SelectParking/>
+
+            <Text>{JSON.stringify(watchSession("date"))}</Text>
+            <Button onPress={() => handleSession((data) => console.log(data))}>Test</Button>
         </View>
     );
 }

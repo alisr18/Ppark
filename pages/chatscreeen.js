@@ -1,12 +1,15 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import { View, Text } from 'react-native';
 import { GiftedChat } from "react-native-gifted-chat";
 
 import { db } from "../firebaseConfig";
 import {addDoc, collection, doc, getDocs, orderBy, query, serverTimestamp, setDoc} from "firebase/firestore";
+import {AuthContext} from "../authContext";
 
 
 export default function ChatScreen({user, route}) {
+    const { getMyChatUsers } = useContext(AuthContext);
+
     const [messages, setMessages] = useState([]);
     const {uid} = route.params
     console.log(uid)
@@ -44,6 +47,7 @@ export default function ChatScreen({user, route}) {
 
         })
         addDoc(collection(db, `chatrooms/${docid}/messages`), {...mymsg, createdAt: serverTimestamp()})
+        getMyChatUsers(user.uid)
 
 
     }
