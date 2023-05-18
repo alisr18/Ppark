@@ -62,7 +62,7 @@ function Booking({ route, navigation }) {
     )
 
     const openSessionDialog = () => {
-        setDialog({ session: true });
+        setDialog({ ...openDialog, session: true });
     };
 
     const handleConfirmPayment = async () => {
@@ -290,8 +290,7 @@ function Booking({ route, navigation }) {
             <Text>
                 Text to display before the dialog
                 <Text>
-                    <Text onPress={openSessionDialog}>Open Session Dialog</Text>
-
+                    <Button onPress={openSessionDialog}>Open Session Dialog</Button>
                 </Text>
             </Text>
             <View style={styles.sectionContainer}>
@@ -353,9 +352,11 @@ function Booking({ route, navigation }) {
                         >
                             Confirm Payment
                         </Button>
+
                     </View>
                 </View>
             </Modal>
+            <SessionDialog/>
         </View>
     );
 }
