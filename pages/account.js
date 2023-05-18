@@ -61,7 +61,7 @@ const Account = () => {
                 city,
             });
             Alert.alert("Profile updated.");
-            getUserData(userId)
+            getUserData()
         } else {
             Alert.alert("All fields are required.");
         }

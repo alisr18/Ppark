@@ -17,6 +17,7 @@ import { DateController } from "../components/DateController"
 import { DatePickerModal } from 'react-native-paper-dates';
 import {googleapikey} from '@env'
 import * as geofire from "geofire-common";
+import { AuthContext } from "../authContext";
 
 Geocoder.init(googleapikey);
 
@@ -46,7 +47,7 @@ export const getParkingDetail = async (id) => {
 
 const Parking = ({ route }) => {
 
-    const {user} = route.params
+    const {user, userData} = useContext(AuthContext)
 
     const [openDialog, setDialog] = useState(
         {
@@ -55,7 +56,11 @@ const Parking = ({ route }) => {
             delete: false,
             session: false,
             selectP: false,
-            date_picker: false
+            date: false,
+            start_date: false,
+            start_time: false,
+            end_date: false,
+            end_time: false
         }
     )
 
@@ -96,27 +101,27 @@ const Parking = ({ route }) => {
 
     const addParkingSession = async (parking) => {
         setLoading(true)
-        const geohash = Geocoder.from(`${parking.Address}, ${parking.Zip}, ${parking.City}`)
-        addDoc(collection(db, "parking_session"), {
-            geohash: geohash,
+        parking_spot = parkingList.filter(park => park.id == parking.parkingID)[0]
+        const new_doc = {
+            geohash: parking_spot.geohash,
+            latitude: parking_spot.latitude,
+            longitude: parking_spot.longitude,
+            Address: parking_spot.Address,
+            parkingID: parking.parkingID,
             price: parking.price,
-            start_time: parking.start,
-            end_time: parking.end,
+            start_time: parking.start_time,
+            end_time: parking.end_time,
             active: true,
             uid: user.uid
-
-        })
+        }
+        console.log(new_doc)
+        addDoc(collection(db, "parking_session"), new_doc)
             .then(() => {
-                updateParking()
                 setDialog({...openDialog, add: false})
                 setLoading(false)
             })
             .catch(error => console.log(error))
     }
-
-
-
-
 
     const testSession = () => {
         addParkingSession({
@@ -125,7 +130,8 @@ const Parking = ({ route }) => {
             City: "Grimstad",
             price: 200,
             start_time: new Date().setHours(12),
-            stop_time: new Date().setHours(12)
+            stop_time: new Date().setHours(18),
+            uid: user.uid
         })
     }
 
@@ -254,7 +260,7 @@ const Parking = ({ route }) => {
                             {
                                 parkingList.map(park => (
                                     <View>
-                                        <RadioButton.Item label={park.Address} value={park.id} />
+                                        <RadioButton.Item key={park.id} label={park.Address} value={park.id} />
                                     </View>
                                 ))
                             }
@@ -273,33 +279,71 @@ const Parking = ({ route }) => {
 
     function SessionDialog() {
         return (
-            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false, date_picker: false})}>
+            <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false, start_date: false, start_time: false, end_date: false, end_time: false})}>
                 <Dialog.Title>Start Parking Session</Dialog.Title>
                 <Dialog.Content>
-                        <Button onPress={() => setDialog({...openDialog, selectP: true})}>Select Parking Address</Button>
-                        <Input control={sessionForm} rules={{required: true, valueAsNumber: true}} name="Price" label="Price" style={styles.dialogInput}/>
-                        <Button onPress={() => setDialog({...openDialog, date_picker: true})} uppercase={false} mode="outlined">
-                            {watchSession("date")?.toString()}
-                        </Button>
-                            <DateController
-                                control={sessionForm}
-                                name="date"
-                                open={openDialog.date_picker}
-                                minimumDate={date}
-                                defaultValue={date}
-                                onChange={(e, v) => {
-                                if (e.type === 'dismissed') {
-                                    setDialog({...openDialog, date_picker: false})
-                                } else {
-                                    console.log(v)
-                                    onChange(e); // Set the value to the selected timestamp
-                                }
-                                }}
-                            />
+                        <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0].Address  : "Select Parking Address"}</Button>
+                        <Input control={sessionForm} right={<TextInput.Affix text={userData?.balance ?? ""} />} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="price" label="Price per Hour" style={styles.dialogInput}/>
+                        <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                            <Text>Start Time:</Text>
+                            <View style={{display: "flex", flexDirection: "row"}}>
+                                <Button onPress={() => setDialog({...openDialog, start_date: true})} uppercase={false} mode="contained-tonal" style={{marginRight: 5}}>
+                                    {watchSession("start_time")?.toLocaleDateString() ?? "Date"}
+                                </Button>
+                                <Button onPress={() => setDialog({...openDialog, start_time: true})} uppercase={false} mode="contained-tonal">
+                                    {watchSession("start_time") ? `${watchSession("start_time")?.getHours()}:${watchSession("start_time")?.getMinutes()}` : "Time"}
+                                </Button>
+                            </View>
+                        </View>
+                        <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                            <Text>End Time:</Text>
+                            <View style={{display: "flex", flexDirection: "row"}}>
+                                <Button onPress={() => setDialog({...openDialog, end_date: true})} uppercase={false} mode="contained-tonal" style={{marginRight: 5}}>
+                                    {watchSession("end_time")?.toLocaleDateString() ?? "Date"}
+                                </Button>
+                                <Button onPress={() => setDialog({...openDialog, end_time: true})} uppercase={false} mode="contained-tonal">
+                                    {watchSession("end_time") ? `${watchSession("end_time")?.getHours()}:${watchSession("end_time")?.getMinutes()}` : "Time"}
+                                </Button>
+                            </View>
+                        </View>
+                        <DateController
+                            control={sessionForm}
+                            name="start_time"
+                            modalName="start_date"
+                            open={openDialog.start_date}
+                            defaultValue={date}
+                            setOpen={setDialog}
+                        />
+                        <DateController
+                            control={sessionForm}
+                            name="start_time"
+                            modalName="start_time"
+                            mode="time"
+                            open={openDialog.start_time}
+                            defaultValue={date}
+                            setOpen={setDialog}
+                        />
+                        <DateController
+                            control={sessionForm}
+                            name="end_time"
+                            modalName="end_date"
+                            open={openDialog.end_date}
+                            defaultValue={date}
+                            setOpen={setDialog}
+                        />
+                        <DateController
+                            control={sessionForm}
+                            name="end_time"
+                            modalName="end_time"
+                            mode="time"
+                            open={openDialog.end_time}
+                            defaultValue={date}
+                            setOpen={setDialog}
+                        />
                 </Dialog.Content>
                 <Dialog.Actions>
                     <Button onPress={() => setDialog({...openDialog, session: false})}>Cancel</Button>
-                    <Button loading={loading} mode='contained' value="submit" onPress={handleAdd(p => addParking(p, user))}>Create</Button>
+                    <Button loading={loading} mode='contained' value="submit" onPress={handleSession(addParkingSession)}>Start</Button>
                 </Dialog.Actions>
             </Dialog>
         )
@@ -461,7 +505,7 @@ const Parking = ({ route }) => {
             </View>
             <ScrollView style={{paddingBottom: 100}}>
                 {parkingList.length ? parkingList.map(parking => 
-                    <List.Item left={(props) => <List.Icon icon="parking" {...props}/>} right={() => <ParkingButtons {...{active: parking.Active, id: parking.id}}/>} title={parking.Address} description={`${parking.Zip}, ${parking.City}`}/>
+                    <List.Item key={parking.id} left={(props) => <List.Icon icon="parking" {...props}/>} right={() => <ParkingButtons {...{active: parking.Active, id: parking.id}}/>} title={parking.Address} description={`${parking.Zip}, ${parking.City}`}/>
                 ) : 
                 <TouchableOpacity onPress={() => {resetAddForm();setDialog({...openDialog, add: true})}}>
                     <List.Item right={() => <IconButton icon="plus"/>} title="Add Parking"/>
@@ -488,9 +532,7 @@ const Parking = ({ route }) => {
             <SessionDialog/>
 
             <SelectParking/>
-
-            <Text>{JSON.stringify(watchSession("date"))}</Text>
-            <Button onPress={() => handleSession((data) => console.log(data))}>Test</Button>
+            
         </View>
     );
 }

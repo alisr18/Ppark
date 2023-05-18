@@ -17,8 +17,7 @@ export const AuthProvider = ({ children }) => {
     const [active, setActive] = useState(null);
     const [cars, setCars] = useState([]);
 
-    const getMyChatUsers = async (id) => {
-
+    const getMyChatUsers = async () => {
         let tmpArray2 = []
         const docRefC = collection(db, "chatrooms")
 
@@ -27,7 +26,7 @@ export const AuthProvider = ({ children }) => {
         }))
 
         setMyChatUsers(tmpArray2)
-        getChatUsers(tmpArray2, id);
+        getChatUsers(tmpArray2, user.uid);
     }
 
     const getChatUsers = async (collectedUsers, id) => {
@@ -40,11 +39,12 @@ export const AuthProvider = ({ children }) => {
                 let split = chatroom_id.split("-")
                 if ((split[0] === id && split[1] === doc.id) || (split[1] === id && split[0] === doc.id)) {
                     tmpArray.push(doc.data())
-                    setChatUsers(tmpArray)
                 }
             })
         }))
+        setChatUsers(tmpArray)
     }
+
 
     const getUserData = async (id) => {
         const userDoc = doc(db, 'users', id);
@@ -90,15 +90,10 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            getUserData(user.uid)
+            getUserData()
+            getMyChatUsers()
         }
     }, [user]);
-
-    useEffect(() => {
-        if (user) {
-            getMyChatUsers(user.uid)
-        }
-    }, [user])
 
     if (loading) {
         return <ActivityIndicator style={{marginVertical: 250}} size="large"/>

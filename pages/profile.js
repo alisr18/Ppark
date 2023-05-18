@@ -1,5 +1,5 @@
 import {useContext, useEffect, useState} from "react";
-import {scrollview, View, StyleSheet, Image, TouchableOpacity, ScrollView} from "react-native";
+import {View, StyleSheet, Image, TouchableOpacity, ScrollView} from "react-native";
 import { Button, TextInput, Text, Avatar, Card, Surface, List, Dialog } from "react-native-paper";
 import {useNavigation } from '@react-navigation/native';
 import {ThemeContext, UserContext} from "../App";
@@ -15,7 +15,7 @@ const color2 = "#357266";
 
 export default function Profile() {
 
-    const { user, userData, logout } = useContext(AuthContext);
+    const { user, userData, getUserData, logout } = useContext(AuthContext);
 
 
     const theme = useContext(ThemeContext)
@@ -76,7 +76,7 @@ export default function Profile() {
             quality: 1,
         });
 
-        if (!result.cancelled) {
+        if (!result.canceled) {
             const storage = getStorage(); // Get a reference to the storage service
             const imageRef = ref(storage, 'images/' + result.uri.split('/').pop()); // Create a reference to the image file in Firebase Storage
             const response = await fetch(result.uri); // Fetch the image data from the device
@@ -96,6 +96,7 @@ export default function Profile() {
                 profilePicture: downloadURL
             });
             console.log('Download URL saved to Firestore');
+            getUserData()
             closeModal()
             alert("Profile picture updated")
 

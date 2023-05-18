@@ -26,6 +26,7 @@ import Register from "./pages/register";
 import { useAsyncStorage } from "./components/AsyncStorage";
 import ChatHome from "./pages/chathome";
 import Booking from "./pages/booking";
+import MapDashboard from "./pages/mapv";
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
@@ -38,11 +39,9 @@ function ChatStackNavigator({route}) {
     const {user} = route.params;
 
     return (
-        <ChatStack.Navigator screenOptions={{headerShown: true}}>
-            <ChatStack.Screen name="ChatHome" options={{ title: "Your friends" }}>
-                {(props) => <ChatHome {...props} user={user} />}
-            </ChatStack.Screen>
-            <ChatStack.Screen name="chat" options={({ route }) => ({ title: route.params.displayname })}>
+        <ChatStack.Navigator screenOptions={{headerShown: false}}>
+            <ChatStack.Screen name="ChatHome" component={ChatHome}/>
+            <ChatStack.Screen name="chat">
                 {props => <ChatScreen {...props} user={user} /> }
             </ChatStack.Screen>
             <ChatStack.Screen name="ChatOverview" component={ChatOverviewScreen} />
@@ -155,24 +154,24 @@ export default function App() {
   }
   
 
-  return (
-      <StripeProvider>
-    <Provider theme={theme}>
-      <ThemeContext.Provider value={theme}>
-        <SelectedThemeContext.Provider value={selectedData}>
-          <AuthProvider>
-            <NavigationContainer theme={theme}>
-            <StatusBar
-            animated={true}
-            backgroundColor={theme.colors.elevation.level2}
-            barStyle={isDarkMode ? "light-content" : "dark-content"}
-            />
-              <MyTabs/>
-            </NavigationContainer>
-          </AuthProvider>
-        </SelectedThemeContext.Provider>
-      </ThemeContext.Provider>
-    </Provider>
-      </StripeProvider>
+  return (      
+  <StripeProvider>
+      <Provider theme={theme}>
+        <ThemeContext.Provider value={theme}>
+          <SelectedThemeContext.Provider value={selectedData}>
+            <AuthProvider>
+              <NavigationContainer theme={theme}>
+              <StatusBar
+              animated={true}
+              backgroundColor={theme.colors.elevation.level2}
+              barStyle={isDarkMode ? "light-content" : "dark-content"}
+              />
+                <MyTabs/>
+              </NavigationContainer>
+            </AuthProvider>
+          </SelectedThemeContext.Provider>
+        </ThemeContext.Provider>
+      </Provider>
+    </StripeProvider>
   );
 }

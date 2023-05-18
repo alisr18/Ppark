@@ -10,7 +10,7 @@ import * as Location from 'expo-location';
 import {useRef} from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, addDoc, orderBy, query,startAt,endAt, onSnapshot } from 'firebase/firestore';
-import {Button, Text, TextInput, Portal, Dialog, IconButton, TouchableRipple} from "react-native-paper";
+import {Button, Text, TextInput, Portal, Dialog, IconButton, TouchableRipple, FAB, List, useTheme} from "react-native-paper";
 import { useNavigation } from '@react-navigation/native';
 
 const Ppark = require("../icons/logo_light.png")
@@ -38,7 +38,8 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const Map = () => {
 
 
-    const theme = useContext(ThemeContext);
+    const theme = useTheme();
+    const styles = styleSheet(theme)
     const { active } = useContext(AuthContext);
     const [origin, setOrigin] = useState({ latitude: 58.3343, longitude: 8.5781 })
     const [destination, setDestination] = useState({ latitude: null, longitude: null })
@@ -315,13 +316,20 @@ const Map = () => {
             <View style={styles.searchContainer}>
                 <GooglePlacesAutocomplete
                     placeholder="Where to park?"
+                    textInputProps={{
+                        placeholderTextColor: theme.colors.onSurfaceDisabled
+                    }}
                     styles={{
                         textInput: styles.textInput,
                         listView: styles.listView,
+                        textInputContainer: styles.textInputContainer,
+                        row: styles.row,
+                        predefinedPlacesDescription: styles.predefinedPlacesDescription,
+                        separator: styles.separator,
                     }}
                     renderRightButton={() => (
                         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
-                            <Icon name="search-outline" size={24} color="#333" />
+                            <List.Icon color={theme.colors.onSurface} size={24} icon="magnify"/>
                         </TouchableOpacity>
                     )}
                     fetchDetails={true}
@@ -333,7 +341,7 @@ const Map = () => {
                 />
             </View>
             <View style={styles.currentLocationButton}>
-                <IconButton icon="map-marker-account" size={28} iconColor="black" onPress={getCurrentLocationPermission}/>
+                <FAB icon="crosshairs-gps" onPress={() => getCurrentLocationPermission()}/>
             </View>
         </View>
 
@@ -342,10 +350,9 @@ const Map = () => {
 
 
 
-
 export default Map;
 
-const styles = StyleSheet.create({
+const styleSheet = (theme) => StyleSheet.create({
     container: {
         flex:1
     },
@@ -376,8 +383,6 @@ const styles = StyleSheet.create({
         width: 35,
         height: 35, 
     },
-
-
     searchContainer: {
         position: 'absolute',
         top: 5,
@@ -385,18 +390,22 @@ const styles = StyleSheet.create({
         right: 0,
         margin: 4,
         overflow: "hidden",
-        backgroundColor: "#fff",
+        display: "flex",
+        backgroundColor: theme.colors.surface,
         borderRadius: 20,
     },
     textInputContainer: {
-        backgroundColor: '#f5f5f5',
         borderRadius: 5,
         borderWidth: 0,
         height: 50,
         marginTop: 5
     },
+    textInput: {
+        color: theme.colors.onSurface,
+        backgroundColor: theme.colors.surface,
+    },
     listView: {
-        backgroundColor: '#f5f5f5',
+        backgroundColor: theme.colors.surface,
         borderRadius: 5,
         borderWidth: 0,
         marginTop:10,
@@ -409,20 +418,15 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 20,
         right: 20,
-        backgroundColor: '#fff',
-        borderRadius: 30,
-        height: 60,
-        width: 60,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
     },
-
+    row: {
+        backgroundColor: theme.colors.surface
+    },
+    separator: {
+        height: 1,
+      backgroundColor: theme.colors.onSurfaceDisabled,
+    },
+    predefinedPlacesDescription: {
+        color: theme.colors.onSurface,
+    }
 });
