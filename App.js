@@ -131,7 +131,7 @@ export default function App() {
 
   const selectedData = { storedTheme, setStoredTheme }
 
-
+  initStripe({publishableKey: "pk_test_51N6fSEKQs9J7J5wlmWIhrGDXxdksDbILSDF5D84QAxgLfb3pEbsz3iCkJCejtPFoYPt7Ylt6BwHn6VvkSsgvJfJZ00XxnAbMcu"})
 
 
   useEffect(() => {
@@ -154,22 +154,24 @@ export default function App() {
   }
   
 
-  return (
-    <Provider theme={theme}>
-      <ThemeContext.Provider value={theme}>
-        <SelectedThemeContext.Provider value={selectedData}>
-          <AuthProvider>
-            <NavigationContainer theme={theme}>
-            <StatusBar
-            animated={true}
-            backgroundColor={theme.colors.elevation.level2}
-            barStyle={isDarkMode ? "light-content" : "dark-content"}
-            />
-              <MyTabs/>
-            </NavigationContainer>
-          </AuthProvider>
-        </SelectedThemeContext.Provider>
-      </ThemeContext.Provider>
-    </Provider>
+  return (      
+  <StripeProvider>
+      <Provider theme={theme}>
+        <ThemeContext.Provider value={theme}>
+          <SelectedThemeContext.Provider value={selectedData}>
+            <AuthProvider>
+              <NavigationContainer theme={theme}>
+              <StatusBar
+              animated={true}
+              backgroundColor={theme.colors.elevation.level2}
+              barStyle={isDarkMode ? "light-content" : "dark-content"}
+              />
+                <MyTabs/>
+              </NavigationContainer>
+            </AuthProvider>
+          </SelectedThemeContext.Provider>
+        </ThemeContext.Provider>
+      </Provider>
+    </StripeProvider>
   );
 }
