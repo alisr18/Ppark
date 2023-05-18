@@ -58,8 +58,8 @@ const Map = () => {
             return
         }
         let location = await Location.getCurrentPositionAsync({})
-        setOrigin({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-        setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+        setOrigin({ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: location.coords.latitudeDelta, longitudeDelta: location.coords.longitudeDelta });
+        setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: location.coords.latitudeDelta, longitudeDelta: location.coords.longitudeDelta });
 
 
         mapRef.current.animateToRegion({
