@@ -1,7 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native"
 import ChatScreen from "./pages/chatscreeen";
 import {createStackNavigator} from "@react-navigation/stack";
-import { getFunctions } from 'firebase/functions';
 import Profile from "./pages/profile";
 import Account from "./pages/account";
 import Cars from "./pages/cars";
@@ -25,8 +24,6 @@ import Register from "./pages/register";
 import { useAsyncStorage } from "./components/AsyncStorage";
 import ChatHome from "./pages/chathome";
 import Booking from "./pages/booking";
-import MapDashboard from "./pages/mapv";
-import mapv from "./pages/mapv";
 const Tab = createMaterialBottomTabNavigator()
 const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
