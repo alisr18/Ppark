@@ -1,19 +1,21 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { View, StyleSheet, Modal, TouchableOpacity } from "react-native";
-import {IconButton, Text, Button, Dialog, TextInput} from "react-native-paper";
+import {IconButton, Text, Button, Dialog, TextInput, RadioButton} from "react-native-paper";
 import { CardField, useStripe, confirmPayment } from "@stripe/stripe-react-native";
 import firebase from 'firebase/app';
 import axios from 'axios';
-import {useForm} from "react-hook-form";
+import {Controller, useForm} from "react-hook-form";
 import {DateController} from "../components/DateController";
 import {Input} from "../components/Input";
-import {addDoc, collection} from "firebase/firestore";
+import {addDoc, collection, doc, getDoc, getDocs, setDoc} from "firebase/firestore";
 import {db} from "../firebaseConfig";
 import {useNavigation} from "@react-navigation/native";
+import {AuthContext} from "../authContext";
 
 function Booking({ route, navigation }) {
     const { confirmPayment } = useStripe();
     const [showModal, setShowModal] = useState(false);
+    const [disabled, setDisabled] = useState(true);
     const [totalEnd, setTotalend] = useState(new Date());  // Add this line
     const [cardDetails, setCardDetails] = useState(null);  // Add this line
     const {control: sessionForm, handleSubmit: handleSession, watch: watchSession, reset: setSessionForm, setValue: updateSession} = useForm({date: new Date()})
@@ -24,7 +26,7 @@ function Booking({ route, navigation }) {
     const handleGoBack = () => {
         navigation.goBack(); // Handle the go back action
     };
-
+    const {cars,active, user} = useContext(AuthContext)
     const handleRentNow = () => {
         // Handle the rent now action
         setShowModal(true);
@@ -34,9 +36,14 @@ function Booking({ route, navigation }) {
     const addbooking = async (booking) => {
         setLoading(true)
         const new_doc = {
-            price: parking.price,
 
-            uid: user.uid
+            price: amount2,
+            owner: spot.uid,
+            car: booking.carID,
+            renter: user.uid,
+            address: spot.Address,
+            endDate: booking.end_time,
+            startTime: new Date()
         }
         console.log(new_doc)
         addDoc(collection(db, "orders"), new_doc)
@@ -45,13 +52,27 @@ function Booking({ route, navigation }) {
                 setLoading(false)
             })
             .catch(error => console.log(error))
+        const owner = await getDoc(doc(db, "users", spot.uid))
+
+
+
+
+
+        await setDoc(doc(db, "parking_session", spot.id), {
+            unavailable: booking.end_time
+        }, { merge: true });
+
+        await setDoc(doc(db, "users", spot.uid), {
+            balance: owner.data().balance? owner.data().balance + amount2: amount2
+        }, { merge: true });
     }
 
     const [openDialog, setDialog] = useState(
         {
             end_date: false,
             end_time: false,
-            car: null
+            car: null,
+            selectP: false,
         }
     )
 
@@ -88,7 +109,8 @@ function Booking({ route, navigation }) {
             } 
             else if (paymentResult.paymentIntent) {
                 console.log("Payment", paymentResult.paymentIntent.status);
-                alert("Payment " + paymentResult.paymentIntent.status); 
+                alert("Payment " + paymentResult.paymentIntent.status);
+                await handleSession(addbooking)()
                 setShowModal(false);
                 successPayment()
             }
@@ -106,12 +128,49 @@ function Booking({ route, navigation }) {
     }, [watchSession("end_time")]);
 
 
+    useEffect(() => {
+        const car = watchSession("carID")
+        const time = watchSession("end_time")
+        if (car && time) setDisabled(false)
+        else setDisabled(true)
+    }, [watchSession("carID"), watchSession("end_time")])
+
+
     const now = new Date();
     const end = totalEnd ?? now
     let totalHours = (end - now)/3600000;
     const finalprice = (spot.price > 0 && totalHours > 0) ? (spot.price * totalHours).toFixed(2) : null;
     const amount = finalprice * 100;
+    const amount2 = amount / 100;
+    function SelectCar() {
+        return (
+            <Dialog visible={openDialog.selectP} onDismiss={() => setDialog({...openDialog, selectP: false})}>
+                <Dialog.Title>Choose a car</Dialog.Title>
+                <Dialog.Content>
+                    <Controller
+                        control={sessionForm}
+                        name="carID"
+                        render={({ field: { onChange, value } }) => (
+                            <RadioButton.Group onValueChange={onChange} value={value}>
+                                {
+                                    cars.map(park => (
+                                        <View>
+                                            <RadioButton.Item key={park[1]} label={park[1]} value={park[1]} />
+                                        </View>
+                                    ))
+                                }
+                            </RadioButton.Group>
+                        )}
 
+                    />
+
+                </Dialog.Content>
+                <Dialog.Actions>
+                    <Button onPress={() => setDialog({...openDialog, selectP: false})}>Ok</Button>
+                </Dialog.Actions>
+            </Dialog>
+        )
+    }
 
 
     console.log(finalprice)
@@ -119,6 +178,7 @@ function Booking({ route, navigation }) {
     const successPayment = () => {
         navigation.navigate('MapScreen');
     };
+
 
     const styles = StyleSheet.create({
         container: {
@@ -239,7 +299,7 @@ function Booking({ route, navigation }) {
             </View>
 
             <View>
-                <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0].Address  : "Select Car"}</Button>
+                <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("carID") ?? "Select car"}</Button>
                 <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                     <Text>End Time:</Text>
                     <View style={{display: "flex", flexDirection: "row"}}>
@@ -255,27 +315,9 @@ function Booking({ route, navigation }) {
                 </View>
                 <DateController
                     control={sessionForm}
-                    name="start_time"
-                    modalName="start_date"
-                    open={openDialog.start_date}
-                    defaultValue={date}
-                    setOpen={setDialog}
-                />
-                <DateController
-                    control={sessionForm}
-                    name="start_time"
-                    modalName="start_time"
-                    mode="time"
-                    open={openDialog.start_time}
-                    defaultValue={date}
-                    setOpen={setDialog}
-                />
-                <DateController
-                    control={sessionForm}
                     name="end_time"
                     modalName="end_date"
                     open={openDialog.end_date}
-                    defaultValue={date}
                     setOpen={setDialog}
                 />
                 <DateController
@@ -284,7 +326,6 @@ function Booking({ route, navigation }) {
                     modalName="end_time"
                     mode="time"
                     open={openDialog.end_time}
-                    defaultValue={date}
                     setOpen={setDialog}
                 />
 
@@ -302,6 +343,7 @@ function Booking({ route, navigation }) {
                         onPress={handleRentNow}
                         style={styles.button}
                         contentStyle={{ height: 50 }}
+                        disabled={disabled}
                     >
                         Rent Now
                     </Button>
@@ -356,7 +398,7 @@ function Booking({ route, navigation }) {
                     </View>
                 </View>
             </Modal>
-
+            <SelectCar/>
         </View>
     );
 }
