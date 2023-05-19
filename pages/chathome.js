@@ -44,7 +44,6 @@ export default function ChatHome({navigation}) {
                         title={"No Messages"}
                         key={"no_message"}
                         description="You have no messages or conversations with other users"
-                        onPress={() => navigation.navigate('chat', {displayname: chat.displayname, uid: chat.uid})}
                     />
                 }
             </ScrollView>
