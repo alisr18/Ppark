@@ -29,7 +29,6 @@ export default function ChatHome({navigation}) {
                             <List.Item
                             title={chat.displayname}
                             key={chat.uid}
-                            description="Item description"
                             onPress={() => navigation.navigate('chat', {displayname: chat.displayname, uid: chat.uid})}
                             left={props => 
                                 <Avatar.Image

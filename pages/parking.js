@@ -198,7 +198,6 @@ const Parking = ({ route }) => {
     const getCoordinates = async (address, zip, city) => {
         const response = await Geocoder.from(`${address}, ${zip}, ${city}`)
         const { lat, lng } = response.results[0].geometry.location
-        console.log(lat, lng)
 
         return new GeoPoint(lat, lng)
     }

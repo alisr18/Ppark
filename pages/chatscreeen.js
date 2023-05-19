@@ -77,7 +77,7 @@ export default function ChatScreen({user, route}) {
             renderComposer={(props) => <Composer placeholderTextColor={theme.colors.onSurfaceDisabled} textInputStyle={{color: theme.colors.onSurface}} {...props}/>}
             renderSend={(props) => 
                 <Send {...props} containerStyle={{margin: 0, padding: 0, height: "auto"}}>
-                    <IconButton icon="magnify"/>
+                    <IconButton icon="send"/>
                 </Send>
             }
           />
@@ -134,7 +134,7 @@ export default function ChatScreen({user, route}) {
                 onSend={messages => onSend(messages)}
                 renderInputToolbar={props => customtInputToolbar(props)}
                 renderBubble={props => customBubble(props)}
-                renderChatFooter={() => (<View style={{height: 10}}></View>)}
+                renderChatFooter={() => (<View style={{height: 16}}></View>)}
                 user={{
                     _id: user.uid,
                 }}
