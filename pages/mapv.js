@@ -8,7 +8,7 @@ import { useRef } from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, orderBy, query,startAt,endAt } from 'firebase/firestore';
 import { Text, FAB, List, useTheme } from "react-native-paper";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const available = require("../icons/green_marker.png")
 const notAvailable=require("../icons/red_marker.png")
@@ -145,6 +145,14 @@ const Map = () => {
         navigation.navigate('Booking', { spot: spot });
     }
 
+    useFocusEffect(
+        React.useCallback(() => {
+            if (prevRegion.latitude != 0) {
+                setSearchRegion(prevRegion);
+            }  
+        }, [])
+    );
+
     function deg2rad(deg) {
         return deg * (Math.PI / 180);
     }
@@ -224,7 +232,7 @@ const Map = () => {
             >
                 
                 {parkingData.map((spots, index) => {
-                    if (spots.active) {
+                    if (spots.active && (!spots.unavailable || new Date(spots.unavailable.toDate()) <= new Date())) {
                         return (
                             <Marker
                                 key={index}
