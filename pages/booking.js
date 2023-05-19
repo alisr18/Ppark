@@ -136,6 +136,15 @@ function Booking({ route, navigation }) {
     }, [watchSession("carID"), watchSession("end_time")])
 
 
+    function Activecar() {
+        if (active) {
+            return(
+                <RadioButton.Item key={active[1]} label={active[1] + " (Active)"} value={active[1]}/>
+            ); 
+        }
+    }
+        
+
     const now = new Date();
     const end = totalEnd ?? now
     let totalHours = (end - now)/3600000;
@@ -152,13 +161,13 @@ function Booking({ route, navigation }) {
                         name="carID"
                         render={({ field: { onChange, value } }) => (
                             <RadioButton.Group onValueChange={onChange} value={value}>
-                                {
-                                    cars.map(park => (
-                                        <View>
+                                <View>
+                                    <Activecar/>
+                                    {cars.map(park => (
                                             <RadioButton.Item key={park[1]} label={park[1]} value={park[1]} />
-                                        </View>
-                                    ))
-                                }
+                                        ))  
+                                    }
+                                </View>
                             </RadioButton.Group>
                         )}
 
@@ -301,7 +310,7 @@ function Booking({ route, navigation }) {
             <View>
                 <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("carID") ?? "Select car"}</Button>
                 <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-                    <Text>End Time:</Text>
+                    <Text style={{marginTop: 10}}>End Time:</Text>
                     <View style={{display: "flex", flexDirection: "row"}}>
                         <Button onPress={() => setDialog({...openDialog, end_date: true})} uppercase={false} mode="contained-tonal" style={{marginRight: 5}}>
                             {watchSession("end_time")?.toLocaleDateString() ?? "Date"}

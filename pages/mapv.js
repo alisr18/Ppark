@@ -42,16 +42,17 @@ const Map = () => {
             alert('Permission to access location was denied')
             return
         }
-        let location = await Location.getCurrentPositionAsync({})
-        setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: location.coords.latitudeDelta, longitudeDelta: location.coords.longitudeDelta });
+        else {
+            let location = await Location.getCurrentPositionAsync({})
+            setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: 0.01, longitudeDelta: 0.01 });
 
-
-        mapRef.current.animateToRegion({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-        });
+            mapRef.current.animateToRegion({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            });
+        }
     }
 
     const handlePlaceSelection = (data, details) =>{

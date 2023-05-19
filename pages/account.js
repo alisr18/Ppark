@@ -121,39 +121,7 @@ const Account = () => {
             <Button style={styles.saveButton} mode="contained" onPress={handleSave}>
                 Save
             </Button>
-            <Button
-                style={styles.deleteButton}
-                mode="contained"
-                onPress={() => setModalVisible(true)}
-            >
-                Delete Account
-            </Button>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(false);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalTextBlack}>
-                            Are you sure you want to delete your account?{'\n'}This is a permanent action.
-                        </Text>
 
-                        <View style={styles.modalButtons}>
-                            <Button    style={styles.yesButton} mode="contained" onPress={handleDeleteAccount}>
-                                Yes
-                            </Button>
-                            <Button    style={styles.noButton} mode="outlined" onPress={() => setModalVisible(false)}>
-                                No
-                            </Button>
-                        </View>
-
-                    </View>
-                </View>
-            </Modal>
         </View>
     );
 };

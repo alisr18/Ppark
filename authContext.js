@@ -117,6 +117,8 @@ export const AuthProvider = ({ children }) => {
             logout: async () => {
                 await signOut(auth);
                 setUser(null);
+                setCars(null);
+                setActive(null);
             },
             register: async (email, password, onUserCreated) => {
                 const result = await createUserWithEmailAndPassword(auth, email, password);
