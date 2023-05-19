@@ -208,7 +208,6 @@ const Parking = ({ route }) => {
         return (
             <View style={{flexDirection: "row", alignItems: "center"}}>
                 <IconButton icon="delete" backgroundColor={theme.colors.errorContainer} iconColor={theme.colors.onErrorContainer} onPress={() => openDelete(props.id)}/>
-                <Button mode="contained" buttonColor={theme.colors.tertiaryContainer} textColor={theme.colors.onTertiaryContainer} onPress={() => openEdit(props.id)}>Edit</Button>
                 <IconButton icon={session ?? false ? "pause" : "play"} backgroundColor={theme.colors.primary} iconColor={theme.colors.onPrimary} onPress={() => session ? deactivateSession(session.id) : openSession(props.id)}/>
             </View>
         )
@@ -267,7 +266,7 @@ const Parking = ({ route }) => {
             <Dialog visible={openDialog.session} onDismiss={() => setDialog({...openDialog, session: false, start_date: false, start_time: false, end_date: false, end_time: false})}>
                 <Dialog.Title>Start Parking Session</Dialog.Title>
                 <Dialog.Content>
-                        <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0].Address  : "Select Parking Address"}</Button>
+                        <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0]?.Address ?? "Select Parking Address"  : "Select Parking Address"}</Button>
                         <Input control={sessionForm} right={<TextInput.Affix text={"NOK"} />} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="price" label="Price per Hour" style={styles.dialogInput}/>
                         <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                             <Text>Start Time:</Text>
