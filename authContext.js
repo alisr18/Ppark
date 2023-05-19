@@ -49,12 +49,10 @@ export const AuthProvider = ({ children }) => {
     const getUserData = async () => {
         const userDoc = doc(db, 'users', user.uid);
         const uData = (await getDoc(userDoc)).data();
-        console.log("uData:", uData)
         setUserData(uData)
     }
 
     const getCar = async(usr) => {
-        console.log(usr);
         const carsRef = doc(db, "cars", usr.uid); 
         const carsDoc = await getDoc(carsRef);
 

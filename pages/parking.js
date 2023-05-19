@@ -1,20 +1,15 @@
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useRef, useState } from "react";
-import { View, StyleSheet, Image, TouchableOpacity, StatusBar, ScrollView, FlatList, Animated } from "react-native";
-import { Button, TextInput, Avatar, Text, IconButton, Menu, List, Dialog, Appbar, Surface, Divider, FAB, RadioButton } from "react-native-paper";
+import { View, StyleSheet, TouchableOpacity, ScrollView, FlatList, Animated } from "react-native";
+import { Button, TextInput, Text, IconButton, List, Dialog, Appbar, Surface, Divider, FAB, RadioButton } from "react-native-paper";
 import { ThemeContext } from "../App";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { addDoc, collection, doc, getDoc, getDocs, where, setDoc, updateDoc, query, deleteDoc, GeoPoint, Timestamp } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, where, query, deleteDoc, GeoPoint, Timestamp, setDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import { Controller, FormProvider, useController, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Input } from "../components/Input";
-import { geohashForLocation, geohashQueryBounds } from "geofire-common";
-import DateTimePicker from '@react-native-community/datetimepicker';
 
 import Geocoder from 'react-native-geocoding';
-import RNDateTimePicker from "@react-native-community/datetimepicker";
 import { DateController } from "../components/DateController"
-import { DatePickerModal } from 'react-native-paper-dates';
 import {googleapikey} from '@env'
 import * as geofire from "geofire-common";
 import { AuthContext } from "../authContext";
@@ -77,19 +72,34 @@ const Parking = ({ route }) => {
     const [loading, setLoading] = useState(false)
 
     const [date, setDate] = useState()
+
+    const [parkingSessions, setParkingSessions] = useState([])
     
     const navigate = useNavigation();
 
     const theme = useContext(ThemeContext)
-
-    const test = watchSession("end_time") ? watchSession("end_time").getHours() : 0
+    
+    const getParkingSessions = async () => {
+        const sessionRef = collection(db, "parking_session")
+        if(sessionRef) {
+            const docQuery = query(sessionRef, where("uid", "==", user.uid), where("active", "==", true), where("end_time", ">", new Date()))
+            const sessions = await getDocs(docQuery).catch(e => console.log(e))
+            const sessionData = sessions.docs.map(v => ({...v.data(), id: v.id}))
+            console.log(sessionData)
+            if(sessionData.length) {
+                setParkingSessions(sessionData)
+            } else setParkingSessions([])
+        }
+    }
 
     const updateParking = async () => {
         const parkingArray = await getParking(user.uid)
         setParkingList(parkingArray)
     }
 
-    const handleEditSubmit = (d) => console.log(d)
+    useEffect(() => {
+        getParkingSessions()
+    }, [])
 
     useEffect(() => {
         updateParking()
@@ -121,6 +131,41 @@ const Parking = ({ route }) => {
             .catch(error => console.log(error))
     }
 
+    const addParkings = async (parking) => {
+        setLoading(true)
+        try {
+            const { latitude, longitude } = await getCoordinates(parking.Address, parking.Zip, parking.City)
+            const hash = geofire.geohashForLocation([latitude, longitude]);
+
+
+            const newParking = {
+                ...parking,
+                geohash: hash,
+                latitude,
+                longitude,
+                uid: user.uid,
+            }
+            await addDoc(collection(db, "parking"), newParking)
+            updateParking()
+            setDialog({ ...openDialog, session: false, selectP: false })
+            setLoading(false)
+        } catch (error) {
+            console.log(error)
+            setLoading(false)
+        }
+    }
+
+    const deactivateSession = async (id) => {
+        console.log(id)
+        setDoc(doc(db, "parking_session", id), {
+            active: false
+        }, { merge: true }).then(() => {
+            getParkingSessions()
+        }).catch(error => {
+            console.log(error)
+        })
+    }
+
     const delParking = async (id) => {
         setLoading(true)
         deleteDoc(doc(db, "parking", id)).then(() => {
@@ -150,33 +195,6 @@ const Parking = ({ route }) => {
     }
 
 
-
-    const addParkings = async (parking) => {
-        setLoading(true)
-        try {
-            const { latitude, longitude } = await getCoordinates(parking.Address, parking.Zip, parking.City)
-            const hash = geofire.geohashForLocation([latitude, longitude]);
-
-
-            const newParking = {
-                ...parking,
-                geohash: hash,
-                latitude,
-                longitude,
-                uid: user.uid,
-                active: true,
-            }
-            await addDoc(collection(db, "parking"), newParking)
-            updateParking()
-            setDialog({ ...openDialog, add: false })
-            setLoading(false)
-        } catch (error) {
-            console.log(error)
-            setLoading(false)
-        }
-    }
-
-
     const getCoordinates = async (address, zip, city) => {
         const response = await Geocoder.from(`${address}, ${zip}, ${city}`)
         const { lat, lng } = response.results[0].geometry.location
@@ -185,20 +203,13 @@ const Parking = ({ route }) => {
         return new GeoPoint(lat, lng)
     }
 
-
-
-
-
-
-
-
-
     function ParkingButtons(props) {
+        const session = parkingSessions.filter(ses => ses.parkingID == props.id)[0] ?? undefined
         return (
             <View style={{flexDirection: "row", alignItems: "center"}}>
                 <IconButton icon="delete" backgroundColor={theme.colors.errorContainer} iconColor={theme.colors.onErrorContainer} onPress={() => openDelete(props.id)}/>
                 <Button mode="contained" buttonColor={theme.colors.tertiaryContainer} textColor={theme.colors.onTertiaryContainer} onPress={() => openEdit(props.id)}>Edit</Button>
-                <IconButton icon={props.active ?? false ? "pause" : "play"} backgroundColor={theme.colors.primary} iconColor={theme.colors.onPrimary} onPress={() => openSession(props.id)}/>
+                <IconButton icon={session ?? false ? "pause" : "play"} backgroundColor={theme.colors.primary} iconColor={theme.colors.onPrimary} onPress={() => session ? deactivateSession(session.id) : openSession(props.id)}/>
             </View>
         )
     }
@@ -257,7 +268,7 @@ const Parking = ({ route }) => {
                 <Dialog.Title>Start Parking Session</Dialog.Title>
                 <Dialog.Content>
                         <Button mode="contained-tonal" style={styles.dialogInput} onPress={() => setDialog({...openDialog, selectP: true})}>{watchSession("parkingID") ? parkingList.filter(park => park.id == watchSession("parkingID"))[0].Address  : "Select Parking Address"}</Button>
-                        <Input control={sessionForm} right={<TextInput.Affix text={userData?.balance ?? ""} />} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="price" label="Price per Hour" style={styles.dialogInput}/>
+                        <Input control={sessionForm} right={<TextInput.Affix text={"NOK"} />} rules={{required: true, valueAsNumber: true}} keyboardType='numeric' name="price" label="Price per Hour" style={styles.dialogInput}/>
                         <View style={{...styles.dialogInput, display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                             <Text>Start Time:</Text>
                             <View style={{display: "flex", flexDirection: "row"}}>
@@ -323,23 +334,6 @@ const Parking = ({ route }) => {
         )
     }
 
-    function EditDialog() {
-        return (
-                <Dialog visible={openDialog.edit} onDismiss={() => setDialog({...openDialog, edit: false})}>
-                    <Dialog.Title>Edit Parking</Dialog.Title>
-                    <Dialog.Content>
-                            <Input control={editForm} rules={{required: true}} name="Address" label="Address" style={styles.dialogInput}/>
-                            <Input control={editForm} rules={{required: true}} name="City" label="City" style={styles.dialogInput}/>
-                            <Input control={editForm} rules={{required: true}} keyboardType='numeric' name="Zip" label="Zip Code" style={styles.dialogInput}/>
-                    </Dialog.Content>
-                    <Dialog.Actions>
-                        <Button onPress={() => setDialog({...openDialog, edit: false})}>Cancel</Button>
-                        <Button loading={loading} mode='contained' value="submit" onPress={handleEdit(handleEditSubmit)}>Save</Button>
-                    </Dialog.Actions>
-                </Dialog>
-        )
-    }
-
     function DeleteDialog() {
         return (
             <Dialog visible={openDialog.delete} onDismiss={() => setDialog({...openDialog, delete: false})}>
@@ -376,7 +370,7 @@ const Parking = ({ route }) => {
         },
         carName: {
             fontSize: 28,
-            alignSelf: "flex-start",
+            alignSelf: "flex-start"
         },
         carStatus: {
             marginLeft: 20,
@@ -384,7 +378,7 @@ const Parking = ({ route }) => {
             color: theme.colors.primary,
         },
         carPlate: {
-            fontSize: 20,
+            fontSize: 18,
             color: theme.colors.outline,
         },
         dialogInput: {
@@ -400,12 +394,36 @@ const Parking = ({ route }) => {
             height: 56,
         },
     })
+
+    const isToday = (someDate) => {
+        const today = new Date()
+        return someDate.getDate() == today.getDate() &&
+          someDate.getMonth() == today.getMonth() &&
+          someDate.getFullYear() == today.getFullYear()
+      }
+
     const pan = useRef(new Animated.ValueXY()).current;
 
     function RenderCard({item, index}) {
         return (
             <Animated.View
               style={{
+                marginLeft: index == 0 ? pan.x.interpolate({
+                    inputRange: [
+                      index * boxWidth - halfBoxDistance,
+                      (index + 1) * boxWidth - halfBoxDistance, // adjust positioning
+                    ],
+                    outputRange: [halfBoxDistance, 0], // scale down when out of scope
+                    extrapolate: "extend",
+                  }) : 0,
+                marginRight: index == parkingSessions.length - 1 ? pan.x.interpolate({
+                    inputRange: [
+                    (index - 1) * boxWidth - halfBoxDistance,
+                    index * boxWidth - halfBoxDistance,
+                    ],
+                    outputRange: [0, halfBoxDistance], // scale down when out of scope
+                    extrapolate: 'clamp',
+                }) : 0,
                 transform: [
                   {
                     scale: pan.x.interpolate({
@@ -420,18 +438,33 @@ const Parking = ({ route }) => {
                   },
                 ],
               }}>
-              <Surface style={styles.carContainer} elevation={3}>
-                  <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
-                      <View style={{maxWidth: 500}}>
-                          <Text numberOfLines={1} style={styles.carName}>Gatenavn dwqwqfewf  123</Text>
-                          <Text style={styles.carPlate}>Until 18:00</Text>
-                      </View>
-                        <Text style={styles.carStatus}>Active</Text>
-                  </View>
-                  <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
-                      <Text style={{...styles.carPlate, justifyContent: "flex-end"}}>56kr per hour</Text>
-                      <Button style={{width: 90}} mode="contained" onPress={() => console.log("Stop pressed")}>Stop</Button>
-                  </View>
+              <Surface style={{...styles.carContainer}} elevation={3}>
+                {
+                    item.none ? (
+                        <View style={{alignSelf: "stretch", display: "flex", justifyContent: "center", alignContent: "center"}}>
+                            <Text variant="headlineMedium">No Active Parkings</Text>
+                        </View>
+                    ) : (
+                    <>
+                        <View style={{display: "flex", flexDirection: "row", justifyContent: "space-between"}}>
+                        <View style={{maxWidth: "80%"}}>
+                            <Text numberOfLines={1} style={styles.carName}>{item.Address}</Text>
+                            <Text style={styles.carPlate}>Until {item.end_time.toDate().toLocaleTimeString()}</Text>
+                            {!isToday(item.end_time.toDate()) && 
+                            <Text style={styles.carPlate}>
+                                {item.end_time.toDate().toLocaleDateString()}
+                            </Text>}
+                            
+                        </View>
+                            <Text style={styles.carStatus}>Active</Text>
+                        </View>
+                        <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end"}}>
+                            <Text style={{...styles.carPlate, justifyContent: "flex-end"}}>{item.price}kr per hour</Text>
+                            <Button style={{width: 90}} mode="contained" onPress={() => deactivateSession(item.id)}>Stop</Button>
+                        </View>
+                    </>
+                    )
+                }
               </Surface>
             </Animated.View>
         )
@@ -449,33 +482,28 @@ const Parking = ({ route }) => {
             <View>
                 
             <FlatList
-            horizontal
-            data={[{body: () => <Text>Yo</Text>, elevation: 3}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}, {body: () => <IconButton icon="plus"/>, elevation: 0}]}
-            contentContainerStyle={{ paddingTop: 10, paddingBottom: 25  }}
-            contentInsetAdjustmentBehavior="never"
-            snapToAlignment="center"
-            decelerationRate="fast"
-            automaticallyAdjustContentInsets={false}
-            showsHorizontalScrollIndicator={false}
-            showsVerticalScrollIndicator={false}
-            scrollEventThrottle={2}
-            renderItem={RenderCard}
-            snapToInterval={boxWidth}
-            contentInset={{
-              left: -halfBoxDistance,
-              right: halfBoxDistance,
-            }}
-            contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
-            onLayout={(e) => {
-              setScrollViewWidth(e.nativeEvent.layout.width);
-            }}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: pan.x } } }],
-              {
-                useNativeDriver: false,
-              },
-            )}
-            keyExtractor={(item, index) => `${index}-${item}`}/>
+                horizontal
+                data={parkingSessions.length ? parkingSessions : [{none: true}]}
+                contentContainerStyle={{ paddingTop: 10, paddingBottom: 25  }}
+                contentInsetAdjustmentBehavior="never"
+                snapToAlignment="center"
+                decelerationRate="fast"
+                automaticallyAdjustContentInsets={false}
+                showsHorizontalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
+                scrollEventThrottle={2}
+                snapToInterval={boxWidth}
+                onLayout={(e) => {
+                setScrollViewWidth(e.nativeEvent.layout.width);
+                }}
+                onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: pan.x } } }], {
+                    useNativeDriver: false,
+                },
+                )}
+                keyExtractor={(item, index) => `${index}-${item}`}
+                renderItem={RenderCard}
+            />
             </View>
             <ScrollView style={{paddingBottom: 100}}>
                 {parkingList.length ? parkingList.map(parking => 
@@ -498,8 +526,6 @@ const Parking = ({ route }) => {
             </View>
 
             <AddDialog/>
-
-            <EditDialog/>
 
             <DeleteDialog/>
 

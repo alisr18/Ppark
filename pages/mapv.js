@@ -286,8 +286,14 @@ const Map = () => {
                         listView: styles.listView,
                         textInputContainer: styles.textInputContainer,
                         row: styles.row,
-                        predefinedPlacesDescription: styles.predefinedPlacesDescription,
-                        separator: styles.separator,
+                        
+                        description: {
+                            color: theme.colors.onSurface,
+                        },
+                        separator: {
+                            height: 1,
+                            backgroundColor: theme.colors.onSurfaceDisabled,
+                        },
                     }}
                     renderRightButton={() => (
                         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
@@ -382,13 +388,7 @@ const styleSheet = (theme) => StyleSheet.create({
         right: 20,
     },
     row: {
-        backgroundColor: theme.colors.surface
-    },
-    separator: {
-        height: 1,
-      backgroundColor: theme.colors.onSurfaceDisabled,
-    },
-    predefinedPlacesDescription: {
         color: theme.colors.onSurface,
-    }
+        backgroundColor: theme.colors.elevation.level5
+    },
 });

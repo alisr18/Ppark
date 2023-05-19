@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from "react";
 import {View, StyleSheet, Image, TouchableOpacity, ScrollView} from "react-native";
 import { Button, TextInput, Text, Avatar, Card, Surface, List, Dialog } from "react-native-paper";
-import {useNavigation } from '@react-navigation/native';
+import {useIsFocused, useNavigation } from '@react-navigation/native';
 import {ThemeContext, UserContext} from "../App";
 import {auth, db} from "../firebaseConfig";
 import {collection, doc, getDoc, getDocs, query, updateDoc, where} from "firebase/firestore";
@@ -17,12 +17,48 @@ export default function Profile() {
 
     const { user, userData, getUserData, logout } = useContext(AuthContext);
 
+    const isFocused = useIsFocused()
 
     const theme = useContext(ThemeContext)
 
     const color3 = theme.colors.background;
 
     const navigation = useNavigation();
+
+    const [currentOrder, setCurrentOrder] = useState()
+
+    const [timerCount, setTimer] = useState()
+
+    useEffect(() => {
+        (async () => {
+            if (Platform.OS !== 'web') {
+                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+                if (status !== 'granted') {
+                    alert('Sorry, we need camera roll permissions to make this work!');
+                }
+            }
+        })();
+        let interval = setInterval(() => {
+            setTimer(lastTimerCount => {
+                if (lastTimerCount == 0) {
+                    //your redirection to Quit screen
+                } else {
+                    lastTimerCount <= 1 && clearInterval(interval)
+                    return lastTimerCount - 1
+                }
+            })
+        }, 1000) //each count lasts for a second
+        //cleanup the interval on complete
+        return () => clearInterval(interval)
+    }, []);
+
+    useEffect(() => {
+        console.log()
+        if (currentOrder?.endDate){
+            const secondsRemaining = ~~((currentOrder.endDate.toDate() - new Date())/1000)
+            if (secondsRemaining > 0) setTimer(secondsRemaining)
+        }
+    }, [currentOrder])
 
     const handlePress = (page) => {
         navigation.navigate(page);
@@ -37,23 +73,16 @@ export default function Profile() {
         )
     }
 
-
     useEffect(() => {
-        getUserData()
-    }, [])
-
-    useEffect(() => {
-        if(user) {
+        if(user && isFocused) {
+            getUserData()
             getParkingOrder()
         }
-    }, [user])
-
-
-    const [profilePictureURL, setProfilePictureURL] = useState("");
+    }, [user, isFocused])
 
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [image, setImage] = useState(null);
-    let balanceValue = userData?.balance ? userData.balance.toString() : '';
+
+    let balanceValue = userData?.balance ? userData.balance.toFixed(2).toString() : '0';
 
     const signOut = async () => {
         try {
@@ -65,20 +94,17 @@ export default function Profile() {
 
     const getParkingOrder = async () => {
         const orderRef = collection(db, "orders")
-        const query = query(orderRef, where("renter", "==", user.uid), where("endDate", ">", new Date()))
-        const order = await getDocs(query)
-        console.log("parking", order.docs.map(v => v.data()))
+        if(orderRef) {
+            const docQuery = query(orderRef, where("renter", "==", user.uid), where("endDate", ">", new Date()))
+            const order = await getDocs(docQuery).catch(e => console.log(e))
+            const orderData = order.docs.map(v => v.data())
+            if(orderData.length) {
+                setCurrentOrder(orderData[0])
+            } else setCurrentOrder(undefined)
+        }
     }
 
     useEffect(() => {
-        (async () => {
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Sorry, we need camera roll permissions to make this work!');
-                }
-            }
-        })();
     }, []);
 
 
@@ -121,6 +147,11 @@ export default function Profile() {
     const closeModal = () => {
         setIsModalVisible(false);
     };
+
+    let hour = ~~(timerCount / 3600)
+    let minutes = ~~((timerCount % 3600) / 60)
+    let seconds = (timerCount % 60)
+
     return (
         <ScrollView>
         <View style={{ padding: 30 }}>
@@ -179,35 +210,54 @@ export default function Profile() {
                 </Surface>
 
                 <Surface style={styles.countdownContainer} elevation={3}>
-                    <View>
-                        <Text style={styles.countdownText1}>Time Remaining:</Text>
-                        <Text
-                            style={{
-                                ...styles.countdownText2,
-                                color: theme.colors.onSurfaceDisabled,
-                            }}
-                        >
-                            Parked at:
-                        </Text>
-                        <Text
-                            style={{
-                                ...styles.countdownText3,
-                                color: theme.colors.onSurface,
-                            }}
-                        >
-                            Gate Veinavn 24
-                        </Text>
-                    </View>
-                    <View style={{ justifyContent: "center" }}>
-                        <Text
-                            style={{
-                                ...styles.countdownTime,
-                                color: theme.colors.primary,
-                            }}
-                        >
-                            25:13
-                        </Text>
-                    </View>
+                    {
+                        currentOrder && timerCount ? (
+                            <>
+                                <View style={{maxWidth: "46%"}}>
+                                    <Text numberOfLines={1} style={styles.countdownText1}>Time Left:</Text>
+                                    <Text
+                                        style={{
+                                            ...styles.countdownText2,
+                                            color: theme.colors.onSurfaceDisabled,
+                                        }}
+                                    >
+                                        Parked at:
+                                    </Text>
+                                    <Text
+                                    numberOfLines={2}
+                                        style={{
+                                            ...styles.countdownText3,
+                                            color: theme.colors.onSurface,
+                                        }}
+                                    >
+                                        {currentOrder.address}
+                                    </Text>
+                                </View>
+                                <View style={{ justifyContent: "center", maxWidth: "54%" }}>
+                                    <Text
+                                    numberOfLines={2}
+                                        style={{
+                                            ...styles.countdownTime,
+                                            color: theme.colors.primary,
+                                        }}
+                                    >
+                                        {
+                                            hour <= 24 ? 
+                                            `${hour > 0 ? hour + ":" : ""}${minutes >= 10 ? minutes : "0" + minutes}:${seconds >= 10 ? seconds : "0" + seconds}`
+                                            : `${~~(hour / 24)} days`
+                                        }
+                                        
+                                    </Text>
+                                </View>
+                            </>
+                            ) : (
+                                <View style={{display: "flex", justifyContent: "center", alignItems: "center", width: "100%"}}>
+                                    <Button mode="contained-tonal" onPress={() => navigation.navigate("Map")}>
+                                        Find Parking
+                                    </Button>
+                                </View>
+                            )
+                    }
                 </Surface>
             </View>
 
@@ -330,6 +380,8 @@ const styles = StyleSheet.create({
         alignSelf: "center",
     },
     countdownContainer: {
+        display: "flex",
+        flex: 2,
         justifyContent: "space-between",
         marginTop: 20,
         height: 150,
@@ -368,23 +420,5 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
-    modalView: {
-        backgroundColor: "white",
-        borderRadius: 12,
-        padding: 30,
-        alignItems: "center",
-        elevation: 5,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    modalTitle: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 15,
-    },
+
 })

@@ -67,7 +67,6 @@ export default function ChatScreen({user, route}) {
         return (
           <InputToolbar
             {...props}
-            
             containerStyle={{
                 backgroundColor: theme.colors.elevation.level5,
                 borderTopWidth: 0,
@@ -75,7 +74,7 @@ export default function ChatScreen({user, route}) {
                 borderRadius: 25,
                 margin: 6
             }}
-            renderComposer={(props) => <Composer textInputStyle={{color: theme.colors.onSurface}} {...props}/>}
+            renderComposer={(props) => <Composer placeholderTextColor={theme.colors.onSurfaceDisabled} textInputStyle={{color: theme.colors.onSurface}} {...props}/>}
             renderSend={(props) => 
                 <Send {...props} containerStyle={{margin: 0, padding: 0, height: "auto"}}>
                     <IconButton icon="magnify"/>
