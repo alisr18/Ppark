@@ -159,6 +159,7 @@ function Booking({ route, navigation }) {
                     <Controller
                         control={sessionForm}
                         name="carID"
+                        defaultValue={active[1] ?? ""}
                         render={({ field: { onChange, value } }) => (
                             <RadioButton.Group onValueChange={onChange} value={value}>
                                 <View>
