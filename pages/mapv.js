@@ -1,10 +1,10 @@
-import React,{useState, useEffect } from 'react';
-import MapView, {PROVIDER_GOOGLE, Marker, Callout} from 'react-native-maps';
+import React,{ useState, useEffect } from 'react';
+import MapView, { PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
 import { GooglePlacesAutocomplete  } from 'react-native-google-places-autocomplete';
-import {Image, StyleSheet, View, Alert, TouchableOpacity, TouchableHighlight} from 'react-native';
-import {googleapikey} from '@env'
+import { Image, StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
+import { googleapikey } from '@env'
 import * as Location from 'expo-location';
-import {useRef} from "react";
+import { useRef } from "react";
 import { db } from "../firebaseConfig";
 import { collection, getDocs, orderBy, query,startAt,endAt } from 'firebase/firestore';
 import { Text, FAB, List, useTheme } from "react-native-paper";
@@ -20,15 +20,12 @@ const geofire = require('geofire-common');
 
 const Map = () => {
 
-
     const theme = useTheme();
     const styles = styleSheet(theme)
-    const [origin, setOrigin] = useState({latitude: 58.3343, longitude: 8.5781, latitudeDelta: 0.1, longitudeDelta: 0.1})
-    const [destination, setDestination] = useState({ latitude: null, longitude: null, latitudeDelta: 0.1, longitudeDelta: 0.1})
     const mapRef = useRef(null)
     const [parkingData, setParkingData] = useState([]);
 
-    const [SearchRegion, setSearchRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
+    const [SearchRegion, setSearchRegion] = useState({latitude: 58.3343, longitude: 8.5781, latitudeDelta: 0.1, longitudeDelta: 0.1});
     const [prevRegion, setPrevRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.1, longitudeDelta: 0.1});
     const [prevZoom, setPrevZoom] = useState(null);
 
@@ -39,18 +36,6 @@ const Map = () => {
         getCurrentLocationPermission()
     }, [])
 
-    useEffect(() => {
-        if (origin !=null || destination!=null) return
-        mapRef?.current?.fitToCoordinates(['origin', 'destination'], {
-            edgePadding: {
-                right: 50,
-                bottom: 50,
-                left: 50,
-                top: 50
-            }
-        })
-    }, [origin, destination])
-
     async function getCurrentLocationPermission() {
         let { status } = await Location.requestForegroundPermissionsAsync()
         if (status !== 'granted') {
@@ -58,8 +43,7 @@ const Map = () => {
             return
         }
         let location = await Location.getCurrentPositionAsync({})
-        setOrigin({ latitude: location.coords.latitude, longitude: location.coords.longitude });
-        setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude });
+        setSearchRegion({ latitude: location.coords.latitude, longitude: location.coords.longitude, latitudeDelta: location.coords.latitudeDelta, longitudeDelta: location.coords.longitudeDelta });
 
 
         mapRef.current.animateToRegion({
@@ -201,8 +185,8 @@ const Map = () => {
                 showsTraffic={true}
                 style={styles.map}
                 initialRegion={{
-                    latitude: origin.latitude,
-                    longitude: origin.longitude,
+                    latitude: SearchRegion.latitude,
+                    longitude: SearchRegion.longitude,
                     latitudeDelta: 0.01,
                     longitudeDelta: 0.01,
                 }}
