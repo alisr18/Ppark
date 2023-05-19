@@ -15,7 +15,7 @@ const color2 = "#357266";
 
 export default function Profile() {
 
-    const { user, userData, getUserData, logout } = useContext(AuthContext);
+    const { user, userData, getUserData } = useContext(AuthContext);
 
     const isFocused = useIsFocused()
 
@@ -83,14 +83,6 @@ export default function Profile() {
     const [isModalVisible, setIsModalVisible] = useState(false);
 
     let balanceValue = userData?.balance ? userData.balance.toFixed(2).toString() : '0';
-
-    const signOut = async () => {
-        try {
-            logout();
-        } catch (error) {
-            console.log(error);
-        }
-    };
 
     const getParkingOrder = async () => {
         const orderRef = collection(db, "orders")
@@ -311,28 +303,6 @@ export default function Profile() {
                     title="Settings"
                 />
             </TouchableOpacity>
-
-            <TouchableOpacity style={styles.listButton} onPress={() => handlePress("History")}>
-                <List.Item
-                    left={(props) => <List.Icon
-                        icon="history"
-                        {...props}
-                    />}
-                    right={() => <MenuArrow/>}
-                    title="History"
-                />
-            </TouchableOpacity>
-
-    <TouchableOpacity style={styles.listButton} onPress={signOut}>
-        <List.Item
-            left={(props) => <List.Icon
-                icon="logout"
-                {...props}
-            />}
-            right={() => <MenuArrow/>}
-            title="Sign out"
-        />
-    </TouchableOpacity>
         </View>
 
     <Dialog

@@ -3,9 +3,12 @@ import { View, StyleSheet, StatusBar } from "react-native";
 import { IconButton, Text, List, ToggleButton, Appbar, SegmentedButtons } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { SelectedThemeContext, ThemeContext } from "../App";
+import { AuthContext } from "../authContext";
 
 
 function Settings() {
+
+    const {logout} = useContext(AuthContext)
 
     const theme = useContext(ThemeContext)
 
@@ -14,6 +17,16 @@ function Settings() {
     const navigate = useNavigation();
 
     const [value, setValue] = useState(themeSelect.storedTheme)
+
+    const navigation = useNavigation();
+
+    const signOut = async () => {
+        try {
+            logout();
+        } catch (error) {
+            console.log(error);
+        }
+    };
     
     
     const changeTheme = async (value) => {
@@ -65,9 +78,23 @@ function Settings() {
                     </ToggleButton.Row>
                 )}
             />
-            <List.Item style={styles.list} 
-                title="Second Item"
-                description="..."
+            <List.Item
+                onPress={() => navigation.navigate("History")}
+                right={(props) => <List.Icon
+                    icon="history"
+                    {...props}
+                />}
+                title="History"
+                description="Your history of leasing parking spots"
+            />
+            <List.Item
+            onPress={signOut}
+                right={(props) => <List.Icon
+                    icon="logout"
+                    {...props}
+                />}
+                title="Sign out"
+                description="Sign out of the application"
             />
         </View>
     );

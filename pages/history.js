@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { View, StyleSheet, Text, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { AuthContext } from "../authContext";
-import { IconButton } from "react-native-paper";
+import { Appbar, IconButton } from "react-native-paper";
 import {collection, query, where, getDocs, orderBy} from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { List } from 'react-native-paper';
@@ -68,14 +68,10 @@ const History = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <View style={styles.header}>
-                <IconButton
-                    style={styles.backButton}
-                    icon="arrow-left"
-                    onPress={navigate.goBack}
-                />
-                <Text style={styles.title}>History</Text>
-            </View>
+            <Appbar.Header>
+                <Appbar.BackAction onPress={navigate.goBack} />
+                <Appbar.Content title="History"/>
+            </Appbar.Header>
             {data.length === 0 ? (
                 <Text style={styles.noDataText}>No history data available</Text>
             ) : (
