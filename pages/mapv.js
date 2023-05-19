@@ -146,7 +146,7 @@ const Map = () => {
 
 
             await (getDocs(q).then(res => res.docs.map(doc => {
-                promises.push(doc.data())
+                promises.push({...doc.data(), id: doc.id})
             })));
 
         }

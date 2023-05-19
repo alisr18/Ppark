@@ -4,7 +4,7 @@ import { Button, TextInput, Text, Avatar, Card, Surface, List, Dialog } from "re
 import {useNavigation } from '@react-navigation/native';
 import {ThemeContext, UserContext} from "../App";
 import {auth, db} from "../firebaseConfig";
-import {doc, getDoc, updateDoc} from "firebase/firestore";
+import {collection, doc, getDoc, getDocs, query, updateDoc, where} from "firebase/firestore";
 import { Modal, Platform } from "react-native";
 import * as ImagePicker from 'expo-image-picker';
 import {ref, uploadBytes, getDownloadURL, getStorage} from "firebase/storage";
@@ -38,6 +38,17 @@ export default function Profile() {
     }
 
 
+    useEffect(() => {
+        getUserData()
+    }, [])
+
+    useEffect(() => {
+        if(user) {
+            getParkingOrder()
+        }
+    }, [user])
+
+
     const [profilePictureURL, setProfilePictureURL] = useState("");
 
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -52,6 +63,12 @@ export default function Profile() {
         }
     };
 
+    const getParkingOrder = async () => {
+        const orderRef = collection(db, "orders")
+        const query = query(orderRef, where("renter", "==", user.uid), where("endDate", ">", new Date()))
+        const order = await getDocs(query)
+        console.log("parking", order.docs.map(v => v.data()))
+    }
 
     useEffect(() => {
         (async () => {
@@ -63,8 +80,6 @@ export default function Profile() {
             }
         })();
     }, []);
-
-
 
 
     // Function to open image picker and upload the selected image

@@ -99,7 +99,7 @@ const Parking = ({ route }) => {
 
     const addParkingSession = async (parking) => {
         setLoading(true)
-        parking_spot = parkingList.filter(park => park.id == parking.parkingID)[0]
+        const parking_spot = parkingList.filter(park => park.id == parking.parkingID)[0]
         const new_doc = {
             geohash: parking_spot.geohash,
             latitude: parking_spot.latitude,
@@ -228,6 +228,7 @@ const Parking = ({ route }) => {
                     <Controller
                     control={sessionForm}
                     name="parkingID"
+                    rules={{required: true}}
                     render={({ field: { onChange, value } }) => (
                         <RadioButton.Group onValueChange={onChange} value={value}>
                             {
